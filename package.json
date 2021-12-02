@@ -1,0 +1,30 @@
+{
+ "scripts": {
+  "start-info": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && export RUST_LOG=info && cargo run",
+  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && export RUST_LOG=debug && cargo run",
+  "frontend-dev": "snowpack dev",
+  "build": "if [ ! -d node_modules ]; then npm install; fi && cargo clippy --lib --release --target wasm32-unknown-unknown && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && cargo clippy --release && cargo build --release",
+  "outdated-rs-deps": "cargo update --dry-run",
+  "update-rs-deps": "cargo update",
+  "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install",
+  "test": "web-test-runner \"src-frontend/**/*.test.{svelte,js,ts}\"",
+  "test-ci": "cargo run --release & sleep 2 && web-test-runner \"src-frontend/**/*.test.{svelte,js,ts}\""
+ },
+ "devDependencies": {
+  "@emily-curry/snowpack-plugin-wasm-pack": "^1",
+  "@snowpack/plugin-postcss": "^1",
+  "@snowpack/plugin-svelte": "^3",
+  "@snowpack/web-test-runner-plugin": "^0.2",
+  "@testing-library/svelte": "^3",
+  "@web/test-runner": "^0.13",
+  "audit-ci": "^5",
+  "autoprefixer": "^10",
+  "chai": "^4",
+  "postcss": "^8",
+  "snowpack": "^3",
+  "svelte": "^3",
+  "svelte-check": "^2",
+  "tailwindcss": "^2"
+ },
+ "dependencies": {}
+}
