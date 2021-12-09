@@ -28,6 +28,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
+ let status = self_update::backends::github::Update::configure()
+  .repo_owner("trevyn")
+  .repo_name("turbo")
+  .bin_name("turbo-linux")
+  .show_download_progress(true)
+  // .current_version(cargo_crate_version!())
+  .build()?
+  .update()?;
+ println!("Update status: `{}`!", status.version());
+
  match (opts.domain, opts.key_path, opts.cert_path) {
   (Some(domain), None, None) => {
    let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", &domain)?;
