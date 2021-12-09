@@ -5,6 +5,8 @@ use clap::Parser;
 #[derive(clap::Parser)]
 struct Opts {
  #[clap(short, long)]
+ domain: Option<String>,
+ #[clap(short, long)]
  cert_path: Option<String>,
  #[clap(short, long)]
  key_path: Option<String>,
@@ -13,7 +15,7 @@ struct Opts {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
  #[derive(rust_embed::RustEmbed)]
  #[folder = "build"]
  struct Frontend;
@@ -26,8 +28,18 @@ async fn main() {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
- match (opts.key_path, opts.cert_path) {
-  (Some(key_path), Some(cert_path)) => {
+ match (opts.domain, opts.key_path, opts.cert_path) {
+  (Some(domain), None, None) => {
+   let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", &domain)?;
+   eprintln!("Serving HTTPS on port {}", opts.port);
+   warp::serve(turbocharger::warp_routes(Frontend))
+    .tls()
+    .cert_path(cert_paths.fullchain)
+    .key_path(cert_paths.privkey)
+    .run(([0, 0, 0, 0], opts.port))
+    .await;
+  }
+  (None, Some(key_path), Some(cert_path)) => {
    eprintln!("Serving HTTPS on port {}", opts.port);
    warp::serve(turbocharger::warp_routes(Frontend))
     .tls()
@@ -36,11 +48,13 @@ async fn main() {
     .run(([0, 0, 0, 0], opts.port))
     .await;
   }
-  (None, None) => {
+  (None, None, None) => {
    eprintln!("Serving (unsecured) HTTP on port {}", opts.port);
    opener::open(format!("http://127.0.0.1:{}", opts.port)).ok();
    warp::serve(turbocharger::warp_routes(Frontend)).run(([0, 0, 0, 0], opts.port)).await;
   }
-  _ => eprintln!("Both key-path and cert-path must be specified for HTTPS."),
+  _ => eprintln!("Either domain or both of key-path and cert-path must be specified for HTTPS."),
  }
+
+ Ok(())
 }
