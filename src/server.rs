@@ -37,16 +37,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .unwrap()
     .fetch()
     .unwrap();
-   println!("found releases:");
-   println!("{:#?}\n", releases);
+   // println!("found releases:");
+   // println!("{:#?}\n", releases);
 
    // get the first available release
    let asset = releases[0].asset_for(&self_update::get_target()).unwrap();
 
+   dbg!(&releases[0]);
+
    let tmp_dir =
     tempfile::Builder::new().prefix("self_update").tempdir_in(::std::env::current_dir()?)?;
    let tmp_file_path = tmp_dir.path().join(&asset.name);
-   let tmp_file = ::std::fs::File::open(&tmp_file_path)?;
+   let tmp_file = ::std::fs::File::create(&tmp_file_path)?;
 
    self_update::Download::from_url(&asset.download_url)
     .set_header(reqwest::header::ACCEPT, "application/octet-stream".parse()?)
