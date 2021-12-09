@@ -84,7 +84,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./ubuntu-latest-stable/${{ github.event.repository.name }}
-          asset_name: ${{ github.event.repository.name }}-linux
+          asset_name: ${{ github.event.repository.name }}-x86_64-unknown-linux-gnu
           asset_content_type: application/octet-stream
 
       - uses: actions/upload-release-asset@v1
@@ -93,5 +93,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./macos-11.0-stable/${{ github.event.repository.name }}
-          asset_name: ${{ github.event.repository.name }}-macos
+          asset_name: ${{ github.event.repository.name }}-x86_64-apple-darwin
           asset_content_type: application/octet-stream
