@@ -1,4 +1,5 @@
 use turbocharger::backend;
+#[allow(unused_imports)]
 use turbosql::{select, Turbosql};
 use wasm_bindgen::prelude::*;
 
