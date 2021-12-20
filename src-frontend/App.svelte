@@ -11,10 +11,18 @@
  })();
 </script>
 
-Hello!<br />
-
+Hello!
+<br />
 {#await backend.get_person(1n) then person}
  Name: {person.name}
+{:catch error}
+ Error: {error}
+{/await}
+<br />
+{#await backend.getblockchaininfo()}
+ loading...
+{:then info}
+ info: {info}
 {:catch error}
  Error: {error}
 {/await}
