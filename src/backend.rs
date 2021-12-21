@@ -1,3 +1,4 @@
+use anyhow::Context;
 use turbocharger::backend;
 #[allow(unused_imports)]
 use turbosql::{select, Turbosql};
@@ -21,11 +22,11 @@ async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
 }
 
 #[backend]
-async fn getblockchaininfo() -> Result<String, reqwest::Error> {
- let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie").unwrap();
+async fn getblockchaininfo() -> Result<String, anyhow::Error> {
+ let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
  let mut cookie_iter = cookie.split(":");
- let username = cookie_iter.next().unwrap();
- let password = cookie_iter.next().unwrap();
+ let username = cookie_iter.next().context("no username")?;
+ let password = cookie_iter.next().context("no password")?;
 
  let client = reqwest::Client::new();
  let res = client
@@ -35,6 +36,6 @@ async fn getblockchaininfo() -> Result<String, reqwest::Error> {
   .send()
   .await?
   .text()
-  .await;
- res
+  .await?;
+ Ok(res)
 }
