@@ -29,7 +29,7 @@ wasm-bindgen-futures = "0.4"
 # dependencies for server only
 blst = "0.3"
 certbot = "0.1"
-clap = {version = "=3.0.0-rc.8", features = ["derive"]}
+clap = {version = "=3.0.0-rc.9", features = ["derive"]}
 log = "0.4"
 opener = "0.5"
 pretty_env_logger = "0.4"
