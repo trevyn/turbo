@@ -1,5 +1,6 @@
 <script>
  import * as backend from "./turbocharger_generated";
+ import { fade } from "svelte/transition";
 
  (async () => {
   let person = Object.assign(new backend.Person(), { name: "Bob" });
@@ -16,13 +17,13 @@
   You find yourself in a dark room. You can barely make out a blockchain in the
   corner.
  </p>
- <p>"Psst," it says.</p>
- <p>
+ <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p>
+ <p in:fade={{ delay: 4000, duration: 2000 }}>
   "My height is
   {#await backend.getblockchaininfo()}...{:then info}{JSON.parse(info).result
     .blocks}{:catch error}... actually, I'm not really sure. {error}{/await}."
  </p>
- <p>
+ <p in:fade={{ delay: 7000, duration: 2000 }}>
   "Are you
   {#await backend.get_person(1n)}...{:then person}{person.name}{:catch error}{error}{/await}?"
  </p>
