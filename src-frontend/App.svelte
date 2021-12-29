@@ -11,18 +11,19 @@
  })();
 </script>
 
-Hello!
-<br />
-{#await backend.get_person(1n) then person}
- Name: {person.name}
-{:catch error}
- Error: {error}
-{/await}
-<br />
-{#await backend.getblockchaininfo()}
- loading...
-{:then info}
- info: {info}
-{:catch error}
- Error: {error}
-{/await}
+<div class="p-5">
+ <p>
+  You find yourself in a dark room. You can barely make out a blockchain in the
+  corner.
+ </p>
+ <p>"Psst," it says.</p>
+ <p>
+  "My height is
+  {#await backend.getblockchaininfo()}...{:then info}{JSON.parse(info).result
+    .blocks}{:catch error}... actually, I'm not really sure. {error}{/await}."
+ </p>
+ <p>
+  "Are you
+  {#await backend.get_person(1n)}...{:then person}{person.name}{:catch error}{error}{/await}?"
+ </p>
+</div>
