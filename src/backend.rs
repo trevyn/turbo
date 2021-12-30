@@ -1,5 +1,4 @@
 use turbocharger::backend;
-use wasm_bindgen::prelude::*;
 
 #[backend]
 use {anyhow::Context, blst::min_sig::*, turbosql::select};
