@@ -19,12 +19,15 @@
  </p>
  <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p>
  <p in:fade={{ delay: 4000, duration: 2000 }}>
-  "My height is
+  "My secret key is
+  {#await backend.get_new_secret_key()}...{:then info}{info}{:catch error}...
+   actually, I'm not really sure. {error}{/await}."
+  <!-- "My height is
   {#await backend.getblockchaininfo()}...{:then info}{JSON.parse(info).result
-    .blocks}{:catch error}... actually, I'm not really sure. {error}{/await}."
+    .blocks}{:catch error}... actually, I'm not really sure. {error}{/await}." -->
  </p>
- <p in:fade={{ delay: 7000, duration: 2000 }}>
+ <!-- <p in:fade={{ delay: 7000, duration: 2000 }}>
   "Are you
   {#await backend.get_person(1n)}...{:then person}{person.name}{:catch error}{error}{/await}?"
- </p>
+ </p> -->
 </div>
