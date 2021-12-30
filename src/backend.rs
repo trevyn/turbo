@@ -1,11 +1,11 @@
-use anyhow::Context;
 use turbocharger::backend;
-#[allow(unused_imports)]
-use turbosql::{select, Turbosql};
 use wasm_bindgen::prelude::*;
 
 #[backend]
-#[derive(Turbosql)]
+use {anyhow::Context, blst::min_sig::*, turbosql::select};
+
+#[backend]
+#[derive(turbosql::Turbosql)]
 pub struct Person {
  pub rowid: Option<i64>,
  pub name: Option<String>,
