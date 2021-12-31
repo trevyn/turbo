@@ -1,12 +1,18 @@
 #[turbocharger::backend]
 mod backend {
- use anyhow::Context;
- use blst::min_sig::*;
- use rand::{RngCore, SeedableRng};
- use rand_chacha::ChaCha20Rng;
- use turbosql::select;
 
- #[derive(turbosql::Turbosql)]
+ use turbosql::Turbosql;
+
+ #[turbocharger::server_only]
+ use {
+  anyhow::Context,
+  blst::min_sig::*,
+  rand::{RngCore, SeedableRng},
+  rand_chacha::ChaCha20Rng,
+  turbosql::select,
+ };
+
+ #[derive(Turbosql)]
  pub struct Person {
   pub rowid: Option<i64>,
   pub name: Option<String>,
