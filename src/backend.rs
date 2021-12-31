@@ -18,16 +18,17 @@ mod backend {
   pub name: Option<String>,
  }
 
- async fn insert_person(p: Person) -> Result<i64, turbosql::Error> {
+ pub async fn insert_person(p: Person) -> Result<i64, turbosql::Error> {
   p.insert() // returns rowid
  }
 
- async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
+ pub async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
   select!(Person "WHERE rowid = ?", rowid)
  }
 
- async fn get_new_secret_key() -> Result<String, anyhow::Error> {
-  let seed = [0u8; 32];
+ pub async fn get_new_secret_key() -> Result<String, anyhow::Error> {
+  let mut seed = [0u8; 32];
+  rand::rngs::OsRng.fill_bytes(&mut seed);
   let mut rng = ChaCha20Rng::from_seed(seed);
 
   let mut ikm = [0u8; 32];
@@ -52,7 +53,7 @@ mod backend {
   Ok(hex::encode(sk.to_bytes()))
  }
 
- async fn getblockchaininfo() -> Result<String, anyhow::Error> {
+ pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
   let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
   let mut cookie_iter = cookie.split(":");
   let username = cookie_iter.next().context("no username")?;
