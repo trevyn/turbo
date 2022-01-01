@@ -1,18 +1,10 @@
 mod backend;
 
-use clap::Parser;
-
-#[derive(clap::Parser)]
-struct Opts {
- #[clap(short, long)]
- domain: Option<String>,
- #[clap(short, long)]
- cert_path: Option<String>,
- #[clap(short, long)]
- key_path: Option<String>,
- #[clap(short, long, default_value = "8080")]
- port: u16,
-}
+gflags::define!(-d, --domain: &str);
+gflags::define!(-c, --cert_path: &str);
+gflags::define!(-k, --key_path: &str);
+gflags::define!(-p, --port: u16 = 8080);
+gflags::define!(-h, --help = false);
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,7 +13,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  struct Frontend;
 
  pretty_env_logger::init_timed();
- let opts = Opts::parse();
+ gflags::parse();
+
+ if HELP.flag {
+  gflags::print_help_and_exit(0);
+ }
 
  log::warn!("warn enabled");
  log::info!("info enabled");
@@ -62,30 +58,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  .await
  .ok();
 
- match (opts.domain, opts.key_path, opts.cert_path) {
-  (Some(domain), None, None) => {
-   let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", &domain)?;
-   eprintln!("Serving HTTPS on port {}", opts.port);
+ match (DOMAIN.is_present(), KEY_PATH.is_present(), CERT_PATH.is_present()) {
+  (true, false, false) => {
+   let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", DOMAIN.flag)?;
+   eprintln!("Serving HTTPS on port {}", PORT.flag);
    warp::serve(turbocharger::warp_routes(Frontend))
     .tls()
     .cert_path(cert_paths.fullchain)
     .key_path(cert_paths.privkey)
-    .run(([0, 0, 0, 0], opts.port))
+    .run(([0, 0, 0, 0], PORT.flag))
     .await;
   }
-  (None, Some(key_path), Some(cert_path)) => {
-   eprintln!("Serving HTTPS on port {}", opts.port);
+  (false, true, true) => {
+   eprintln!("Serving HTTPS on port {}", PORT.flag);
    warp::serve(turbocharger::warp_routes(Frontend))
     .tls()
-    .cert_path(cert_path)
-    .key_path(key_path)
-    .run(([0, 0, 0, 0], opts.port))
+    .cert_path(CERT_PATH.flag)
+    .key_path(KEY_PATH.flag)
+    .run(([0, 0, 0, 0], PORT.flag))
     .await;
   }
-  (None, None, None) => {
-   eprintln!("Serving (unsecured) HTTP on port {}", opts.port);
-   opener::open(format!("http://127.0.0.1:{}", opts.port)).ok();
-   warp::serve(turbocharger::warp_routes(Frontend)).run(([0, 0, 0, 0], opts.port)).await;
+  (false, false, false) => {
+   eprintln!("Serving (unsecured) HTTP on port {}", PORT.flag);
+   opener::open(format!("http://127.0.0.1:{}", PORT.flag)).ok();
+   warp::serve(turbocharger::warp_routes(Frontend)).run(([0, 0, 0, 0], PORT.flag)).await;
   }
   _ => eprintln!("Either domain or both of key-path and cert-path must be specified for HTTPS."),
  }

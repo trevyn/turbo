@@ -29,7 +29,7 @@ wasm-bindgen-futures = "0.4"
 # dependencies for server only
 blst = "0.3"
 certbot = "0.1"
-clap = {version = "3", features = ["derive"]}
+gflags = "0.3"
 hex = "0.4"
 log = "0.4"
 opener = "0.5"
@@ -41,9 +41,11 @@ rust-embed = "6"
 self_update = "0.28"
 tempfile = "3"
 tokio = {version = "1", features = ["full"]}
+turbonet = "0.1"
 warp = {version = "0.3", features = ["tls"]}
 
 [patch.crates-io]
-# turbocharger = {path = "../turbocharger/turbocharger"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
+turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
+# turbonet = {path = "../turbonet"}
 # turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}

@@ -1,4 +1,5 @@
 #!/bin/bash
+# This will configure a new Ubuntu 20.04 server for development.
 /bin/bash <<EOF
 set -ex
 apt update
@@ -14,7 +15,6 @@ chmod 600 /mnt/2GiB.swap
 mkswap /mnt/2GiB.swap
 swapon /mnt/2GiB.swap
 echo '/mnt/2GiB.swap swap swap defaults 0 0' | sudo tee -a /etc/fstab
-curl --ipv4 "https://njal.la/update/?h=test6.turbonet.to&k=key&auto"
 reboot
 EOF
 
