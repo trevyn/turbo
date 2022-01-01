@@ -58,6 +58,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  .await
  .ok();
 
+ tokio::spawn(async move {
+  turbonet::run().await.unwrap();
+ });
+
  match (DOMAIN.is_present(), KEY_PATH.is_present(), CERT_PATH.is_present()) {
   (true, false, false) => {
    let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", DOMAIN.flag)?;

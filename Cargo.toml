@@ -48,4 +48,4 @@ warp = {version = "0.3", features = ["tls"]}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 # turbonet = {path = "../turbonet"}
-# turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
+turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
