@@ -4,13 +4,7 @@ mod backend {
  use turbosql::Turbosql;
 
  #[turbocharger::server_only]
- use {
-  anyhow::Context,
-  blst::min_sig::*,
-  rand::{RngCore, SeedableRng},
-  rand_chacha::ChaCha20Rng,
-  turbosql::select,
- };
+ use {anyhow::Context, turbosql::select};
 
  #[derive(Turbosql)]
  pub struct Person {
@@ -27,30 +21,8 @@ mod backend {
  }
 
  pub async fn get_new_secret_key() -> Result<String, anyhow::Error> {
-  let mut seed = [0u8; 32];
-  rand::rngs::OsRng.fill_bytes(&mut seed);
-  let mut rng = ChaCha20Rng::from_seed(seed);
-
-  let mut ikm = [0u8; 32];
-  rng.fill_bytes(&mut ikm);
-
-  let sk = SecretKey::key_gen(&ikm, &[]).unwrap();
-  let pk = sk.sk_to_pk();
-
-  dbg!(hex::encode(sk.to_bytes()));
-  dbg!(hex::encode(pk.compress()));
-
-  let dst = b"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_";
-  let msg = b"blst is such a blast";
-  let sig = sk.sign(msg, dst, &[]);
-
-  dbg!(hex::encode(sig.compress()));
-
-  let err = sig.verify(true, msg, dst, &[], &pk, true);
-  dbg!(err);
-  assert_eq!(err, blst::BLST_ERROR::BLST_SUCCESS);
-
-  Ok(hex::encode(sk.to_bytes()))
+  turbonet::KeyMaterial::generate_new();
+  Ok("(it's a secret)".to_string())
  }
 
  pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
