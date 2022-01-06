@@ -27,7 +27,7 @@ mod backend {
 
  pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
   let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
-  let mut cookie_iter = cookie.split(":");
+  let mut cookie_iter = cookie.split(':');
   let username = cookie_iter.next().context("no username")?;
   let password = cookie_iter.next().context("no password")?;
 

@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
    // println!("{:#?}\n", releases);
 
    // get the first available release
-   let asset = releases[0].asset_for(&self_update::get_target()).unwrap();
+   let asset = releases[0].asset_for(self_update::get_target()).unwrap();
 
    dbg!(&releases[0]);
 
