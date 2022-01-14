@@ -10,18 +10,16 @@ env:
 
 jobs:
   assign:
-    name: Assign build id
+    name: Assign build_id
     runs-on: ubuntu-latest
     
     steps:
-      - run: echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7} > build_id.txt
-      - run: cat build_id.txt
+      - run: echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7} > build_id
 
-      - name: Upload build id
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
           name: build_id
-          path: build_id.txt
+          path: build_id
 
   checklinks:
     runs-on: ubuntu-latest
@@ -54,7 +52,9 @@ jobs:
         with:
           name: build_id
 
-      - run: cat build_id.txt
+      - run: cat build_id
+
+      - run: echo "BUILD_ID=$(cat build_id)" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
 
@@ -80,22 +80,19 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
       - uses: actions/download-artifact@v2
 
-      - id: vars
-        run: echo "::set-output name=sha::$(echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7})"
+      - run: cat build_id
+
+      - run: echo "BUILD_ID=$(cat build_id)" >> $GITHUB_ENV
 
       - id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.vars.outputs.sha }}
-          release_name: ${{ steps.vars.outputs.sha }}
+          tag_name: ${{ env.BUILD_ID }}
+          release_name: ${{ env.BUILD_ID }}
           draft: false
           prerelease: false
 

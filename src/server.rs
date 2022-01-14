@@ -15,6 +15,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  pretty_env_logger::init_timed();
  gflags::parse();
 
+ dbg!(option_env!("BUILD_ID"));
+
  if HELP.flag {
   gflags::print_help_and_exit(0);
  }
