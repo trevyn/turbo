@@ -53,7 +53,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: build_id
-      - run: cat build_id/build_id.txt
+      - run: cat build_id
 
       - uses: actions/checkout@v2
 
