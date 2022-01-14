@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - run: $(echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7}) > build_id.txt
+      - run: echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7} > build_id.txt
       - run: cat build_id.txt
 
       - name: Upload build id
