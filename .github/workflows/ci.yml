@@ -9,6 +9,20 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  assign:
+    name: Assign build id
+    runs-on: ubuntu-latest
+    
+    steps:
+      - run: $(echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7}) > build_id.txt
+      - run: cat build_id.txt
+
+      - name: Upload build id
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_id
+          path: build_id.txt
+
   checklinks:
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +39,7 @@ jobs:
         run: exit ${{ steps.lychee.outputs.exit_code }}
 
   build:
+    needs: [assign]
     name: build ${{ matrix.os }} rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
 
@@ -35,6 +50,11 @@ jobs:
         rust: [stable, beta, nightly]
 
     steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build_id
+      - run: cat build_id/build_id.txt
+
       - uses: actions/checkout@v2
 
       - uses: hecrj/setup-rust-action@v1
@@ -55,7 +75,7 @@ jobs:
           path: target/release/${{ github.event.repository.name }}
 
   release:
-    needs: [checklinks, build]
+    needs: [assign, checklinks, build]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
