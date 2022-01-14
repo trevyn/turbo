@@ -13,6 +13,9 @@
 </script>
 
 <div class="p-5">
+ <button on:click={async () => console.log(await backend.check_for_updates())}
+  >Check for updates</button
+ >
  <p>
   You find yourself in a dark room. You can barely make out a blockchain in the
   corner.

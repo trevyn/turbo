@@ -26,43 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
- tokio::task::spawn_blocking(move || {
-  let result = move || -> Result<(), Box<dyn ::std::error::Error>> {
-   let releases = self_update::backends::github::ReleaseList::configure()
-    .repo_owner("trevyn")
-    .repo_name("turbo")
-    .build()
-    .unwrap()
-    .fetch()
-    .unwrap();
-   // println!("found releases:");
-   // println!("{:#?}\n", releases);
-
-   // get the first available release
-   let asset = releases[0].asset_for(self_update::get_target()).unwrap();
-
-   dbg!(&releases[0]);
-
-   let tmp_dir =
-    tempfile::Builder::new().prefix("self_update").tempdir_in(::std::env::current_dir()?)?;
-   let tmp_file_path = tmp_dir.path().join(&asset.name);
-   let tmp_file = ::std::fs::File::create(&tmp_file_path)?;
-
-   self_update::Download::from_url(&asset.download_url)
-    .set_header(reqwest::header::ACCEPT, "application/octet-stream".parse()?)
-    .download_to(&tmp_file)?;
-
-   Ok(())
-  }();
-
-  dbg!(result).ok();
- })
- .await
- .ok();
-
- tokio::spawn(async move {
-  turbonet::run().await.unwrap();
- });
+ turbonet::spawn_server().await.unwrap();
 
  match (DOMAIN.is_present(), KEY_PATH.is_present(), CERT_PATH.is_present()) {
   (true, false, false) => {
