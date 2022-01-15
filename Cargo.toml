@@ -47,3 +47,6 @@ turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 # turbonet = {path = "../turbonet"}
 rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
+
+[profile.dev]
+incremental = false # see https://github.com/dtolnay/inventory/issues/24
