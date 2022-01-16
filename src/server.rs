@@ -25,9 +25,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  pretty_env_logger::init_timed();
  gflags::parse();
 
- dbg!(option_env!("BUILD_ID"));
- dbg!(option_env!("BUILD_TIME"));
-
  if HELP.flag {
   gflags::print_help_and_exit(0);
  }
@@ -37,33 +34,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  log::debug!("debug enabled");
  log::trace!("trace enabled");
 
- let flags = if !DOMAIN.is_present()
-  && !CERT_PATH.is_present()
-  && !KEY_PATH.is_present()
-  && !PORT.is_present()
- {
-  // If we have no flags set, use saved flags if we have them.
-  let flags = select!(Option<Flags> "WHERE rowid == 1")?;
-  if let Some(flags) = flags {
-   flags
-  } else {
-   Flags::default()
-  }
- } else {
-  // If we have flags set, use and save them.
-  let flags = Flags {
+ if select!(Option<Flags>)?.is_none() {
+  Flags::default().insert()?;
+ }
+
+ if DOMAIN.is_present() || CERT_PATH.is_present() || KEY_PATH.is_present() || PORT.is_present() {
+  Flags {
    rowid: Some(1),
    domain: if DOMAIN.is_present() { Some(DOMAIN.flag.to_string()) } else { None },
    cert_path: if CERT_PATH.is_present() { Some(CERT_PATH.flag.to_string()) } else { None },
    key_path: if KEY_PATH.is_present() { Some(KEY_PATH.flag.to_string()) } else { None },
    port: if PORT.is_present() { Some(PORT.flag) } else { None },
-  };
-  if flags.update()? == 0 {
-   let flags = Flags { rowid: None, ..flags.clone() };
-   flags.insert()?;
   }
-  flags
+  .update()?;
  };
+
+ let flags = select!(Flags)?;
 
  #[allow(clippy::or_fun_call)]
  turbonet::spawn_server(
@@ -98,6 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   Flags { domain: None, cert_path: None, key_path: None, port, .. } => {
    let port = port.unwrap_or(8080);
    eprintln!("Serving (unsecured) HTTP on port {}", port);
+   eprintln!("Pass `-d server.domain.com` to auto-setup TLS certificate with Let's Encrypt.");
    opener::open(format!("http://127.0.0.1:{}", port)).ok();
    warp::serve(turbocharger::warp_routes(Frontend)).run(([0, 0, 0, 0], port)).await;
   }

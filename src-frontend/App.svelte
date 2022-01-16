@@ -3,12 +3,10 @@
  import { fade } from "svelte/transition";
 
  (async () => {
-  let person = Object.assign(new backend.Person(), { name: "Bob" });
-
+  // let person = Object.assign(new backend.Person(), { name: "Bob" });
   // let person2 = new backend.Person({ name: "bob" });
-
-  let rowid = await backend.insert_person(person);
-  console.log("Inserted rowid ", rowid);
+  // let rowid = await backend.insert_person(person);
+  // console.log("Inserted rowid ", rowid);
  })();
 </script>
 
@@ -21,11 +19,11 @@
   corner.
  </p>
  <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p>
- <p in:fade={{ delay: 4000, duration: 2000 }}>
+ <!-- <p in:fade={{ delay: 4000, duration: 2000 }}>
   "My secret key is
   {#await backend.get_new_secret_key()}...{:then info}{info}{:catch error}...
    actually, I'm not really sure. {error}{/await}."
- </p>
+ </p> -->
  <!-- <p>
   "My height is
   {#await backend.getblockchaininfo()}...{:then info}{JSON.parse(info).result

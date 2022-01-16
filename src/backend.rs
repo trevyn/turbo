@@ -22,11 +22,11 @@ use anyhow::Context;
 //  select!(Person "WHERE rowid = ?", rowid)
 // }
 
-#[backend]
-pub async fn get_new_secret_key() -> Result<String, anyhow::Error> {
- turbonet::KeyMaterial::generate_new();
- Ok("(it's a secret)".to_string())
-}
+// #[backend]
+// pub async fn get_new_secret_key() -> Result<String, anyhow::Error> {
+//  turbonet::KeyMaterial::generate_new();
+//  Ok("(it's a secret)".to_string())
+// }
 
 #[backend]
 pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
