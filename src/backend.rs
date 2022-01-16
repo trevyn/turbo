@@ -1,26 +1,26 @@
 use turbocharger::backend;
 
-use turbosql::Turbosql;
+// use turbosql::Turbosql;
 
 #[turbocharger::server_only]
-use {anyhow::Context, turbosql::select};
+use anyhow::Context;
 
-#[backend]
-#[derive(Turbosql)]
-pub struct Person {
- pub rowid: Option<i64>,
- pub name: Option<String>,
-}
+// #[backend]
+// #[derive(Turbosql)]
+// pub struct Person {
+//  pub rowid: Option<i64>,
+//  pub name: Option<String>,
+// }
 
-#[backend]
-pub async fn insert_person(p: Person) -> Result<i64, turbosql::Error> {
- p.insert() // returns rowid
-}
+// #[backend]
+// pub async fn insert_person(p: Person) -> Result<i64, turbosql::Error> {
+//  p.insert() // returns rowid
+// }
 
-#[backend]
-pub async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
- select!(Person "WHERE rowid = ?", rowid)
-}
+// #[backend]
+// pub async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
+//  select!(Person "WHERE rowid = ?", rowid)
+// }
 
 #[backend]
 pub async fn get_new_secret_key() -> Result<String, anyhow::Error> {
@@ -64,7 +64,7 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
 
   // get the first available release
   // self_update::get_target()
-  let asset = releases[0].asset_for("linux").unwrap();
+  // let asset = releases[0].asset_for("linux").unwrap();
 
   dbg!(&releases[0]);
 

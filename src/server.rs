@@ -26,6 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  gflags::parse();
 
  dbg!(option_env!("BUILD_ID"));
+ dbg!(option_env!("BUILD_TIME"));
 
  if HELP.flag {
   gflags::print_help_and_exit(0);
@@ -64,7 +65,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   flags
  };
 
- turbonet::spawn_server().await.unwrap();
+ #[allow(clippy::or_fun_call)]
+ turbonet::spawn_server(
+  option_env!("BUILD_ID")
+   .unwrap_or(format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default()).as_str()),
+ )
+ .await
+ .unwrap();
 
  match flags {
   Flags { domain: Some(domain), cert_path: None, key_path: None, port, .. } => {
