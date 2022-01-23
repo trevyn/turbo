@@ -36,6 +36,33 @@ jobs:
       - name: Fail if there were link-check errors
         run: exit ${{ steps.lychee.outputs.exit_code }}
 
+  test:
+    name: test ${{ matrix.os }} rust ${{ matrix.rust }}
+    runs-on: ${{ matrix.os }}
+
+    env:
+      RUSTFLAGS: '--cfg turbocharger_test'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-11.0]
+        rust: [stable, beta, nightly]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: ${{ matrix.rust }}
+          components: clippy
+          targets: wasm32-unknown-unknown
+
+      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - run: npm run build
+      - run: npm run test-ci
+
   build:
     needs: [assign]
     name: build ${{ matrix.os }} rust ${{ matrix.rust }}
@@ -45,7 +72,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-11.0]
-        rust: [stable, beta, nightly]
+        rust: [stable]
 
     steps:
       - uses: actions/download-artifact@v2
@@ -69,8 +96,8 @@ jobs:
       - run: npm run build
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
+      - run: npm list --depth=99
       - run: npx audit-ci --low -a 1006899
-      # - run: npm run test-ci
 
       - uses: actions/upload-artifact@v2
         with:
@@ -78,7 +105,7 @@ jobs:
           path: target/release/${{ github.event.repository.name }}
 
   release:
-    needs: [assign, checklinks, build]
+    needs: [assign, checklinks, build, test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
