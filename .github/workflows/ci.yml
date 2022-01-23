@@ -67,6 +67,8 @@ jobs:
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - run: npm run build
+      - run: cargo tree
+      - run: cargo tree --target=wasm32-unknown-unknown
       - run: npx audit-ci --low -a 1006899
       # - run: npm run test-ci
 
