@@ -64,29 +64,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
    let port = port.unwrap_or(443);
    let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", &domain)?;
    eprintln!("Serving HTTPS on port {}", port);
-   warp::serve(turbocharger::warp_routes(Frontend))
-    .tls()
-    .cert_path(cert_paths.fullchain)
-    .key_path(cert_paths.privkey)
-    .run(([0, 0, 0, 0], port))
-    .await;
+   turbocharger::axum_server::serve_tls::<Frontend>(
+    &std::net::SocketAddr::from(([0, 0, 0, 0], port)),
+    std::path::Path::new(&cert_paths.privkey),
+    std::path::Path::new(&cert_paths.fullchain),
+   )
+   .await;
   }
   Flags { domain: None, cert_path: Some(cert_path), key_path: Some(key_path), port, .. } => {
    let port = port.unwrap_or(443);
    eprintln!("Serving HTTPS on port {}", port);
-   warp::serve(turbocharger::warp_routes(Frontend))
-    .tls()
-    .cert_path(cert_path)
-    .key_path(key_path)
-    .run(([0, 0, 0, 0], port))
-    .await;
+   turbocharger::axum_server::serve_tls::<Frontend>(
+    &std::net::SocketAddr::from(([0, 0, 0, 0], port)),
+    std::path::Path::new(&key_path),
+    std::path::Path::new(&cert_path),
+   )
+   .await;
   }
   Flags { domain: None, cert_path: None, key_path: None, port, .. } => {
    let port = port.unwrap_or(8080);
    eprintln!("Serving (unsecured) HTTP on port {}", port);
    eprintln!("Pass `-d server.domain.com` to auto-setup TLS certificate with Let's Encrypt.");
    opener::open(format!("http://127.0.0.1:{}", port)).ok();
-   warp::serve(turbocharger::warp_routes(Frontend)).run(([0, 0, 0, 0], port)).await;
+   turbocharger::axum_server::serve::<Frontend>(&std::net::SocketAddr::from(([0, 0, 0, 0], port)))
+    .await;
   }
   _ => eprintln!("Either domain or both of key-path and cert-path must be specified for HTTPS."),
  }

@@ -17,7 +17,7 @@ path = "src/server.rs"
 [dependencies]
 # dependencies for both server and wasm
 anyhow = "1"
-turbocharger = "0.2"
+turbocharger = {version = "0.2", features = ["full"]}
 turbosql = "0.4"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
@@ -37,18 +37,17 @@ reqwest = "0.11"
 rust-embed = "6"
 self_update = "0.28"
 tempfile = "3"
-tokio = {version = "1", features = ["full"]}
+tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
 turbonet = "0.1"
-warp = {version = "0.3", features = ["tls"]}
 
 [build-dependencies]
 time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
-turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
-turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 # turbonet = {path = "../turbonet"}
 rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
+turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "axum"}
+turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
 [profile.dev]

@@ -10,11 +10,12 @@ env:
 
 jobs:
   assign:
-    name: Assign build_id
+    name: assign build_id
     runs-on: ubuntu-latest
     
     steps:
       - run: echo $(date '+%y%m%d-%H%M')-${GITHUB_SHA:0:7} > build_id
+      - run: cat build_id
 
       - uses: actions/upload-artifact@v2
         with:
