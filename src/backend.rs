@@ -29,6 +29,11 @@ use anyhow::Context;
 // }
 
 #[backend]
+pub async fn heartbeat() -> Result<String, anyhow::Error> {
+ Ok("beat".to_string())
+}
+
+#[backend]
 pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
  let mut cookie_iter = cookie.split(':');
