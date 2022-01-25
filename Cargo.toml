@@ -19,14 +19,15 @@ path = "src/server.rs"
 anyhow = "1"
 turbocharger = {version = "0.2", features = ["full"]}
 turbosql = "0.4"
-wasm-bindgen = "0.2"
-wasm-bindgen-futures = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # dependencies for wasm only
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
+axum = {version = "0.4", features = ["http2"]}
 certbot = "0.1"
 gflags = "0.3"
 hex = "0.4"
