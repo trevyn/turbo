@@ -64,14 +64,14 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
    .unwrap()
    .fetch()
    .unwrap();
-  eprintln!("found releases:");
-  eprintln!("{:#?}\n", releases);
+  // eprintln!("found releases:");
+  // eprintln!("{:#?}\n", releases);
 
   // get the first available release
   // self_update::get_target()
   // let asset = releases[0].asset_for("linux").unwrap();
 
-  dbg!(&releases[0]);
+  // dbg!(&releases[0].version);
 
   // let tmp_dir =
   //  tempfile::Builder::new().prefix("self_update").tempdir_in(::std::env::current_dir()?)?;
@@ -85,7 +85,7 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
   //  .set_header(reqwest::header::ACCEPT, header_value)
   //  .download_to(&tmp_file)?;
 
-  Ok(format!("{:?}", releases))
+  Ok(format!("This: {:?}, Latest: {}", option_env!("BUILD_ID"), releases[0].version))
  })
  .await?;
 
