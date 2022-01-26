@@ -98,7 +98,7 @@ jobs:
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
-      - run: npx audit-ci --low -a 1006899
+      - run: npx audit-ci --low
 
       - uses: actions/upload-artifact@v2
         with:
