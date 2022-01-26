@@ -54,40 +54,58 @@ pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
 
 #[backend]
 pub async fn check_for_updates() -> Result<String, anyhow::Error> {
- let result = tokio::task::spawn_blocking(move || -> Result<String, anyhow::Error> {
-  eprintln!("checking for releases");
+ use anyhow::Context;
+ use std::os::unix::prelude::OpenOptionsExt;
+ use std::os::unix::process::CommandExt;
 
-  let releases = self_update::backends::github::ReleaseList::configure()
-   .repo_owner("trevyn")
-   .repo_name("turbo")
-   .build()
-   .unwrap()
-   .fetch()
-   .unwrap();
-  // eprintln!("found releases:");
-  // eprintln!("{:#?}\n", releases);
+ if option_env!("BUILD_ID").is_none() {
+  return Ok(format!(
+   "Running DEV {}; updates disabled on DEV.",
+   option_env!("BUILD_TIME").unwrap_or_default()
+  ));
+ }
 
-  // get the first available release
-  // self_update::get_target()
-  // let asset = releases[0].asset_for("linux").unwrap();
+ let res = reqwest::Client::builder()
+  .redirect(reqwest::redirect::Policy::none())
+  .build()?
+  .get("https://github.com/trevyn/turbo/releases/latest/download/turbo-x86_64-unknown-linux-gnu")
+  .send()
+  .await?;
 
-  // dbg!(&releases[0].version);
+ anyhow::ensure!(res.status() == 302);
+ let location = res.headers().get(reqwest::header::LOCATION).context("no location header")?;
 
-  // let tmp_dir =
-  //  tempfile::Builder::new().prefix("self_update").tempdir_in(::std::env::current_dir()?)?;
-  // let tmp_file_path = tmp_dir.path().join(&asset.name);
-  // let tmp_file = ::std::fs::File::create(&tmp_file_path)?;
+ let new_version = regex::Regex::new(r"\d{6}-\d{4}-[0-9a-f]{7}")?
+  .captures(location.to_str()?)
+  .context("no release found")?
+  .get(0)
+  .context("no release found")?
+  .as_str();
 
-  // let header_value: Result<reqwest::header::HeaderValue, _> = "application/octet-stream".parse();
-  // let header_value = header_value?;
+ dbg!(std::env::current_exe()?);
 
-  // self_update::Download::from_url(&asset.download_url)
-  //  .set_header(reqwest::header::ACCEPT, header_value)
-  //  .download_to(&tmp_file)?;
+ if option_env!("BUILD_ID").unwrap_or_default() != new_version {
+  let res = reqwest::get(location.to_str()?).await?;
+  let bytes = res.bytes().await?;
+  let current_exe = std::env::current_exe()?;
+  std::fs::remove_file(&current_exe)?;
+  let mut f =
+   std::fs::OpenOptions::new().create(true).write(true).mode(0o700).open(&current_exe)?;
+  std::io::Write::write_all(&mut f, &bytes)?;
+  f.sync_all()?;
 
-  Ok(format!("This: {:?}, Latest: {}", option_env!("BUILD_ID"), releases[0].version))
- })
- .await?;
+  tokio::spawn(async move {
+   tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+   std::process::Command::new(current_exe).exec();
+  });
 
- result
+  return Ok(format!(
+   "Updated from {} to {}, {} bytes, relaunching!",
+   option_env!("BUILD_ID").unwrap_or_default(),
+   new_version,
+   bytes.len()
+  ));
+ }
+
+ Ok(format!("Running {}. Latest is {}.", option_env!("BUILD_ID").unwrap_or_default(), new_version))
 }
