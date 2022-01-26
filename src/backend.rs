@@ -55,8 +55,7 @@ pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
 #[backend]
 pub async fn check_for_updates() -> Result<String, anyhow::Error> {
  use anyhow::Context;
- use std::os::unix::prelude::OpenOptionsExt;
- use std::os::unix::process::CommandExt;
+ use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
  if option_env!("BUILD_ID").is_none() {
   return Ok(format!(
@@ -82,9 +81,9 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
   .context("no release found")?
   .as_str();
 
- dbg!(std::env::current_exe()?);
-
- if option_env!("BUILD_ID").unwrap_or_default() != new_version {
+ if option_env!("BUILD_ID").unwrap_or_default() == new_version {
+  Ok(format!("Running latest! {}", new_version))
+ } else {
   let res = reqwest::get(location.to_str()?).await?;
   let bytes = res.bytes().await?;
   let current_exe = std::env::current_exe()?;
@@ -99,13 +98,11 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
    std::process::Command::new(current_exe).exec();
   });
 
-  return Ok(format!(
+  Ok(format!(
    "Updated from {} to {}, {} bytes, relaunching!",
    option_env!("BUILD_ID").unwrap_or_default(),
    new_version,
    bytes.len()
-  ));
+  ))
  }
-
- Ok(format!("Running {}. Latest is {}.", option_env!("BUILD_ID").unwrap_or_default(), new_version))
 }
