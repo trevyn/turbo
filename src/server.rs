@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   Flags { domain: Some(domain), cert_path: None, key_path: None, port, .. } => {
    let port = port.unwrap_or(443);
    let cert_paths = certbot::get_cert_paths("trevyn-git@protonmail.com", &domain)?;
-   eprintln!("Serving HTTPS on port {}", port);
+   eprintln!("Serving HTTPS on port {} for {}", port, domain);
    turbocharger::axum_server::serve_tls::<Frontend>(
     &std::net::SocketAddr::from(([0, 0, 0, 0], port)),
     std::path::Path::new(&cert_paths.privkey),
