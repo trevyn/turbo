@@ -28,6 +28,7 @@ wasm-bindgen-futures = "0.4"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
 acme-lib = "0.8"
+animal-time = "0.1"
 axum = "0.4"
 gflags = "0.3"
 hex = "0.4"
@@ -45,8 +46,8 @@ turbonet = "0.1"
 time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
-# turbonet = {path = "../turbonet"}
 rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
+# turbocharger = {path = "../turbocharger/turbocharger"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "axum"}
 turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}

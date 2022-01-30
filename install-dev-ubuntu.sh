@@ -19,5 +19,5 @@ reboot
 EOF
 
 # eval $(ssh-agent) && ssh-add
-# rsync -r --exclude 'target' --exclude '.git' --exclude 'node_modules' . root@test6.turbonet.to:turbo
-# npm run start-info -- -- -d test6.turbonet.to -p 443
+# rsync -r --exclude 'target' --exclude '.git' --exclude 'node_modules' . root@test10.turbonet.to:turbodev
+# npm run start-info -- -- -d test10.turbonet.to -p 443

@@ -53,6 +53,23 @@ pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
 }
 
 #[backend]
+pub async fn animal_time() -> String {
+ animal_time::now()
+}
+
+#[backend]
+fn animal_time_stream() -> impl Stream<Item = String> {
+ turbocharger::async_stream::stream! {
+  let mut i = 0;
+  loop {
+   yield format!("{} {}s!!", i, animal_time::now());
+   i += 1;
+   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+  }
+ }
+}
+
+#[backend]
 pub async fn check_for_updates() -> Result<String, anyhow::Error> {
  use anyhow::Context;
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};

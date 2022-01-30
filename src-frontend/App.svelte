@@ -8,14 +8,22 @@
   // let rowid = await backend.insert_person(person);
   // console.log("Inserted rowid ", rowid);
  })();
+
+ let animal_time_stream = backend.animal_time_stream();
 </script>
 
 <div class="p-5">
- {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
-  checking for updates: {error}{/await}
- <!-- <button on:click={async () => console.log(await backend.check_for_updates())}
-  >Check for updates</button
- > -->
+ <p class="text-3xl text-purple-500 font-bold">{$animal_time_stream}</p>
+ <p>
+  {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
+   checking for updates: {error}{/await}
+ </p>
+ <button
+  on:click={() => alert("POOSHED")}
+  class="bg-lime-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+ >
+  POOSH ME
+ </button>
  <p>
   You find yourself in a dark room. You can barely make out a blockchain in the
   corner.
