@@ -126,6 +126,7 @@ jobs:
           release_name: ${{ env.BUILD_ID }}
           draft: false
           prerelease: false
+          generate_release_notes: true
 
       - uses: actions/upload-release-asset@v1
         env:
