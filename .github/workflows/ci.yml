@@ -104,7 +104,13 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
-          path: target/release/${{ github.event.repository.name }}
+          path: |
+            target/release/*
+            !target/release/.fingerprint/*
+            !target/release/build/*
+            !target/release/deps/*
+            !target/release/examples/*
+            !target/release/incremental/*
 
   release:
     needs: [assign, checklinks, build, test]
@@ -118,30 +124,14 @@ jobs:
       - run: echo "BUILD_ID=$(cat build_id/build_id)" >> $GITHUB_ENV
 
       - id: create_release
-        uses: actions/create-release@v1
+        uses: trevyn/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.BUILD_ID }}
-          release_name: ${{ env.BUILD_ID }}
           draft: false
           prerelease: false
           generate_release_notes: true
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-latest-stable/${{ github.event.repository.name }}
-          asset_name: ${{ github.event.repository.name }}-x86_64-unknown-linux-gnu
-          asset_content_type: application/octet-stream
-
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-11.0-stable/${{ github.event.repository.name }}
-          asset_name: ${{ github.event.repository.name }}-x86_64-apple-darwin
-          asset_content_type: application/octet-stream
+          files: |
+            **/*
+            
