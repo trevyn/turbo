@@ -85,7 +85,7 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
  let res = reqwest::Client::builder()
   .redirect(reqwest::redirect::Policy::none())
   .build()?
-  .get("https://github.com/trevyn/turbo/releases/latest/download/turbo-x86_64-unknown-linux-gnu")
+  .get("https://github.com/trevyn/turbo/releases/latest/download/turbo-linux")
   .send()
   .await?;
 

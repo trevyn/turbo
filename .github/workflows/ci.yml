@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: ./**/*.* --verbose --no-progress --exclude-all-private --base="http://127.0.0.1" --headers="accept=text/html" --scheme=http --scheme=https --exclude njal.la
+          args: ./**/*.* --verbose --no-progress --exclude-all-private --base="http://127.0.0.1" --headers="accept=text/html" --scheme=http --scheme=https
 
       - name: Fail if there were link-check errors
         run: exit ${{ steps.lychee.outputs.exit_code }}
@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-11.0]
+        os: [ubuntu-latest, macos-latest]
         rust: [stable, beta, nightly]
 
     steps:
@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-11.0]
+        os: [ubuntu-latest, macos-latest]
         rust: [stable]
 
     steps:
@@ -111,6 +111,10 @@ jobs:
             !target/release/deps/*
             !target/release/examples/*
             !target/release/incremental/*
+            !target/release/*.d
+            !target/release/*.rlib
+            !target/release/*.dylib
+            !target/release/*.so
 
   release:
     needs: [assign, checklinks, build, test]
@@ -123,6 +127,10 @@ jobs:
 
       - run: echo "BUILD_ID=$(cat build_id/build_id)" >> $GITHUB_ENV
 
+      - run: mv macos-latest-stable/$(basename macos-latest-stable/*) $(basename macos-latest-stable/*)-mac
+
+      - run: mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
+
       - id: create_release
         uses: trevyn/action-gh-release@v1
         env:
@@ -134,4 +142,3 @@ jobs:
           generate_release_notes: true
           files: |
             **/*
-            
