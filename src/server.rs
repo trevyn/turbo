@@ -162,6 +162,5 @@ fn request_cert(domain: &str) -> Result<acme_lib::Certificate, acme_lib::Error> 
  log::info!("downloading certificate");
  let cert = ord_cert.download_and_save_cert()?;
  log::info!("certificate downloaded");
- println!("{}", cert.certificate());
  Ok(cert)
 }
