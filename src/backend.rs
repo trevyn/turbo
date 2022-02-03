@@ -90,15 +90,15 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
   .await?;
 
  tracked::ensure!(res.status() == 302);
- let location = res.headers().get(reqwest::header::LOCATION)?;
+ let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
 
  let new_version =
-  regex::Regex::new(r"\d{6}-\d{4}-[0-9a-f]{7}")?.captures(location.to_str()?)?.get(0)?.as_str();
+  regex::Regex::new(r"/releases/download/([a-z]+-[a-z]+)/")?.captures(location)?.get(1)?.as_str();
 
  if option_env!("BUILD_ID").unwrap_or_default() == new_version {
   Ok(format!("Running latest! {}", new_version))
  } else {
-  let res = reqwest::get(location.to_str()?).await?;
+  let res = reqwest::get(location).await?;
   let bytes = res.bytes().await?;
   let current_exe = std::env::current_exe()?;
   std::fs::remove_file(&current_exe)?;
