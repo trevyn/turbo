@@ -30,6 +30,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
  #[folder = "build"]
  struct Frontend;
 
+ if std::env::var_os("RUST_LOG").is_none() {
+  std::env::set_var("RUST_LOG", "info")
+ }
+
  pretty_env_logger::init_timed();
  gflags::parse();
 
