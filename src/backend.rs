@@ -1,9 +1,9 @@
+#[turbocharger::server_only]
+use tracked::tracked;
+
 use turbocharger::backend;
 
 // use turbosql::Turbosql;
-
-#[turbocharger::server_only]
-use anyhow::Context;
 
 // #[backend]
 // #[derive(Turbosql)]
@@ -29,16 +29,17 @@ use anyhow::Context;
 // }
 
 #[backend]
-pub async fn heartbeat() -> Result<String, anyhow::Error> {
+pub async fn heartbeat() -> Result<String, tracked::Error> {
  Ok("beat".to_string())
 }
 
 #[backend]
-pub async fn getblockchaininfo() -> Result<String, anyhow::Error> {
+#[tracked]
+pub async fn getblockchaininfo() -> Result<String, tracked::Error> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
  let mut cookie_iter = cookie.split(':');
- let username = cookie_iter.next().context("no username")?;
- let password = cookie_iter.next().context("no password")?;
+ let username = cookie_iter.next()?;
+ let password = cookie_iter.next()?;
 
  let client = reqwest::Client::new();
  let res = client
@@ -70,8 +71,8 @@ fn animal_time_stream() -> impl Stream<Item = String> {
 }
 
 #[backend]
-pub async fn check_for_updates() -> Result<String, anyhow::Error> {
- use anyhow::Context;
+#[tracked]
+pub async fn check_for_updates() -> Result<String, tracked::Error> {
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
  if option_env!("BUILD_ID").is_none() {
@@ -88,15 +89,11 @@ pub async fn check_for_updates() -> Result<String, anyhow::Error> {
   .send()
   .await?;
 
- anyhow::ensure!(res.status() == 302);
- let location = res.headers().get(reqwest::header::LOCATION).context("no location header")?;
+ tracked::ensure!(res.status() == 302);
+ let location = res.headers().get(reqwest::header::LOCATION)?;
 
- let new_version = regex::Regex::new(r"\d{6}-\d{4}-[0-9a-f]{7}")?
-  .captures(location.to_str()?)
-  .context("no release found")?
-  .get(0)
-  .context("no release found")?
-  .as_str();
+ let new_version =
+  regex::Regex::new(r"\d{6}-\d{4}-[0-9a-f]{7}")?.captures(location.to_str()?)?.get(0)?.as_str();
 
  if option_env!("BUILD_ID").unwrap_or_default() == new_version {
   Ok(format!("Running latest! {}", new_version))

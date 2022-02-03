@@ -1,5 +1,5 @@
 [package]
-authors = ["trevyn <trevyn-git@protonmail.com>"]
+authors = ["The authors"]
 edition = "2021"
 name = "turbo"
 publish = false
@@ -16,7 +16,6 @@ path = "src/server.rs"
 
 [dependencies]
 # dependencies for both server and wasm
-anyhow = "1"
 turbocharger = {version = "0.2", features = ["full"]}
 turbosql = "0.4"
 
@@ -38,8 +37,8 @@ pretty_env_logger = "0.4"
 regex = "1"
 reqwest = "0.11"
 rust-embed = "6"
-tempfile = "3"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
+tracked = "0.1"
 turbonet = "0.1"
 
 [build-dependencies]
