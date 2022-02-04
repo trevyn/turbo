@@ -47,8 +47,19 @@ migrations_append_only = [
   'ALTER TABLE certs ADD COLUMN domain TEXT',
   'ALTER TABLE certs ADD COLUMN cert TEXT',
   'ALTER TABLE certs ADD COLUMN key TEXT',
+  'CREATE TABLE _turbocharger_tls_cert (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE _turbocharger_tls_cert ADD COLUMN server_name TEXT',
+  'ALTER TABLE _turbocharger_tls_cert ADD COLUMN cert TEXT',
+  'ALTER TABLE _turbocharger_tls_cert ADD COLUMN key TEXT',
+  'ALTER TABLE flags ADD COLUMN tls INTEGER',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
+  CREATE TABLE _turbocharger_tls_cert (
+    rowid INTEGER PRIMARY KEY,
+    server_name TEXT,
+    cert TEXT,
+    key TEXT
+  ) STRICT
   CREATE TABLE _turbonet_peer (
     rowid INTEGER PRIMARY KEY,
     ip INTEGER,
@@ -104,9 +115,33 @@ output_generated_schema_for_your_information_do_not_edit = '''
     domain TEXT,
     cert_path TEXT,
     key_path TEXT,
-    port INTEGER
+    port INTEGER,
+    tls INTEGER
   ) STRICT
 '''
+[output_generated_tables_do_not_edit._turbocharger_tls_cert]
+name = '_turbocharger_tls_cert'
+
+[[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
+name = 'server_name'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
+name = 'cert'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
+name = 'key'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
 [output_generated_tables_do_not_edit._turbonet_peer]
 name = '_turbonet_peer'
 
@@ -293,19 +328,9 @@ rust_type = 'Option < i64 >'
 sql_type = 'INTEGER PRIMARY KEY'
 
 [[output_generated_tables_do_not_edit.flags.columns]]
-name = 'domain'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
-
-[[output_generated_tables_do_not_edit.flags.columns]]
-name = 'cert_path'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
-
-[[output_generated_tables_do_not_edit.flags.columns]]
-name = 'key_path'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
+name = 'tls'
+rust_type = 'Option < bool >'
+sql_type = 'INTEGER'
 
 [[output_generated_tables_do_not_edit.flags.columns]]
 name = 'port'
