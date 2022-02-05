@@ -58,7 +58,6 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: ${{ matrix.rust }}
-          components: clippy
           targets: wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v1
@@ -93,7 +92,6 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: ${{ matrix.rust }}
-          components: clippy
           targets: wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v1
