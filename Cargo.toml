@@ -50,5 +50,3 @@ turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
-
-# rebuild
