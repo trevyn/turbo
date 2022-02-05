@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-4vcpu-ubuntu-2004]
+        os: [ubuntu-latest]
         rust: [stable, beta, nightly]
 
     steps:
@@ -78,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-4vcpu-ubuntu-2004]
+        os: [ubuntu-latest]
         rust: [stable]
 
     steps:
@@ -135,7 +135,7 @@ jobs:
 
       # - run: mv macos-latest-stable/$(basename macos-latest-stable/*) $(basename macos-latest-stable/*)-mac
 
-      - run: mv buildjet-4vcpu-ubuntu-2004-stable/$(basename buildjet-4vcpu-ubuntu-2004-stable/*) $(basename buildjet-4vcpu-ubuntu-2004-stable/*)-linux
+      - run: mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
