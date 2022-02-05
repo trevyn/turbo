@@ -65,10 +65,14 @@ jobs:
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - run: npm install
-      - run: cargo build --lib --release --target wasm32-unknown-unknown
+      - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --target wasm32-unknown-unknown
       - run: wasm-pack --log-level warn build --target web --out-dir src-frontend/turbocharger_generated --out-name index
       - run: npx snowpack build
-      - run: npm run test-ci
+      - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
+      - run: |
+          target/release/turbo &
+          sleep 2
+          CARGO_LOG=cargo::core::compiler::fingerprint=info web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
 
   build:
     needs: [assign]
