@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-32vcpu-ubuntu-2004]
+        os: [buildjet-8vcpu-ubuntu-2004]
         rust: [stable, beta, nightly]
 
     steps:
@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-32vcpu-ubuntu-2004]
+        os: [buildjet-8vcpu-ubuntu-2004]
         rust: [stable]
 
     steps:
