@@ -65,6 +65,9 @@ jobs:
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - run: npm install
+      - run: cargo build --lib --release --target wasm32-unknown-unknown
+      - run: wasm-pack --log-level warn build --target web --out-dir src-frontend/turbocharger_generated --out-name index
+      - run: npx snowpack build
       - run: npm run test-ci
 
   build:
