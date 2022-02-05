@@ -11,15 +11,12 @@ env:
 jobs:
   assign:
     name: assign build_id
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     
     steps:
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: stable
-
-      - run: cargo install animal-time
-      - run: animal-time > build_id
+      - run: wget https://github.com/trevyn/animal-time/releases/latest/download/animal-time
+      - run: chmod +x animal-time
+      - run: ./animal-time > build_id
       - run: cat build_id
 
       - uses: actions/upload-artifact@v2
