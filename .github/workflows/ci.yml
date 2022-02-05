@@ -43,9 +43,6 @@ jobs:
     name: test rust ${{ matrix.rust }} ${{ matrix.os }} 
     runs-on: ${{ matrix.os }}
 
-    env:
-      RUSTFLAGS: '--cfg turbocharger_test'
-
     strategy:
       fail-fast: false
       matrix:
@@ -62,7 +59,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: test-1
+          key: test-2
 
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
@@ -105,7 +102,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: build-1
+          key: build-2
 
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
