@@ -72,7 +72,7 @@ jobs:
       - run: |
           target/release/turbo &
           sleep 2
-          CARGO_LOG=cargo::core::compiler::fingerprint=info web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
+          CARGO_LOG=cargo::core::compiler::fingerprint=info npx web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
 
   build:
     needs: [assign]

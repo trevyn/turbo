@@ -1,7 +1,7 @@
 build
 node_modules
-src-frontend/turbocharger_generated
+turbocharger_generated
 target
 Cargo.lock
-**/package-lock.json
+package-lock.json
 .DS_Store
