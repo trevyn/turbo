@@ -112,7 +112,7 @@ jobs:
       - run: npm install
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --target wasm32-unknown-unknown
       - run: npx snowpack build
-      - run: svelte-check
+      - run: npx svelte-check
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
