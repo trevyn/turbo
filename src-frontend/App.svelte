@@ -25,7 +25,7 @@
   PUSH ME
  </button>
  <p>
-  You find yourself in a dark room. You can barely make out a blockchain in the
+  You find yourself in a dark room. You can barely make out a chain in the
   corner.
  </p>
  <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p>
