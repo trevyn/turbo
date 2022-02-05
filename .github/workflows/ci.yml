@@ -120,6 +120,7 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
+            migrations.toml
             target/release/*
             !target/release/.fingerprint/*
             !target/release/build/*
