@@ -11,9 +11,13 @@ env:
 jobs:
   assign:
     name: assign build_id
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     
     steps:
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: stable
+
       - run: cargo install animal-time
       - run: animal-time > build_id
       - run: cat build_id
@@ -48,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-8vcpu-ubuntu-2004]
+        os: [buildjet-4vcpu-ubuntu-2004]
         rust: [stable, beta, nightly]
 
     steps:
@@ -73,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-8vcpu-ubuntu-2004]
+        os: [buildjet-4vcpu-ubuntu-2004]
         rust: [stable]
 
     steps:
@@ -129,7 +133,7 @@ jobs:
 
       # - run: mv macos-latest-stable/$(basename macos-latest-stable/*) $(basename macos-latest-stable/*)-mac
 
-      - run: mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
+      - run: mv buildjet-4vcpu-ubuntu-2004-stable/$(basename buildjet-4vcpu-ubuntu-2004-stable/*) $(basename buildjet-4vcpu-ubuntu-2004-stable/*)-linux
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
