@@ -58,8 +58,9 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: ${{ matrix.rust }}
-          components: clippy
           targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v1
 
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
@@ -91,8 +92,9 @@ jobs:
       - uses: hecrj/setup-rust-action@v1
         with:
           rust-version: ${{ matrix.rust }}
-          components: clippy
           targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v1
 
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
