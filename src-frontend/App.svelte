@@ -19,10 +19,10 @@
    checking for updates: {error}{/await}
  </p>
  <button
-  on:click={() => alert("POOSHED")}
+  on:click={() => alert("PUSHED")}
   class="bg-lime-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
  >
-  POOSH ME
+  PUSH ME
  </button>
  <p>
   You find yourself in a dark room. You can barely make out a blockchain in the
