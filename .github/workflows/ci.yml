@@ -55,16 +55,8 @@ jobs:
         with:
           fetch-depth: 0
           
-      - run: ls -la migrations.toml
-
-      # - run: sudo apt install -y git-restore-mtime
-
-      # - run: git restore-mtime
-
       - run: touch -d @0$(git log --pretty=%at -n1 migrations.toml) migrations.toml
       - run: touch -d @0$(git log --pretty=%at -n1 build.rs) build.rs
-
-      - run: ls -la migrations.toml
 
       - uses: actions/download-artifact@v2
         with:
@@ -87,15 +79,11 @@ jobs:
 
       - run: npm install
       - run: npx audit-ci --low
-      - run: ls -la migrations.toml
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --target wasm32-unknown-unknown
-      - run: ls -la migrations.toml
       - run: wasm-pack --log-level warn build --target web --out-dir src-frontend/turbocharger_generated --out-name index
       - run: npx snowpack build
       - run: npx svelte-check
-      - run: ls -la migrations.toml
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
-      - run: ls -la migrations.toml
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
@@ -119,8 +107,6 @@ jobs:
             !target/release/*.rlib
             !target/release/*.dylib
             !target/release/*.so
-
-      - run: ls -la migrations.toml
 
   release:
     needs: [assign, checklinks, test]
