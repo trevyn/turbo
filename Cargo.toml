@@ -1,6 +1,7 @@
 [package]
 authors = ["The authors"]
 edition = "2021"
+exclude = [".github", ".vscode"]
 name = "turbo"
 publish = false
 version = "0.1.0"
