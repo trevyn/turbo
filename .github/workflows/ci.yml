@@ -57,11 +57,11 @@ jobs:
           
       - run: ls -la migrations.toml
 
-      - run: sudo apt install -y git-restore-mtime
+      # - run: sudo apt install -y git-restore-mtime
 
-      - run: git restore-mtime
+      # - run: git restore-mtime
 
-      # - run: gitmtim(){ local f; for f; do touch -d @0`git log --pretty=%at -n1 -- "$f"` "$f"; done; }; gitmtim migrations.toml
+      - run: touch -d @0$(git log --pretty=%at -n1 migrations.toml) migrations.toml
 
       - run: ls -la migrations.toml
 
