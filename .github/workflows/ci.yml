@@ -34,7 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: ./**/*.* --verbose --no-progress --exclude-all-private --base="http://127.0.0.1" --headers="accept=text/html" --scheme=http --scheme=https --exclude github.com
+          args: ./**/*.* --verbose --no-progress --exclude-all-private --base="http://127.0.0.1" --headers="accept=text/html" --scheme=http --scheme=https
 
       # - name: Fail if there were link-check errors
       #   run: exit ${{ steps.lychee.outputs.exit_code }}
@@ -55,7 +55,11 @@ jobs:
 
       - run: ls -la migrations.toml
 
-      - run: gitmtim(){ local f; for f; do touch -d @0`git log --pretty=%at -n1 -- "$f"` "$f"; done; }; gitmtim migrations.toml
+      - run: sudo apt install -y git-restore-mtime
+
+      - run: git restore-mtime
+
+      # - run: gitmtim(){ local f; for f; do touch -d @0`git log --pretty=%at -n1 -- "$f"` "$f"; done; }; gitmtim migrations.toml
 
       - run: ls -la migrations.toml
 
@@ -76,7 +80,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: test-4
+          key: test-5
 
       - run: npm install
       - run: npx audit-ci --low
