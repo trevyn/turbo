@@ -52,7 +52,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+        with:
+          fetch-depth: 0
+          
       - run: ls -la migrations.toml
 
       - run: sudo apt install -y git-restore-mtime
@@ -80,7 +82,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: test-5
+          key: test-6
 
       - run: npm install
       - run: npx audit-ci --low
