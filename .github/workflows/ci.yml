@@ -98,6 +98,7 @@ jobs:
           CARGO_LOG=cargo::core::compiler::fingerprint=info npx web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.rust == 'stable' }}
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
