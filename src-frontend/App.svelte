@@ -13,14 +13,14 @@
 </script>
 
 <div class="p-5">
- <p class="text-3xl text-purple-500 font-bold">{$animal_time_stream}</p>
+ <p class="text-3xl font-bold text-purple-500">{$animal_time_stream}</p>
  <p>
   {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
    checking for updates: {error}{/await}
  </p>
  <button
   on:click={() => alert("PUSHED")}
-  class="bg-lime-400 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+  class="rounded bg-lime-400 py-2 px-4 font-bold text-white hover:bg-blue-700"
  >
   PUSH ME
  </button>

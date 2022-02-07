@@ -21,6 +21,8 @@
   "autoprefixer": "^10",
   "chai": "^4",
   "postcss": "^8",
+  "prettier": "^2",
+  "prettier-plugin-tailwindcss": "^0.1",
   "snowpack": "^3",
   "svelte": "^3",
   "svelte-check": "^2",
