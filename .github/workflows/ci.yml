@@ -65,6 +65,7 @@ jobs:
       - run: cat build_id
 
       - run: echo "BUILD_ID=$(cat build_id)" >> $GITHUB_ENV
+      - run: echo "BUILD_ADJECTIVE=$(cat build_id | cut -d- -f1)" >> $GITHUB_ENV
 
       - uses: hecrj/setup-rust-action@v1
         with:
@@ -75,7 +76,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: test-7
+          key: ${{ env.BUILD_ADJECTIVE }}
 
       - run: npm install
       - run: npx audit-ci --low
