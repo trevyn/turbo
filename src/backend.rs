@@ -100,6 +100,9 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
  } else {
   let res = reqwest::get(location).await?;
   let bytes = res.bytes().await?;
+  if bytes.len() < 10_000_000 {
+   return Ok(format!("Error, release {} is too small; {} bytes.", new_version, bytes.len()));
+  }
   let current_exe = std::env::current_exe()?;
   std::fs::remove_file(&current_exe)?;
   let mut f =

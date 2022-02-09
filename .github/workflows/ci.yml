@@ -124,9 +124,13 @@ jobs:
 
       # - run: mv macos-latest-stable/$(basename macos-latest-stable/*) $(basename macos-latest-stable/*)-mac
 
-      - run: mv ubuntu-latest-stable/Cargo.lock Cargo.lock
-      - run: mv ubuntu-latest-stable/package-lock.json package-lock.json
-      - run: mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
+      - run: |
+          mv ubuntu-latest-stable/Cargo.lock Cargo.lock
+          mv ubuntu-latest-stable/package-lock.json package-lock.json
+          ls -la ubuntu-latest-stable
+          mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
+          ls -la
+          ls -la ubuntu-latest-stable
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
