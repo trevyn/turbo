@@ -112,7 +112,7 @@ jobs:
             !target/release/*.so
 
   release:
-    needs: [assign, checklinks, test]
+    needs: [assign, test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
