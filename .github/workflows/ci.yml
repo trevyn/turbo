@@ -99,6 +99,8 @@ jobs:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
             target/release/*
+            Cargo.lock
+            package-lock.json
             !target/release/.fingerprint/*
             !target/release/build/*
             !target/release/deps/*
