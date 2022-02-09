@@ -1,6 +1,8 @@
 <script>
  import * as backend from "./turbocharger_generated";
  import { fade } from "svelte/transition";
+ import Tab1 from "./Tab1.svelte";
+ import Tab2 from "./Tab2.svelte";
 
  (async () => {
   // let person = Object.assign(new backend.Person(), { name: "Bob" });
@@ -9,26 +11,50 @@
   // console.log("Inserted rowid ", rowid);
  })();
 
- let animal_time_stream = backend.animal_time_stream();
+ let tab = 1;
 </script>
 
 <div class="p-5">
- <p class="text-3xl font-bold text-purple-500">{$animal_time_stream}</p>
  <p>
   {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
    checking for updates: {error}{/await}
  </p>
- <button
-  on:click={() => alert("PUSHED")}
-  class="rounded bg-lime-400 py-2 px-4 font-bold text-white hover:bg-blue-700"
- >
-  PUSH ME
- </button>
- <p>
+
+ <p class="pt-3">
+  <button
+   on:click={() => {
+    tab = 1;
+   }}
+   class="rounded bg-gray-400 py-2 px-4 font-bold text-white hover:bg-gray-500"
+  >
+   ANIMAL TIME
+  </button>
+
+  <button
+   on:click={() => {
+    tab = 2;
+   }}
+   class="rounded bg-gray-400 py-2 px-4 font-bold text-white hover:bg-gray-500"
+  >
+   TAB2
+  </button>
+ </p>
+
+ <p class="pt-3">
+  {#if tab == 1}
+   <Tab1 />
+  {/if}
+
+  {#if tab == 2}
+   <Tab2 />
+  {/if}
+ </p>
+
+ <!-- <p>
   You find yourself in a dark room. You can barely make out a chain in the
   corner.
  </p>
- <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p>
+ <p in:fade={{ delay: 1000, duration: 2000 }}>"Psst," it says.</p> -->
  <!-- <p in:fade={{ delay: 4000, duration: 2000 }}>
   "My secret key is
   {#await backend.get_new_secret_key()}...{:then info}{info}{:catch error}...

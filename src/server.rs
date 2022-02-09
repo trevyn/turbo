@@ -1,4 +1,5 @@
 mod backend;
+use tracked::tracked;
 use turbosql::{select, Turbosql};
 
 gflags::define!(--tls = false);
@@ -13,7 +14,8 @@ struct Flags {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tracked]
+async fn main() -> Result<(), tracked::Error> {
  #[derive(rust_embed::RustEmbed)]
  #[folder = "build"]
  struct Frontend;

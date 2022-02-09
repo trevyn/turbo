@@ -19,7 +19,8 @@ use turbocharger::backend;
 
 // #[backend]
 // pub async fn get_person(rowid: i64) -> Result<Person, turbosql::Error> {
-//  select!(Person "WHERE rowid = ?", rowid)
+//  select!(Person "WHERE rowid = $rowid")
+//  select!(Person "WHERE rowid = " rowid)
 // }
 
 // #[backend]
@@ -37,20 +38,18 @@ pub async fn heartbeat() -> Result<String, tracked::Error> {
 #[tracked]
 pub async fn getblockchaininfo() -> Result<String, tracked::Error> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
- let mut cookie_iter = cookie.split(':');
- let username = cookie_iter.next()?;
- let password = cookie_iter.next()?;
+ let [username, password]: [&str; 2] = cookie.split(':').collect::<Vec<&str>>().try_into().ok()?;
 
- let client = reqwest::Client::new();
- let res = client
-  .post("http://127.0.0.1:8332")
-  .basic_auth(username, Some(password))
-  .body(r#"{"jsonrpc": "1.0", "id":"curltest", "method": "getblockchaininfo", "params": [] }"#)
-  .send()
-  .await?
-  .text()
-  .await?;
- Ok(res)
+ Ok(
+  reqwest::Client::new()
+   .post("http://127.0.0.1:8332")
+   .basic_auth(username, Some(password))
+   .body(r#"{"jsonrpc": "1.0", "id":"test", "method": "getblockchaininfo", "params": [] }"#)
+   .send()
+   .await?
+   .text()
+   .await?,
+ )
 }
 
 #[backend]
@@ -63,6 +62,7 @@ fn animal_time_stream() -> impl Stream<Item = String> {
  turbocharger::async_stream::stream! {
   let mut i = 0;
   loop {
+   dbg!(i);
    yield format!("{} {}s!!", i, animal_time::now());
    i += 1;
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
