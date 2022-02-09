@@ -128,7 +128,7 @@ jobs:
           mv ubuntu-latest-stable/Cargo.lock Cargo.lock
           mv ubuntu-latest-stable/package-lock.json package-lock.json
           ls -la ubuntu-latest-stable
-          mv ubuntu-latest-stable/$(basename ubuntu-latest-stable/*) $(basename ubuntu-latest-stable/*)-linux
+          mv ubuntu-latest-stable/target/release/$(basename ubuntu-latest-stable/target/release/*) $(basename ubuntu-latest-stable/target/release/*)-linux
           ls -la
           ls -la ubuntu-latest-stable
 
