@@ -112,7 +112,7 @@ jobs:
             !target/release/*.so
 
   release:
-    needs: [assign, test]
+    needs: [assign, checklinks, test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
@@ -127,10 +127,7 @@ jobs:
       - run: |
           mv ubuntu-latest-stable/Cargo.lock Cargo.lock
           mv ubuntu-latest-stable/package-lock.json package-lock.json
-          ls -la ubuntu-latest-stable
           mv ubuntu-latest-stable/target/release/$(basename ubuntu-latest-stable/target/release/*) $(basename ubuntu-latest-stable/target/release/*)-linux
-          ls -la
-          ls -la ubuntu-latest-stable
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
