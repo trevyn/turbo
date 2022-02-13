@@ -24,6 +24,14 @@ async fn main() -> Result<(), tracked::Error> {
   std::env::set_var("RUST_LOG", "info")
  }
 
+ dbg!(option_env!("BUILD_ID"));
+ dbg!(option_env!("BUILD_TIME"));
+
+ let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
+ let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
+
+ tracked::set_build_id(build_id);
+
  pretty_env_logger::init_timed();
  gflags::parse();
 
@@ -46,13 +54,7 @@ async fn main() -> Result<(), tracked::Error> {
 
  let flags = select!(Flags)?;
 
- #[allow(clippy::or_fun_call)]
- turbonet::spawn_server(
-  option_env!("BUILD_ID")
-   .unwrap_or(format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default()).as_str()),
- )
- .await
- .unwrap();
+ turbonet::spawn_server(build_id).await.unwrap();
 
  match flags {
   Flags { tls: Some(true), port, .. } => {
@@ -65,7 +67,7 @@ async fn main() -> Result<(), tracked::Error> {
    let port = port.unwrap_or(8080);
    log::info!("Serving (unsecured) HTTP on port {}", port);
    eprintln!("Serving (unsecured) HTTP on port {}", port);
-   eprintln!("Pass `-d server.domain.com` to auto-setup TLS certificate with Let's Encrypt.");
+   eprintln!("Pass `--tls` to auto-setup TLS certificate with Let's Encrypt.");
    opener::open(format!("http://127.0.0.1:{}", port)).ok();
    turbocharger::serve::<Frontend>(&std::net::SocketAddr::from(([0, 0, 0, 0], port))).await;
   }

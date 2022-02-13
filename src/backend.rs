@@ -63,7 +63,7 @@ fn animal_time_stream() -> impl Stream<Item = String> {
   let mut i = 0;
   loop {
    dbg!(i);
-   yield format!("{} {}s!!", i, animal_time::now());
+   yield format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
    i += 1;
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
@@ -73,6 +73,8 @@ fn animal_time_stream() -> impl Stream<Item = String> {
 #[backend]
 #[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::Error> {
+ // TODO: handle race conditions
+
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
  if option_env!("BUILD_ID").is_none() {
@@ -98,10 +100,13 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
  if option_env!("BUILD_ID").unwrap_or_default() == new_version {
   Ok(format!("Running latest! {}", new_version))
  } else {
-  let res = reqwest::get(location).await?;
-  let bytes = res.bytes().await?;
-  if bytes.len() < 10_000_000 {
-   return Ok(format!("Error, release {} is too small; {} bytes.", new_version, bytes.len()));
+  let bytes = reqwest::get(location).await?.bytes().await?;
+  if bytes.len() < 15_000_000 {
+   tracked::bail!(
+    "Not updating; new release {} is unexpectedly small: {} bytes.",
+    new_version,
+    bytes.len()
+   );
   }
   let current_exe = std::env::current_exe()?;
   std::fs::remove_file(&current_exe)?;
@@ -111,7 +116,7 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
   f.sync_all()?;
 
   tokio::spawn(async move {
-   tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+   tokio::time::sleep(std::time::Duration::from_secs(2)).await;
    std::process::Command::new(current_exe).exec();
   });
 

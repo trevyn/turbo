@@ -36,7 +36,7 @@ regex = "1"
 reqwest = "0.11"
 rust-embed = "6"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
-tracked = "0.1"
+tracked = "0.1.1"
 turbonet = "0.1"
 
 [build-dependencies]

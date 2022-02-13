@@ -52,13 +52,15 @@ migrations_append_only = [
   'ALTER TABLE _turbocharger_tls_cert ADD COLUMN cert TEXT',
   'ALTER TABLE _turbocharger_tls_cert ADD COLUMN key TEXT',
   'ALTER TABLE flags ADD COLUMN tls INTEGER',
+  'ALTER TABLE _turbocharger_tls_cert ADD COLUMN issue_time INTEGER',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
     rowid INTEGER PRIMARY KEY,
     server_name TEXT,
     cert TEXT,
-    key TEXT
+    key TEXT,
+    issue_time INTEGER
   ) STRICT
   CREATE TABLE _turbonet_peer (
     rowid INTEGER PRIMARY KEY,
@@ -131,6 +133,11 @@ sql_type = 'INTEGER PRIMARY KEY'
 name = 'server_name'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
+name = 'issue_time'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
 
 [[output_generated_tables_do_not_edit._turbocharger_tls_cert.columns]]
 name = 'cert'

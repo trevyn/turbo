@@ -1,10 +1,9 @@
 {
  "scripts": {
-  "start-info": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && export RUST_LOG=info && cargo run",
-  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && export RUST_LOG=debug && cargo run",
-  "frontend-dev": "snowpack dev",
+  "start-info": "if [ ! -d node_modules ]; then npm install; fi && { npx snowpack build --watch --hmr --no-bundle > /dev/null & RUST_LOG=info cargo run; }",
+  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && { npx snowpack build --watch --hmr --no-bundle > /dev/null & RUST_LOG=debug cargo run; }",
+  "svelte-check": "npx svelte-check",
   "build": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && cargo build --release",
-  "outdated-rs-deps": "cargo update --dry-run",
   "update-rs-deps": "cargo update",
   "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install",
   "test": "web-test-runner \"src-frontend/**/*.test.{svelte,js,ts}\"",
