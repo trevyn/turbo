@@ -43,6 +43,8 @@ jobs:
     needs: [assign]
     name: test rust ${{ matrix.rust }} ${{ matrix.os }} 
     runs-on: ${{ matrix.os }}
+    env:
+      RUSTFLAGS: -Ctarget-cpu=nehalem
 
     strategy:
       fail-fast: false
