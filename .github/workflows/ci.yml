@@ -43,14 +43,12 @@ jobs:
     needs: [assign]
     name: test rust ${{ matrix.rust }} ${{ matrix.os }} 
     runs-on: ${{ matrix.os }}
-    env:
-      RUSTFLAGS: -Ctarget-cpu=nehalem
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        rust: [stable, beta, nightly-2022-02-08]
+        rust: [stable, beta, nightly]
 
     steps:
       - uses: actions/checkout@v2
@@ -86,7 +84,7 @@ jobs:
       - run: wasm-pack --log-level warn build --target web --out-dir src-frontend/turbocharger_generated --out-name index
       - run: npx snowpack build
       - run: npx svelte-check
-      - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
+      - run: RUSTFLAGS="-Ctarget-cpu=nehalem" CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
