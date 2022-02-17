@@ -74,6 +74,7 @@ fn animal_time_stream() -> impl Stream<Item = String> {
 #[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::Error> {
  // TODO: handle race conditions
+ // also, this seems to block the executor if slow, maybe put it in a spawn_blocking?
 
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
