@@ -96,8 +96,9 @@ jobs:
       - run: npm list --depth=99
       - run: |
           target/release/turbo &
-          sleep 2
-          npx web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
+          sleep 1
+          cd src-frontend
+          npx web-test-runner "**/*.test.{svelte,js,ts}" --node-resolve
 
       - uses: actions/upload-artifact@v2
         if: ${{ matrix.rust == 'stable' }}
