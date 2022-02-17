@@ -1,19 +1,13 @@
 {
  "scripts": {
-  "start-info": "if [ ! -d node_modules ]; then npm install; fi && { npx snowpack build --watch --hmr --no-bundle > /dev/null & RUST_LOG=info cargo run; }",
-  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && { npx snowpack build --watch --hmr --no-bundle > /dev/null & RUST_LOG=debug cargo run; }",
+  "start-info": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=info cargo run; }",
+  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=debug cargo run; }",
   "svelte-check": "npx svelte-check",
-  "build": "if [ ! -d node_modules ]; then npm install; fi && cargo build --lib --release --target wasm32-unknown-unknown && npx snowpack build && svelte-check && cargo build --release",
   "update-rs-deps": "cargo update",
-  "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install",
-  "test": "web-test-runner \"src-frontend/**/*.test.{svelte,js,ts}\"",
-  "test-ci": "cargo run --release & sleep 2 && web-test-runner \"src-frontend/**/*.test.{svelte,js,ts}\""
+  "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install"
  },
  "devDependencies": {
-  "@emily-curry/snowpack-plugin-wasm-pack": "^1",
-  "@snowpack/plugin-postcss": "^1",
-  "@snowpack/plugin-svelte": "^3",
-  "@snowpack/web-test-runner-plugin": "^0.2",
+  "@sveltejs/vite-plugin-svelte": "^1.0.0-next.37",
   "@testing-library/svelte": "^3",
   "@web/test-runner": "^0.13",
   "audit-ci": "^5",
@@ -22,10 +16,10 @@
   "postcss": "^8",
   "prettier": "^2",
   "prettier-plugin-tailwindcss": "^0.1",
-  "snowpack": "^3",
   "svelte": "^3",
   "svelte-check": "^2",
-  "tailwindcss": "^3"
- },
- "dependencies": {}
+  "tailwindcss": "^3",
+  "vite": "^2",
+  "vite-plugin-singlefile": "^0.6"
+ }
 }

@@ -17,15 +17,12 @@ struct Flags {
 #[tracked]
 async fn main() -> Result<(), tracked::Error> {
  #[derive(rust_embed::RustEmbed)]
- #[folder = "build"]
+ #[folder = "src-frontend/dist"]
  struct Frontend;
 
  if std::env::var_os("RUST_LOG").is_none() {
   std::env::set_var("RUST_LOG", "info")
  }
-
- dbg!(option_env!("BUILD_ID"));
- dbg!(option_env!("BUILD_TIME"));
 
  let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
@@ -68,7 +65,8 @@ async fn main() -> Result<(), tracked::Error> {
    log::info!("Serving (unsecured) HTTP on port {}", port);
    eprintln!("Serving (unsecured) HTTP on port {}", port);
    eprintln!("Pass `--tls` to auto-setup TLS certificate with Let's Encrypt.");
-   opener::open(format!("http://127.0.0.1:{}", port)).ok();
+   #[cfg(debug_assertions)]
+   opener::open(format!("http://127.0.0.1:{}", 3000)).ok();
    turbocharger::serve::<Frontend>(&std::net::SocketAddr::from(([0, 0, 0, 0], port))).await;
   }
  }

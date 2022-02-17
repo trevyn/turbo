@@ -22,7 +22,7 @@ turbosql = "0.4"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # dependencies for wasm only
-wasm-bindgen = "0.2"
+wasm-bindgen = "=0.2.79"
 wasm-bindgen-futures = "0.4"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -51,3 +51,7 @@ turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
+
+[profile.release]
+lto = true
+opt-level = 'z'

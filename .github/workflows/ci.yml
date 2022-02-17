@@ -72,17 +72,23 @@ jobs:
           rust-version: ${{ matrix.rust }}
           targets: wasm32-unknown-unknown
 
-      - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
       - uses: Swatinem/rust-cache@v1
         with:
           key: ${{ env.BUILD_ADJECTIVE }}
 
+      - run: |
+          wget https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.79/wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
+          tar xvf wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
+          wget https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz
+          tar xvf binaryen-version_105-x86_64-linux.tar.gz
+
       - run: npm install
       - run: npx audit-ci --low
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --target wasm32-unknown-unknown
-      - run: wasm-pack --log-level warn build --target web --out-dir src-frontend/turbocharger_generated --out-name index
-      - run: npx snowpack build
+      - run: wasm-bindgen-0.2.79-x86_64-unknown-linux-musl/wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm
+      - run: binaryen-version_105/bin/wasm-opt src-frontend/turbocharger_generated/index_bg.wasm -o src-frontend/turbocharger_generated/index_bg.wasm -Oz
+      - run: npx vite build
+      - run: rm -rf src-frontend/dist/assets
       - run: npx svelte-check
       - run: RUSTFLAGS="-Ctarget-cpu=nehalem" CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
       - run: cargo tree
@@ -91,7 +97,7 @@ jobs:
       - run: |
           target/release/turbo &
           sleep 2
-          CARGO_LOG=cargo::core::compiler::fingerprint=info npx web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
+          npx web-test-runner "src-frontend/**/*.test.{svelte,js,ts}"
 
       - uses: actions/upload-artifact@v2
         if: ${{ matrix.rust == 'stable' }}
