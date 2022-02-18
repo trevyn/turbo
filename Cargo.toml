@@ -55,3 +55,6 @@ incremental = false # see https://github.com/dtolnay/inventory/issues/24
 [profile.release]
 lto = true
 opt-level = 'z'
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-cpu=nehalem"]

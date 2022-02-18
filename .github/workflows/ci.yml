@@ -90,7 +90,7 @@ jobs:
       - run: npx vite build
       - run: rm -rf src-frontend/dist/assets
       - run: npx svelte-check
-      - run: RUSTFLAGS="-Ctarget-cpu=nehalem" CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
+      - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
       - run: cargo tree
       - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
