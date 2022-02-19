@@ -15,7 +15,7 @@ struct Flags {
 
 #[tokio::main]
 #[tracked]
-async fn main() -> Result<(), tracked::Error> {
+async fn main() -> tracked::Result<()> {
  #[derive(rust_embed::RustEmbed)]
  #[folder = "src-frontend/dist"]
  struct Frontend;
@@ -51,7 +51,7 @@ async fn main() -> Result<(), tracked::Error> {
 
  let flags = select!(Flags)?;
 
- turbonet::spawn_server(build_id).await.unwrap();
+ turbonet::spawn_server(build_id).await?;
 
  match flags {
   Flags { tls: Some(true), port, .. } => {
