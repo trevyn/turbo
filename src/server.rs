@@ -1,3 +1,5 @@
+#![feature(generators)]
+
 mod backend;
 use tracked::tracked;
 use turbosql::{select, Turbosql};

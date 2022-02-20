@@ -1,1 +1,3 @@
+#![feature(generators)]
+
 mod backend;

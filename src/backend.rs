@@ -1,6 +1,4 @@
-#[turbocharger::server_only]
 use tracked::tracked;
-
 use turbocharger::backend;
 
 // use turbosql::Turbosql;
@@ -67,6 +65,21 @@ fn animal_time_stream() -> impl Stream<Item = String> {
    i += 1;
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
+ }
+}
+
+#[tracked]
+#[backend]
+#[async_stream::try_stream_attribute(async_stream)]
+fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {
+ let mut i = 0;
+ loop {
+  yield format!("r{}", i);
+  i += 1;
+  if i == 5 {
+   None?;
+  }
+  tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
  }
 }
 

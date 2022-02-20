@@ -17,6 +17,7 @@ path = "src/server.rs"
 
 [dependencies]
 # dependencies for both server and wasm
+tracked = "0.1.1"
 turbocharger = {version = "0.2", features = ["full"]}
 turbosql = "0.4"
 
@@ -28,6 +29,7 @@ wasm-bindgen-futures = "0.4"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
 animal-time = "0.1"
+async-stream = "0.3"
 gflags = "0.3"
 log = "0.4"
 opener = "0.5"
@@ -36,13 +38,14 @@ regex = "1"
 reqwest = "0.11"
 rust-embed = "6"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
-tracked = "0.1.1"
 turbonet = "0.1"
 
 [build-dependencies]
 time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
+async-stream = {git = "https://github.com/trevyn/async-stream", branch = "try_stream_attribute"}
+# async-stream = {path = "../async-stream/async-stream"}
 rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 # turbocharger = {path = "../turbocharger/turbocharger"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "axum"}

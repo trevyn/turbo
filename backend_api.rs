@@ -20,3 +20,5 @@ async fn check_for_updates() -> Result<String, tracked::Error> {}
 async fn getblockchaininfo() -> Result<String, tracked::Error> {}
 
 async fn heartbeat() -> Result<String, tracked::Error> {}
+
+fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {}
