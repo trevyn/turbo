@@ -53,6 +53,11 @@ migrations_append_only = [
   'ALTER TABLE _turbocharger_tls_cert ADD COLUMN key TEXT',
   'ALTER TABLE flags ADD COLUMN tls INTEGER',
   'ALTER TABLE _turbocharger_tls_cert ADD COLUMN issue_time INTEGER',
+  'CREATE TABLE animal_time_stream_log (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE animal_time_stream_log ADD COLUMN timestamp INTEGER',
+  'ALTER TABLE animal_time_stream_log ADD COLUMN remote_addr TEXT',
+  'ALTER TABLE animal_time_stream_log ADD COLUMN user_agent TEXT',
+  'ALTER TABLE animal_time_stream_log ADD COLUMN animal_timestamp TEXT',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -105,6 +110,13 @@ output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbosql_migrations (
     rowid INTEGER PRIMARY KEY,
     migration TEXT NOT NULL
+  ) STRICT
+  CREATE TABLE animal_time_stream_log (
+    rowid INTEGER PRIMARY KEY,
+    timestamp INTEGER,
+    remote_addr TEXT,
+    user_agent TEXT,
+    animal_timestamp TEXT
   ) STRICT
   CREATE TABLE certs (
     rowid INTEGER PRIMARY KEY,
@@ -300,6 +312,34 @@ sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit._turbonet_self.columns]]
 name = 'build_id'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[output_generated_tables_do_not_edit.animal_time_stream_log]
+name = 'animal_time_stream_log'
+
+[[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
+name = 'timestamp'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
+name = 'animal_timestamp'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
+name = 'remote_addr'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
+name = 'user_agent'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
 

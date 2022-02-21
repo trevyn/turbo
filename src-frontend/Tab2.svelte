@@ -1,12 +1,11 @@
 <script lang="ts">
  import * as backend from "./turbocharger_generated";
 
- let log = "\n\n";
+ let log = "";
  let logNode;
 
- backend.animal_time_stream().subscribe((line) => {
-  log = log.slice(0, -2);
-  log += line + "\n\n\n";
+ backend.animal_time_stream().subscribe(async (line) => {
+  log += (await line) + "\n";
   logNode.scrollTop = logNode.scrollHeight;
  });
 </script>
@@ -15,5 +14,5 @@
 <textarea
  bind:this={logNode}
  style="height:60vh"
- class="mt-3 w-full bg-gray-700 font-mono">{log}</textarea
+ class="mt-3 w-full bg-gray-700 p-4 pb-16 font-mono">{log}</textarea
 >

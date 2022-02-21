@@ -7,6 +7,7 @@
   "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install"
  },
  "devDependencies": {
+  "@rgossiaux/svelte-headlessui": "^1.0.0-beta.9",
   "@sveltejs/vite-plugin-svelte": "^1.0.0-next.37",
   "@testing-library/svelte": "^3",
   "@web/test-runner": "^0.13",

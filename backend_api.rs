@@ -11,9 +11,19 @@ struct _Turbonet_SelfResponse {
     build_id: String,
 }
 
+async fn animal_log() -> Result<String, tracked::Error> {}
+
 async fn animal_time() -> String {}
 
-fn animal_time_stream() -> impl Stream<Item = String> {}
+fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {}
+
+struct animal_time_stream_log {
+    rowid: Option<i64>,
+    timestamp: Option<i64>,
+    animal_timestamp: Option<String>,
+    remote_addr: Option<String>,
+    user_agent: Option<String>,
+}
 
 async fn check_for_updates() -> Result<String, tracked::Error> {}
 

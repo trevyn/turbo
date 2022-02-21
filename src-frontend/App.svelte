@@ -1,8 +1,17 @@
 <script lang="ts">
  import * as backend from "./turbocharger_generated";
  import { fade } from "svelte/transition";
+ import Button from "./Button.svelte";
  import Tab1 from "./Tab1.svelte";
  import Tab2 from "./Tab2.svelte";
+ import Tab3 from "./Tab3.svelte";
+ import {
+  TabGroup,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+ } from "@rgossiaux/svelte-headlessui";
 
  (async () => {
   // let person = Object.assign(new backend.Person(), { name: "Bob" });
@@ -20,35 +29,18 @@
    checking for updates: {error}{/await}
  </p>
 
- <p class="pt-3">
-  <button
-   on:click={() => {
-    tab = 1;
-   }}
-   class="rounded bg-gray-400 py-2 px-4 font-bold text-white hover:bg-gray-500"
-  >
-   ANIMAL TIME
-  </button>
-
-  <button
-   on:click={() => {
-    tab = 2;
-   }}
-   class="rounded bg-gray-400 py-2 px-4 font-bold text-white hover:bg-gray-500"
-  >
-   ANIMAL LOG
-  </button>
- </p>
-
- <p class="pt-3">
-  {#if tab == 1}
-   <Tab1 />
-  {/if}
-
-  {#if tab == 2}
-   <Tab2 />
-  {/if}
- </p>
+ <TabGroup>
+  <TabList class="pt-3">
+   <Tab><Button>ANIMAL TIME</Button></Tab>
+   <Tab><Button>ANIMAL LOG</Button></Tab>
+   <Tab><Button>ANIMAL LOG LOG</Button></Tab>
+  </TabList>
+  <TabPanels class="pt-3">
+   <TabPanel><Tab1 /></TabPanel>
+   <TabPanel><Tab2 /></TabPanel>
+   <TabPanel><Tab3 /></TabPanel>
+  </TabPanels>
+ </TabGroup>
 
  <!-- <p>
   You find yourself in a dark room. You can barely make out a chain in the
