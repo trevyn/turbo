@@ -77,9 +77,9 @@ jobs:
           key: ${{ env.BUILD_ADJECTIVE }}-3
 
       - run: |
-          wget https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.79/wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
+          wget --no-verbose https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.79/wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
           tar xvf wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
-          wget https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz
+          wget --no-verbose https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz
           tar xvf binaryen-version_105-x86_64-linux.tar.gz
 
       - run: npm install
@@ -95,7 +95,7 @@ jobs:
       # - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
       - run: |
-          target/release/turbo &
+          target/x86_64-unknown-linux-gnu/release/turbo &
           sleep 1
           cd src-frontend
           npx web-test-runner "**/*.test.{svelte,js,ts}" --node-resolve
