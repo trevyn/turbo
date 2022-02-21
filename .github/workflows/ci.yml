@@ -105,18 +105,18 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
-            target/release/*
+            target/x86_64-unknown-linux-gnu/release/*
             Cargo.lock
             package-lock.json
-            !target/release/.fingerprint/*
-            !target/release/build/*
-            !target/release/deps/*
-            !target/release/examples/*
-            !target/release/incremental/*
-            !target/release/*.d
-            !target/release/*.rlib
-            !target/release/*.dylib
-            !target/release/*.so
+            !target/x86_64-unknown-linux-gnu/release/.fingerprint/*
+            !target/x86_64-unknown-linux-gnu/release/build/*
+            !target/x86_64-unknown-linux-gnu/release/deps/*
+            !target/x86_64-unknown-linux-gnu/release/examples/*
+            !target/x86_64-unknown-linux-gnu/release/incremental/*
+            !target/x86_64-unknown-linux-gnu/release/*.d
+            !target/x86_64-unknown-linux-gnu/release/*.rlib
+            !target/x86_64-unknown-linux-gnu/release/*.dylib
+            !target/x86_64-unknown-linux-gnu/release/*.so
 
   release:
     needs: [assign, checklinks, test]
@@ -142,6 +142,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.BUILD_ID }}
+          target_commitish: ${{ github.sha }}
           draft: false
           prerelease: false
           generate_release_notes: true
