@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
  import * as backend from "./turbocharger_generated";
  let animal_time_stream = backend.animal_time_stream();
  let stream_example_result = backend.stream_example_result();

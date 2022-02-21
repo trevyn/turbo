@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
  import turbocharger_init, * as backend from "./turbocharger_generated";
  import App from "./App.svelte";
 

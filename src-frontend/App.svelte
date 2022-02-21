@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
  import * as backend from "./turbocharger_generated";
  import { fade } from "svelte/transition";
  import Tab1 from "./Tab1.svelte";

@@ -1,11 +1,11 @@
-<script>
+<script lang="ts">
  import * as backend from "./turbocharger_generated";
 
  let log = "\n";
  let logNode;
 
  backend.animal_time_stream().subscribe((line) => {
-  str = str.slice(0, -1);
+  log = log.slice(0, -1);
   log += line + "\n\n";
   logNode.scrollTop = logNode.scrollHeight;
  });
