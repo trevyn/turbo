@@ -74,7 +74,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: ${{ env.BUILD_ADJECTIVE }}-2
+          key: ${{ env.BUILD_ADJECTIVE }}-3
 
       - run: |
           wget https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.79/wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
@@ -90,7 +90,7 @@ jobs:
       - run: npx vite build
       - run: rm -rf src-frontend/dist/assets
       - run: npx svelte-check
-      - run: RUSTFLAGS="-Ctarget-cpu=nehalem"  CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --release
+      - run: RUSTFLAGS="-Ctarget-cpu=nehalem"  CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --bin turbo --release --target x86_64-unknown-linux-gnu
       # - run: cargo tree
       # - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
