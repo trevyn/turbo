@@ -134,7 +134,7 @@ jobs:
       - run: |
           mv ubuntu-latest-nightly/Cargo.lock Cargo.lock
           mv ubuntu-latest-nightly/package-lock.json package-lock.json
-          mv ubuntu-latest-nightly/target/release/$(basename ubuntu-latest-nightly/target/release/*) $(basename ubuntu-latest-nightly/target/release/*)-linux
+          mv ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/$(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*) $(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*)-linux
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
