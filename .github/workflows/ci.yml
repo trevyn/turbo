@@ -74,7 +74,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v1
         with:
-          key: ${{ env.BUILD_ADJECTIVE }}-1
+          key: ${{ env.BUILD_ADJECTIVE }}-2
 
       - run: |
           wget https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.79/wasm-bindgen-0.2.79-x86_64-unknown-linux-musl.tar.gz
