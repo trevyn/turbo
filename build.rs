@@ -1,5 +1,5 @@
 fn main() {
- if option_env!("BUILD_ID").is_none() {
+ if option_env!("BUILD_ADJECTIVE").is_none() {
   println!(
    "cargo:rustc-env=BUILD_TIME={}",
    time::OffsetDateTime::from(std::time::SystemTime::now())
