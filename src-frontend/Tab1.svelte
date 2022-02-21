@@ -8,7 +8,7 @@
 <p class="text-3xl font-bold text-gray-400">{$animal_time_stream || ""}</p>
 <p class="text-3xl font-bold text-gray-400">
  {#await $stream_example_result then result}
-  {result}
+  {result || ""}
  {:catch error}
   <p style="color: red">{error.message}</p>
  {/await}
