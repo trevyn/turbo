@@ -1,7 +1,8 @@
 {
  // "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
- "rust-analyzer.checkOnSave.command": "clippy",
  "css.lint.unknownAtRules": "ignore",
+ "editor.detectIndentation": false,
  "editor.tabSize": 1,
- "editor.detectIndentation": false
+ "rust-analyzer.checkOnSave.command": "clippy",
+ "rust-analyzer.procMacro.enable": true
 }
