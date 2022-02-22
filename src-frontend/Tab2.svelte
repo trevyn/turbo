@@ -2,7 +2,7 @@
  import * as backend from "./turbocharger_generated";
 
  let log = "";
- let logNode;
+ let logNode: HTMLTextAreaElement;
 
  backend.animal_time_stream().subscribe(async (line) => {
   log += (await line) + "\n";

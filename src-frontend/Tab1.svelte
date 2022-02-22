@@ -1,20 +1,11 @@
 <script lang="ts">
  import * as backend from "./turbocharger_generated";
- let animal_time_stream = backend.animal_time_stream();
- let stream_example_result = backend.stream_example_result();
+ import StreamSpan from "./StreamSpan.svelte";
 </script>
 
 <p class="text-3xl font-bold text-gray-400">
- {#await $animal_time_stream then result}
-  {result || ""}
- {:catch error}
-  {error}
- {/await}
+ <StreamSpan stream={backend.animal_time_stream()} />
 </p>
 <p class="text-3xl font-bold text-gray-400">
- {#await $stream_example_result then result}
-  {result || ""}
- {:catch error}
-  <p style="color: red">{error.message}</p>
- {/await}
+ <StreamSpan stream={backend.stream_example_result()} />
 </p>
