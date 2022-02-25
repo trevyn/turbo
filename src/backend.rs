@@ -1,4 +1,4 @@
-use tracked::{tracked, Track};
+use tracked::tracked;
 use turbocharger::{backend, server_only};
 use turbosql::Turbosql;
 
@@ -78,8 +78,10 @@ fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
  }
 }
 
+#[server_only]
 #[tracked]
 fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::Error> {
+ use tracked::Track;
  Ok(format!(
   "{} {} {}\n{}\n",
   Track::t(row.remote_addr)?,

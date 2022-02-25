@@ -14,5 +14,6 @@
 <textarea
  bind:this={logNode}
  style="height:60vh"
- class="mt-3 w-full bg-gray-700 p-4 pb-16 font-mono">{log}</textarea
+ class="mt-3 w-full bg-gray-700 p-4 pb-16 font-mono outline-none"
+ >{log}</textarea
 >

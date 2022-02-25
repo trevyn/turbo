@@ -8,7 +8,6 @@ apt install -y nodejs build-essential pkg-config libssl-dev
 curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
 rustup target add wasm32-unknown-unknown
-curl --proto '=https' --tlsv1.3 -sSf https://rustwasm.github.io/wasm-pack/installer/init.sh | sh
 fallocate -l 2g /mnt/2GiB.swap
 chmod 600 /mnt/2GiB.swap
 mkswap /mnt/2GiB.swap

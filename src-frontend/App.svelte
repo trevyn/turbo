@@ -1,15 +1,15 @@
 <script lang="ts">
  import * as backend from "./turbocharger_generated";
  import { fade } from "svelte/transition";
- import Button from "./Button.svelte";
+ import Button from "./Tab.svelte";
  import Tab1 from "./Tab1.svelte";
  import Tab2 from "./Tab2.svelte";
  import Tab3 from "./Tab3.svelte";
+ import Tab from "./Tab.svelte";
  import {
   TabGroup,
   TabList,
   TabPanels,
-  Tab,
   TabPanel,
  } from "@rgossiaux/svelte-headlessui";
 
@@ -31,11 +31,9 @@
 
  <TabGroup>
   <TabList class="pt-3">
-   <Tab><Button>ANIMAL TIME</Button></Tab>
-   <Tab><Button>ANIMAL LOG</Button></Tab>
-   <Tab><Button>ANIMAL LOG LOG</Button></Tab>
+   <Tab>ANIMAL TIME</Tab><Tab>ANIMAL LOG</Tab><Tab>ANIMAL LOG LOG</Tab>
   </TabList>
-  <TabPanels class="pt-3">
+  <TabPanels class="pt-2">
    <TabPanel><Tab1 /></TabPanel>
    <TabPanel><Tab2 /></TabPanel>
    <TabPanel><Tab3 /></TabPanel>
