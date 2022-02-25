@@ -34,9 +34,9 @@
    <Tab>ANIMAL TIME</Tab><Tab>ANIMAL LOG</Tab><Tab>ANIMAL LOG LOG</Tab>
   </TabList>
   <TabPanels class="pt-2">
-   <TabPanel><Tab1 /></TabPanel>
-   <TabPanel><Tab2 /></TabPanel>
-   <TabPanel><Tab3 /></TabPanel>
+   <TabPanel class="outline-none"><Tab1 /></TabPanel>
+   <TabPanel class="outline-none"><Tab2 /></TabPanel>
+   <TabPanel class="outline-none"><Tab3 /></TabPanel>
   </TabPanels>
  </TabGroup>
 
