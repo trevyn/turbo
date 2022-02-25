@@ -58,6 +58,12 @@ migrations_append_only = [
   'ALTER TABLE animal_time_stream_log ADD COLUMN remote_addr TEXT',
   'ALTER TABLE animal_time_stream_log ADD COLUMN user_agent TEXT',
   'ALTER TABLE animal_time_stream_log ADD COLUMN animal_timestamp TEXT',
+  'CREATE TABLE mail (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE mail ADD COLUMN domain TEXT',
+  'ALTER TABLE mail ADD COLUMN from_addr TEXT',
+  'ALTER TABLE mail ADD COLUMN is8bit INTEGER',
+  'ALTER TABLE mail ADD COLUMN to_addr TEXT',
+  'ALTER TABLE mail ADD COLUMN data BLOB',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -131,6 +137,14 @@ output_generated_schema_for_your_information_do_not_edit = '''
     key_path TEXT,
     port INTEGER,
     tls INTEGER
+  ) STRICT
+  CREATE TABLE mail (
+    rowid INTEGER PRIMARY KEY,
+    domain TEXT,
+    from_addr TEXT,
+    is8bit INTEGER,
+    to_addr TEXT,
+    data BLOB
   ) STRICT
 '''
 [output_generated_tables_do_not_edit._turbocharger_tls_cert]
@@ -383,3 +397,36 @@ sql_type = 'INTEGER'
 name = 'port'
 rust_type = 'Option < u16 >'
 sql_type = 'INTEGER'
+
+[output_generated_tables_do_not_edit.mail]
+name = 'mail'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'domain'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'from_addr'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'is8bit'
+rust_type = 'Option < bool >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'to_addr'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'data'
+rust_type = 'Option < Vec < u8 > >'
+sql_type = 'BLOB'

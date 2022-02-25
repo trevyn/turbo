@@ -1,6 +1,8 @@
 #![feature(generators)]
 
 mod backend;
+mod mail;
+
 use tracked::tracked;
 use turbosql::{select, Turbosql};
 
@@ -54,6 +56,10 @@ async fn main() -> tracked::Result<()> {
  let flags = select!(Flags)?;
 
  turbonet::spawn_server(build_id).await?;
+
+ std::thread::spawn(move || {
+  mail::start_server().unwrap();
+ });
 
  match flags {
   Flags { tls: Some(true), port, .. } => {
