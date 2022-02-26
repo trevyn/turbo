@@ -6,7 +6,6 @@ use turbosql::Turbosql;
 use turbosql::{now_ms, select};
 
 #[backend]
-#[allow(non_camel_case_types)]
 #[derive(Turbosql, Default)]
 pub struct animal_time_stream_log {
  pub rowid: Option<i64>,

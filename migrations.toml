@@ -64,6 +64,13 @@ migrations_append_only = [
   'ALTER TABLE mail ADD COLUMN is8bit INTEGER',
   'ALTER TABLE mail ADD COLUMN to_addr TEXT',
   'ALTER TABLE mail ADD COLUMN data BLOB',
+  'ALTER TABLE mail ADD COLUMN recv_ms INTEGER',
+  'ALTER TABLE mail ADD COLUMN recv_ip TEXT',
+  'CREATE TABLE mail_config (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE mail_config ADD COLUMN domain TEXT',
+  'CREATE TABLE mail_log (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE mail_log ADD COLUMN timestamp INTEGER',
+  'ALTER TABLE mail_log ADD COLUMN line TEXT',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -144,7 +151,18 @@ output_generated_schema_for_your_information_do_not_edit = '''
     from_addr TEXT,
     is8bit INTEGER,
     to_addr TEXT,
-    data BLOB
+    data BLOB,
+    recv_ms INTEGER,
+    recv_ip TEXT
+  ) STRICT
+  CREATE TABLE mail_config (
+    rowid INTEGER PRIMARY KEY,
+    domain TEXT
+  ) STRICT
+  CREATE TABLE mail_log (
+    rowid INTEGER PRIMARY KEY,
+    timestamp INTEGER,
+    line TEXT
   ) STRICT
 '''
 [output_generated_tables_do_not_edit._turbocharger_tls_cert]
@@ -407,6 +425,16 @@ rust_type = 'Option < i64 >'
 sql_type = 'INTEGER PRIMARY KEY'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
+name = 'recv_ms'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'recv_ip'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
 name = 'domain'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
@@ -430,3 +458,34 @@ sql_type = 'TEXT'
 name = 'data'
 rust_type = 'Option < Vec < u8 > >'
 sql_type = 'BLOB'
+
+[output_generated_tables_do_not_edit.mail_config]
+name = 'mail_config'
+
+[[output_generated_tables_do_not_edit.mail_config.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.mail_config.columns]]
+name = 'domain'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[output_generated_tables_do_not_edit.mail_log]
+name = 'mail_log'
+
+[[output_generated_tables_do_not_edit.mail_log.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.mail_log.columns]]
+name = 'timestamp'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.mail_log.columns]]
+name = 'line'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
