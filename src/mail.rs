@@ -77,7 +77,7 @@ impl mailin_embedded::Handler for mail {
 pub fn start_server() -> Result<(), tracked::Error> {
  let mut server = Server::new(mail::default());
  server.with_name("turbonet").with_ssl(SslConfig::None).unwrap();
- if option_env!("CI") == Some("true") {
+ if std::env::var_os("CI") == Some(std::ffi::OsString::from("true")) {
   return Ok(());
  }
  let listener = std::net::TcpListener::bind("0.0.0.0:25")?;
