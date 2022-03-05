@@ -27,7 +27,7 @@ jobs:
   checklinks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: trevyn/lychee-action@v1
         id: lychee
@@ -51,14 +51,14 @@ jobs:
         rust: [nightly-2022-03-04, nightly]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           
       - run: touch -d @0$(git log --pretty=%at -n1 migrations.toml) migrations.toml
       # - run: touch -d @0$(git log --pretty=%at -n1 build.rs) build.rs
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: build_id
 
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
 
       - run: cat build_id/build_id
 
