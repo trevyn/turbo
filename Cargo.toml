@@ -18,7 +18,7 @@ path = "src/server.rs"
 [dependencies]
 # dependencies for both server and wasm
 tracked = "0.1.1"
-turbocharger = {version = "0.2", features = ["full"]}
+turbocharger = {version = "0.3", features = ["full"]}
 turbosql = "0.5"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
@@ -48,8 +48,8 @@ time = {version = "0.3", features = ["formatting"]}
 # rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 # turbocharger = {path = "../turbocharger/turbocharger"}
 # turbosql = {path = "../turbosql/turbosql"}
-turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "axum"}
-turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
+# turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "axum"}
+# turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
