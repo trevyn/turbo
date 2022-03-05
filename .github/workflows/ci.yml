@@ -19,7 +19,7 @@ jobs:
       - run: ./animal-time > build_id
       - run: cat build_id
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: build_id
           path: build_id
@@ -48,7 +48,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        rust: [nightly-2022-02-20, nightly]
+        rust: [nightly-2022-03-04, nightly]
 
     steps:
       - uses: actions/checkout@v2
@@ -100,7 +100,7 @@ jobs:
           cd src-frontend
           npx web-test-runner "**/*.test.{svelte,js,ts}" --node-resolve
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ matrix.rust == 'nightly' }}
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
