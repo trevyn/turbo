@@ -17,12 +17,16 @@ path = "src/server.rs"
 
 [dependencies]
 # dependencies for both server and wasm
+crypto_box = "0.7.1"
 tracked = "0.1.1"
 turbocharger = {version = "0.3", features = ["full"]}
 turbosql = "0.5"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # dependencies for wasm only
+getrandom = {version = "0.2", features = ["js"]}
+hex = "0.4"
+rand_core = {version = "0.6", features = ["getrandom"]}
 wasm-bindgen = "=0.2.79"
 wasm-bindgen-futures = "0.4"
 
