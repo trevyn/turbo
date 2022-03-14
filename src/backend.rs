@@ -1,9 +1,8 @@
+#![allow(unused_imports)]
+use crypto_box::PublicKey;
 use tracked::tracked;
 use turbocharger::{backend, server_only};
-use turbosql::Turbosql;
-
-#[server_only]
-use turbosql::{now_ms, select};
+use turbosql::{now_ms, select, Turbosql};
 
 #[backend]
 #[derive(Turbosql, Default)]
@@ -13,6 +12,16 @@ pub struct animal_time_stream_log {
  pub animal_timestamp: Option<String>,
  pub remote_addr: Option<String>,
  pub user_agent: Option<String>,
+}
+
+#[derive(Turbosql, Default)]
+pub struct client {
+ pub rowid: Option<i64>,
+ pub timestamp: Option<i64>,
+ pub animal_timestamp: Option<String>,
+ pub remote_addr: Option<String>,
+ pub user_agent: Option<String>,
+ pub client_pk: Option<[u8; 32]>,
 }
 
 #[backend]
@@ -43,6 +52,21 @@ pub async fn animal_time() -> String {
  animal_time::now()
 }
 
+#[tracked]
+#[backend]
+pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> {
+ client {
+  rowid: None,
+  timestamp: Some(now_ms()),
+  animal_timestamp: Some(animal_time().await),
+  remote_addr: remote_addr.map(|addr| addr.to_string()),
+  user_agent,
+  client_pk: client_pk.try_into().ok(),
+ }
+ .insert()?;
+ Ok(())
+}
+
 // #[backend]
 // fn animal_time_stream() -> impl Stream<Item = String> {
 //  turbocharger::async_stream::stream! {
@@ -58,7 +82,7 @@ pub async fn animal_time() -> String {
 
 #[tracked]
 #[backend]
-#[async_stream::try_stream_attribute(async_stream)]
+#[async_stream::try_stream_attribute]
 fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
  animal_time_stream_log {
   rowid: None,
@@ -68,11 +92,23 @@ fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
   user_agent,
  }
  .insert()?;
- let mut i = 0;
- loop {
+ for i in 0.. {
   dbg!(i);
   yield format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
-  i += 1;
+  tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+ }
+}
+
+#[tracked]
+#[backend]
+#[async_stream::try_stream_attribute]
+fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
+ let pk = PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
+ for i in 0.. {
+  dbg!(i);
+  let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
+  let c = sealed_box::seal(val.as_bytes(), &pk);
+  yield hex::encode(c);
   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
  }
 }
@@ -104,12 +140,10 @@ pub async fn animal_log() -> Result<String, tracked::Error> {
 
 #[tracked]
 #[backend]
-#[async_stream::try_stream_attribute(async_stream)]
+#[async_stream::try_stream_attribute]
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {
- let mut i = 0;
- loop {
+ for i in 0.. {
   yield format!("r{}", i);
-  i += 1;
   if i == 5 {
    None?;
   }

@@ -27,8 +27,12 @@ struct animal_time_stream_log {
 
 async fn check_for_updates() -> Result<String, tracked::Error> {}
 
+fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {}
+
 async fn getblockchaininfo() -> Result<String, tracked::Error> {}
 
 async fn heartbeat() -> Result<String, tracked::Error> {}
+
+async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> {}
 
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {}

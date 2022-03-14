@@ -24,7 +24,8 @@
 </script>
 
 <div class="p-5">
- <p>Secret key: {backend.wasm_new_secret_key()}</p>
+ <!-- <p>client_pk: {backend.wasm_client_pk()}</p> -->
+
  <p>
   {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
    checking for updates: {error}{/await}

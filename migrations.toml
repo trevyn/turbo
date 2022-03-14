@@ -71,6 +71,12 @@ migrations_append_only = [
   'CREATE TABLE mail_log (rowid INTEGER PRIMARY KEY) STRICT',
   'ALTER TABLE mail_log ADD COLUMN timestamp INTEGER',
   'ALTER TABLE mail_log ADD COLUMN line TEXT',
+  'CREATE TABLE client (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE client ADD COLUMN timestamp INTEGER',
+  'ALTER TABLE client ADD COLUMN animal_timestamp TEXT',
+  'ALTER TABLE client ADD COLUMN remote_addr TEXT',
+  'ALTER TABLE client ADD COLUMN user_agent TEXT',
+  'ALTER TABLE client ADD COLUMN client_pk BLOB',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -136,6 +142,14 @@ output_generated_schema_for_your_information_do_not_edit = '''
     domain TEXT,
     cert TEXT,
     key TEXT
+  ) STRICT
+  CREATE TABLE client (
+    rowid INTEGER PRIMARY KEY,
+    timestamp INTEGER,
+    animal_timestamp TEXT,
+    remote_addr TEXT,
+    user_agent TEXT,
+    client_pk BLOB
   ) STRICT
   CREATE TABLE flags (
     rowid INTEGER PRIMARY KEY,
@@ -397,6 +411,39 @@ sql_type = 'TEXT'
 name = 'key'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
+
+[output_generated_tables_do_not_edit.client]
+name = 'client'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'timestamp'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'animal_timestamp'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'remote_addr'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'user_agent'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.client.columns]]
+name = 'client_pk'
+rust_type = 'Option < [u8 ; 32] >'
+sql_type = 'BLOB'
 
 [output_generated_tables_do_not_edit.flags]
 name = 'flags'
