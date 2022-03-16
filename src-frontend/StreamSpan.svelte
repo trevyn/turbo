@@ -5,7 +5,7 @@
 </script>
 
 {#await $stream then result}
- {decrypt ? backend.wasm_decrypt(result || "") || result : result || ""}
+ {(decrypt ? backend.wasm_decrypt(result || "") || result : result) || ""}
 {:catch error}
  <span style="color: red">{error.message}</span>
 {/await}

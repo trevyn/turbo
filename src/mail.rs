@@ -75,13 +75,26 @@ impl mailin_embedded::Handler for mail {
 
 #[tracked]
 pub fn start_server() -> Result<(), tracked::Error> {
+ let cert = rcgen::generate_simple_self_signed(vec!["localhost".to_string()]).unwrap();
+ std::fs::write("/tmp/mail.cert", cert.serialize_pem()?)?;
+ std::fs::write("/tmp/mail.key", cert.serialize_private_key_pem())?;
+
  let mut server = Server::new(mail::default());
- server.with_name("turbonet").with_ssl(SslConfig::None).unwrap();
+ server
+  .with_name("turbonet")
+  .with_ssl(SslConfig::SelfSigned {
+   cert_path: "/tmp/mail.cert".into(),
+   key_path: "/tmp/mail.key".into(),
+  })
+  .unwrap();
+
  if std::env::var_os("CI") == Some(std::ffi::OsString::from("true")) {
   return Ok(());
  }
+
  let listener = std::net::TcpListener::bind("0.0.0.0:25")?;
  server.with_tcp_listener(listener);
+
  server.serve().unwrap();
  Ok(())
 }

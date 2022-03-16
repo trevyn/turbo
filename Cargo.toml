@@ -42,6 +42,7 @@ log = "0.4"
 mailin-embedded = {version = "0.7", features = ["rtls"]}
 opener = "0.5"
 pretty_env_logger = "0.4"
+rcgen = "0.9"
 regex = "1"
 reqwest = "0.11"
 rust-embed = "6"
