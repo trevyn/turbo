@@ -11,7 +11,7 @@
   "@sveltejs/vite-plugin-svelte": "^1.0.0-next.37",
   "@testing-library/svelte": "^3",
   "@web/test-runner": "^0.13",
-  "audit-ci": "^5",
+  "audit-ci": "^6",
   "autoprefixer": "^10",
   "postcss": "^8",
   "prettier-plugin-tailwindcss": "^0.1",
@@ -19,7 +19,7 @@
   "svelte-check": "^2",
   "tailwindcss": "^3",
   "vite": "^2",
-  "vite-plugin-singlefile": "^0.6",
+  "vite-plugin-singlefile": "^0.7",
   "vite-web-test-runner-plugin": "^0.1"
  }
 }
