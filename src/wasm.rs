@@ -26,6 +26,14 @@ impl client_sk {
   }
   Self(keydata.try_into().unwrap())
  }
+ fn set_sk(&mut self, sk: String) {
+  let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+  let keydata = hex::decode(&sk).unwrap_or_default();
+  if keydata.len() == 32 {
+   local_storage.set("keydata", &sk).unwrap();
+   self.0 = keydata.try_into().unwrap();
+  }
+ }
  fn pk(&self) -> [u8; 32] {
   *SecretKey::from(self.0).public_key().as_bytes()
  }
@@ -45,6 +53,18 @@ static CLIENT_SK: Lazy<Mutex<client_sk>> = Lazy::new(|| Mutex::new(client_sk::lo
 pub async fn wasm_notify_client_pk() -> Result<(), JsValue> {
  let pk = CLIENT_SK.lock().unwrap().pk();
  backend::notify_client_pk(pk.to_vec()).await
+}
+
+#[wasm_only]
+#[wasm_bindgen]
+pub fn wasm_client_sk() -> String {
+ hex::encode(CLIENT_SK.lock().unwrap().0)
+}
+
+#[wasm_only]
+#[wasm_bindgen]
+pub fn wasm_set_client_sk(sk: String) {
+ CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
 #[wasm_only]

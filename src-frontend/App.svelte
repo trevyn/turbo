@@ -20,7 +20,12 @@
   // console.log("Inserted rowid ", rowid);
  })();
 
- let tab = 1;
+ let sk = backend.wasm_client_sk();
+ let verified_sk;
+ $: {
+  verified_sk = backend.wasm_client_sk();
+  sk = sk;
+ }
 </script>
 
 <div class="p-5">
@@ -30,6 +35,16 @@
   {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
    checking for updates: {error}{/await}
  </p>
+
+ <p>SK is {verified_sk}</p>
+
+ <input
+  class="font-mono text-gray-600"
+  type="text"
+  bind:value={sk}
+  size="64"
+  on:input={() => backend.wasm_set_client_sk(sk)}
+ />
 
  <TabGroup>
   <TabList class="pt-3">
