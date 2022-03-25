@@ -48,13 +48,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        rust: [nightly-2022-03-04, nightly]
+        rust: [nightly-2022-03-23, nightly]
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
+      - run: rm rust-toolchain.toml
+
       - run: touch -d @0$(git log --pretty=%at -n1 migrations.toml) migrations.toml
       # - run: touch -d @0$(git log --pretty=%at -n1 build.rs) build.rs
 
