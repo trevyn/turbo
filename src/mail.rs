@@ -5,15 +5,15 @@ use tracked::tracked;
 use turbosql::{now_ms, select, Turbosql};
 
 #[derive(Turbosql, Default, Clone)]
-struct mail {
- rowid: Option<i64>,
- recv_ms: Option<i64>,
- recv_ip: Option<String>,
- domain: Option<String>,
- from_addr: Option<String>,
- is8bit: Option<bool>,
- to_addr: Option<String>,
- data: Option<Vec<u8>>,
+pub struct mail {
+ pub rowid: Option<i64>,
+ pub recv_ms: Option<i64>,
+ pub recv_ip: Option<String>,
+ pub domain: Option<String>,
+ pub from_addr: Option<String>,
+ pub is8bit: Option<bool>,
+ pub to_addr: Option<String>,
+ pub data: Option<Vec<u8>>,
 }
 
 #[derive(Turbosql, Default)]

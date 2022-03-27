@@ -119,6 +119,15 @@ fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::
  }
 }
 
+#[cfg(not(feature = "test"))]
+#[tracked]
+#[backend]
+async fn mail(rowid: i64) -> Result<String, tracked::Error> {
+ use crate::mail::mail;
+ let data = select!(mail "WHERE rowid = " rowid)?.data?;
+ Ok(hex::encode(data))
+}
+
 #[server_only]
 #[tracked]
 fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::Error> {

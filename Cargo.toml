@@ -15,6 +15,9 @@ path = "src/wasm.rs"
 name = "turbo"
 path = "src/server.rs"
 
+[features]
+test = []
+
 [dependencies]
 # dependencies for both server and wasm
 crypto_box = "0.7.1"

@@ -4,6 +4,8 @@
  "editor.detectIndentation": false,
  "editor.tabSize": 1,
  "rust-analyzer.checkOnSave.command": "clippy",
- "rust-analyzer.procMacro.enable": false
+ "rust-analyzer.procMacro.enable": false,
+ "rust-analyzer.checkOnSave.features": ["test"],
+ "rust-analyzer.cargo.features": ["test"]
  // "rust-analyzer.procMacro.ignored": { "turbocharger": "wasm_only" }
 }
