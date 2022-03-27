@@ -5,6 +5,8 @@
 mod backend;
 mod mail;
 
+use backend::encrypt;
+
 use tracked::tracked;
 use turbosql::{select, Turbosql};
 

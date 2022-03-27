@@ -1,3 +1,4 @@
+use super::encrypt;
 use mailin_embedded::response::{NO_MAILBOX, OK};
 use mailin_embedded::{Response, Server, SslConfig};
 use tracked::tracked;
@@ -68,6 +69,7 @@ impl mailin_embedded::Handler for mail {
  }
 
  fn data_end(&mut self) -> Response {
+  self.data = Some(encrypt(self.data.take().unwrap()).unwrap());
   self.insert().unwrap();
   OK
  }

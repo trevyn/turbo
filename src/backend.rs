@@ -100,14 +100,20 @@ fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
 }
 
 #[tracked]
+#[server_only]
+pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::Error> {
+ let pk = crypto_box::PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
+ Ok(sealed_box::seal(m.as_ref(), &pk))
+}
+
+#[tracked]
 #[backend]
 #[async_stream::try_stream_attribute]
 fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
- let pk = PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
  for i in 0.. {
   dbg!(i);
   let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
-  let c = sealed_box::seal(val.as_bytes(), &pk);
+  let c = encrypt(val.as_bytes())?;
   yield hex::encode(c);
   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
  }
