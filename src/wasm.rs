@@ -8,11 +8,12 @@ mod backend;
 use crypto_box::{rand_core::OsRng, SecretKey};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
+use tracked::tracked;
 use turbocharger::wasm_only;
+use wasm_bindgen::prelude::*;
 
 struct client_sk([u8; 32]);
 
-#[wasm_only]
 impl client_sk {
  fn load() -> Self {
   let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
@@ -45,7 +46,6 @@ impl client_sk {
  }
 }
 
-#[wasm_only]
 static CLIENT_SK: Lazy<Mutex<client_sk>> = Lazy::new(|| Mutex::new(client_sk::load()));
 
 #[wasm_only]
@@ -55,19 +55,16 @@ pub async fn wasm_notify_client_pk() -> Result<(), JsValue> {
  backend::notify_client_pk(pk.to_vec()).await
 }
 
-#[wasm_only]
 #[wasm_bindgen]
 pub fn wasm_client_sk() -> String {
  hex::encode(CLIENT_SK.lock().unwrap().0)
 }
 
-#[wasm_only]
 #[wasm_bindgen]
 pub fn wasm_set_client_sk(sk: String) {
  CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
-#[wasm_only]
 #[wasm_bindgen]
 pub fn wasm_decrypt(data: String) -> Option<String> {
  CLIENT_SK
@@ -77,7 +74,35 @@ pub fn wasm_decrypt(data: String) -> Option<String> {
   .map(|data| std::str::from_utf8(&data).unwrap().to_string())
 }
 
-#[wasm_only]
+#[wasm_bindgen(getter_with_clone)]
+#[derive(Default)]
+pub struct ParsedMail {
+ pub from: Option<String>,
+ pub to: Option<String>,
+ pub subject: Option<String>,
+ pub body: Option<String>,
+}
+
+#[tracked]
+#[wasm_bindgen]
+pub fn wasm_mailparse(data: String) -> Result<ParsedMail, JsError> {
+ use mailparse::MailHeaderMap;
+ let decrypted = CLIENT_SK.lock().unwrap().decrypt(hex::decode(data)?)?;
+ let parsed = mailparse::parse_mail(&decrypted)?;
+ let body = parsed
+  .subparts
+  .iter()
+  .find(|subpart| subpart.ctype.mimetype == "text/plain")
+  .map(|subpart| subpart.get_body().unwrap());
+ let headers = parsed.get_headers();
+ Ok(ParsedMail {
+  from: headers.get_first_value("From"),
+  to: headers.get_first_value("To"),
+  subject: headers.get_first_value("Subject"),
+  body,
+ })
+}
+
 #[wasm_bindgen]
 pub fn wasm_test_crypto_box() -> String {
  use crypto_box::{aead::Aead, Box, PublicKey, SecretKey};
@@ -133,3 +158,11 @@ pub fn wasm_test_crypto_box() -> String {
  // let crypto_box_secret_key = crypto_box::SecretKey::generate(&mut rng);
  std::str::from_utf8(&decrypted_plaintext).unwrap().to_string()
 }
+
+// #[wasm_bindgen(start)]
+// pub fn main() {
+//  let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
+//  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
+
+//  tracked::set_build_id(build_id);
+// }

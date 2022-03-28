@@ -25,13 +25,16 @@ tracked = "0.1.1"
 turbocharger = {version = "0.3", features = ["full", "debug_expansions"]}
 turbosql = "0.5"
 
+# dependencies that are really only for wasm, but rust-analyzer uses too
+mailparse = "0.13"
+wasm-bindgen = "=0.2.79"
+wasm-bindgen-futures = "0.4"
+web-sys = {version = "0.3", features = ["Storage", "Window"]}
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # dependencies for wasm only
 getrandom = {version = "0.2", features = ["js"]}
 rand_core = {version = "0.6", features = ["getrandom"]}
-wasm-bindgen = "=0.2.79"
-wasm-bindgen-futures = "0.4"
-web-sys = {version = "0.3", features = ["Storage", "Window"]}
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
@@ -56,6 +59,7 @@ time = {version = "0.3", features = ["formatting"]}
 # rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 # turbocharger = {path = "../turbocharger/turbocharger"}
 # turbosql = {path = "../turbosql/turbosql"}
+tracked = {git = "https://github.com/trevyn/tracked", branch = "main"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 # turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 

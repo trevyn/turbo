@@ -2,14 +2,17 @@
  "css.lint.unknownAtRules": "ignore",
  "editor.detectIndentation": false,
  "editor.tabSize": 1,
- "rust-analyzer.checkOnSave.command": "clippy"
+ "rust-analyzer.checkOnSave.command": "clippy",
+ "rust-analyzer.procMacro.enable": false
+ // "rust-analyzer.cargo.features": ["rust-analyzer"],
  // "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
- // "rust-analyzer.cargo.features": ["test"]
  // "rust-analyzer.checkOnSave.allTargets": false,
  // "rust-analyzer.checkOnSave.extraArgs": ["--bin", "turbo"],
  // "rust-analyzer.checkOnSave.extraArgs": ["--target", "wasm32-unknown-unknown"],
- // "rust-analyzer.checkOnSave.features": ["test"],
+ // "rust-analyzer.checkOnSave.features": ["rust-analyzer"],
  // "rust-analyzer.diagnostics.disabled": ["unresolved-import"]
- // "rust-analyzer.procMacro.enable": true,
- // "rust-analyzer.procMacro.ignored": { "turbocharger": "wasm_only" }
+ // "rust-analyzer.procMacro.ignored": {
+ //  "turbocharger": ["wasm_only"],
+ //  "wasm-bindgen": ["wasm_bindgen"]
+ // }
 }
