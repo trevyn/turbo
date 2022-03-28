@@ -4,6 +4,18 @@ use tracked::tracked;
 use turbocharger::{backend, server_only};
 use turbosql::{now_ms, select, Turbosql};
 
+#[derive(Turbosql, Default, Clone)]
+pub struct mail {
+ pub rowid: Option<i64>,
+ pub recv_ms: Option<i64>,
+ pub recv_ip: Option<String>,
+ pub domain: Option<String>,
+ pub from_addr: Option<String>,
+ pub is8bit: Option<bool>,
+ pub to_addr: Option<String>,
+ pub data: Option<Vec<u8>>,
+}
+
 #[backend]
 #[derive(Turbosql, Default)]
 pub struct animal_time_stream_log {
@@ -119,11 +131,9 @@ fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::
  }
 }
 
-#[cfg(not(feature = "test"))]
 #[tracked]
 #[backend]
 async fn mail(rowid: i64) -> Result<String, tracked::Error> {
- use crate::mail::mail;
  let data = select!(mail "WHERE rowid = " rowid)?.data?;
  Ok(hex::encode(data))
 }

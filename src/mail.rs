@@ -1,20 +1,8 @@
-use super::encrypt;
+use crate::backend::{encrypt, mail};
 use mailin_embedded::response::{NO_MAILBOX, OK};
 use mailin_embedded::{Response, Server, SslConfig};
 use tracked::tracked;
 use turbosql::{now_ms, select, Turbosql};
-
-#[derive(Turbosql, Default, Clone)]
-pub struct mail {
- pub rowid: Option<i64>,
- pub recv_ms: Option<i64>,
- pub recv_ip: Option<String>,
- pub domain: Option<String>,
- pub from_addr: Option<String>,
- pub is8bit: Option<bool>,
- pub to_addr: Option<String>,
- pub data: Option<Vec<u8>>,
-}
 
 #[derive(Turbosql, Default)]
 struct mail_config {
