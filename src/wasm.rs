@@ -159,10 +159,12 @@ pub fn wasm_test_crypto_box() -> String {
  std::str::from_utf8(&decrypted_plaintext).unwrap().to_string()
 }
 
-// #[wasm_bindgen(start)]
-// pub fn main() {
-//  let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
-//  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
+#[wasm_bindgen(start)]
+pub fn main() {
+ console_error_panic_hook::set_once();
 
-//  tracked::set_build_id(build_id);
-// }
+ let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
+ let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
+
+ tracked::set_build_id(build_id);
+}
