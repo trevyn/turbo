@@ -77,6 +77,10 @@ migrations_append_only = [
   'ALTER TABLE client ADD COLUMN remote_addr TEXT',
   'ALTER TABLE client ADD COLUMN user_agent TEXT',
   'ALTER TABLE client ADD COLUMN client_pk BLOB',
+  'ALTER TABLE mail ADD COLUMN recv_ip_enc BLOB',
+  'ALTER TABLE mail ADD COLUMN domain_enc BLOB',
+  'ALTER TABLE mail ADD COLUMN from_addr_enc BLOB',
+  'ALTER TABLE mail ADD COLUMN to_addr_enc BLOB',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -167,7 +171,11 @@ output_generated_schema_for_your_information_do_not_edit = '''
     to_addr TEXT,
     data BLOB,
     recv_ms INTEGER,
-    recv_ip TEXT
+    recv_ip TEXT,
+    recv_ip_enc BLOB,
+    domain_enc BLOB,
+    from_addr_enc BLOB,
+    to_addr_enc BLOB
   ) STRICT
   CREATE TABLE mail_config (
     rowid INTEGER PRIMARY KEY,
@@ -482,14 +490,29 @@ rust_type = 'Option < String >'
 sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
+name = 'recv_ip_enc'
+rust_type = 'Option < Vec < u8 > >'
+sql_type = 'BLOB'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
 name = 'domain'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
+name = 'domain_enc'
+rust_type = 'Option < Vec < u8 > >'
+sql_type = 'BLOB'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
 name = 'from_addr'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'from_addr_enc'
+rust_type = 'Option < Vec < u8 > >'
+sql_type = 'BLOB'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
 name = 'is8bit'
@@ -500,6 +523,11 @@ sql_type = 'INTEGER'
 name = 'to_addr'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.mail.columns]]
+name = 'to_addr_enc'
+rust_type = 'Option < Vec < u8 > >'
+sql_type = 'BLOB'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
 name = 'data'

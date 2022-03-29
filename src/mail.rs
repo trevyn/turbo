@@ -21,8 +21,8 @@ impl mailin_embedded::Handler for mail {
  fn helo(&mut self, ip: std::net::IpAddr, domain: &str) -> Response {
   *self = mail {
    recv_ms: Some(now_ms()),
-   recv_ip: Some(ip.to_string()),
-   domain: Some(domain.to_string()),
+   recv_ip_enc: Some(encrypt(ip.to_string()).unwrap()),
+   domain_enc: Some(encrypt(domain).unwrap()),
    data: Some(Vec::new()),
    ..Default::default()
   };
@@ -45,9 +45,9 @@ impl mailin_embedded::Handler for mail {
  }
 
  fn data_start(&mut self, _domain: &str, from: &str, is8bit: bool, to: &[String]) -> Response {
-  self.from_addr = Some(from.to_string());
+  self.from_addr_enc = Some(encrypt(from).unwrap());
   self.is8bit = Some(is8bit);
-  self.to_addr = Some(to.join(", "));
+  self.to_addr_enc = Some(encrypt(to.join(", ")).unwrap());
   OK
  }
 
