@@ -28,7 +28,7 @@
  }
 </script>
 
-<div class="p-5">
+<div>
  <!-- <p>client_pk: {backend.wasm_client_pk()}</p> -->
 
  <p>
