@@ -48,7 +48,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        rust: [nightly-2022-03-23]
+        rust: [nightly-2022-03-23, nightly]
 
     steps:
       - uses: actions/checkout@v3
@@ -103,7 +103,7 @@ jobs:
           npx web-test-runner "**/*.test.{svelte,js,ts}" --node-resolve
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.rust == 'nightly-2022-03-23' }}
+        if: ${{ matrix.rust == 'nightly' }}
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
@@ -134,9 +134,9 @@ jobs:
       # - run: mv macos-latest-stable/$(basename macos-latest-stable/*) $(basename macos-latest-stable/*)-mac
 
       - run: |
-          mv ubuntu-latest-nightly-2022-03-23/Cargo.lock Cargo.lock
-          mv ubuntu-latest-nightly-2022-03-23/package-lock.json package-lock.json
-          mv ubuntu-latest-nightly-2022-03-23/target/x86_64-unknown-linux-gnu/release/$(basename ubuntu-latest-nightly-2022-03-23/target/x86_64-unknown-linux-gnu/release/*) $(basename ubuntu-latest-nightly-2022-03-23/target/x86_64-unknown-linux-gnu/release/*)-linux
+          mv ubuntu-latest-nightly/Cargo.lock Cargo.lock
+          mv ubuntu-latest-nightly/package-lock.json package-lock.json
+          mv ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/$(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*) $(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*)-linux
 
       - id: create_release
         uses: trevyn/action-gh-release@v1
