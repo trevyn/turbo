@@ -142,6 +142,31 @@ async fn mail(rowid: i64) -> Result<String, tracked::Error> {
  Ok(hex::encode(data))
 }
 
+#[backend]
+#[derive(Default)]
+pub struct Veci64 {
+ pub vec: Vec<i64>,
+}
+
+impl From<Vec<i64>> for Veci64 {
+ fn from(vec: Vec<i64>) -> Self {
+  Veci64 { vec }
+ }
+}
+
+impl FromIterator<i64> for Veci64 {
+ fn from_iter<I: IntoIterator<Item = i64>>(iter: I) -> Self {
+  Veci64 { vec: iter.into_iter().collect() }
+ }
+}
+
+#[tracked]
+#[backend]
+async fn mailrowidlist() -> Result<Veci64, tracked::Error> {
+ let rowids = select!(Vec<mail>)?.into_iter().map(|m| m.rowid.unwrap()).collect();
+ Ok(rowids)
+}
+
 #[server_only]
 #[tracked]
 fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::Error> {

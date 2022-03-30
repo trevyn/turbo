@@ -35,6 +35,12 @@ async fn heartbeat() -> Result<String, tracked::Error> {}
 
 async fn mail(rowid: i64) -> Result<String, tracked::Error> {}
 
+async fn mailrowidlist() -> Result<Veci64, tracked::Error> {}
+
 async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> {}
 
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {}
+
+struct Veci64 {
+    vec: Vec<i64>,
+}
