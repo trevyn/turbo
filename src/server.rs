@@ -8,7 +8,7 @@ mod mail;
 use tracked::tracked;
 use turbosql::{select, Turbosql};
 
-gflags::define!(--tls = false);
+gflags::define!(--tls = true);
 gflags::define!(-p, --port: u16);
 gflags::define!(-h, --help = false);
 
@@ -68,13 +68,16 @@ async fn main() -> tracked::Result<()> {
    let port = port.unwrap_or(443);
    log::info!("Serving HTTPS on port {}", port);
    eprintln!("Serving HTTPS on port {}", port);
+   eprintln!("Connect via HTTPS to a domain pointing to this machine to auto-generate TLS certificate with Let's Encrypt.");
+   eprintln!("(First connection will take about 10 seconds while certificate is provisioned.)");
+   eprintln!("Pass `--notls` to disable TLS.");
    turbocharger::serve_tls::<Frontend>(&std::net::SocketAddr::from(([0, 0, 0, 0], port))).await;
   }
   Flags { port, .. } => {
    let port = port.unwrap_or(8080);
    log::info!("Serving (unsecured) HTTP on port {}", port);
    eprintln!("Serving (unsecured) HTTP on port {}", port);
-   eprintln!("Pass `--tls` to auto-setup TLS certificate with Let's Encrypt.");
+   eprintln!("Pass `--tls` to enable TLS.");
    #[cfg(debug_assertions)]
    opener::open(format!("http://127.0.0.1:{}", 3000)).ok();
    turbocharger::serve::<Frontend>(&std::net::SocketAddr::from(([0, 0, 0, 0], port))).await;
