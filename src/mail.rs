@@ -33,13 +33,9 @@ impl mailin_embedded::Handler for mail {
   if to.contains(&select!(mail_config).unwrap_or_default().domain.unwrap_or_default()) {
    OK
   } else {
-   mail_log {
-    rowid: None,
-    timestamp: Some(now_ms()),
-    line: Some(format!("{:?} {:?} invalid rcpt: {}", self.recv_ip, self.domain, to)),
-   }
-   .insert()
-   .unwrap();
+   mail_log { rowid: None, timestamp: Some(now_ms()), line: Some(format!("invalid rcpt: {}", to)) }
+    .insert()
+    .unwrap();
    NO_MAILBOX
   }
  }
@@ -65,7 +61,7 @@ impl mailin_embedded::Handler for mail {
 
 #[tracked]
 pub fn start_server() -> Result<(), tracked::StringError> {
- let cert = rcgen::generate_simple_self_signed(vec!["localhost".to_string()])?;
+ let cert = rcgen::generate_simple_self_signed(vec!["localhost".into()])?;
  std::fs::write("/tmp/mail.cert", cert.serialize_pem()?)?;
  std::fs::write("/tmp/mail.key", cert.serialize_private_key_pem())?;
 
@@ -75,7 +71,7 @@ pub fn start_server() -> Result<(), tracked::StringError> {
   key_path: "/tmp/mail.key".into(),
  })?;
 
- if std::env::var_os("CI") == Some(std::ffi::OsString::from("true")) {
+ if std::env::var_os("CI") == Some("true".into()) {
   return Ok(());
  }
 

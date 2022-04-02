@@ -8,14 +8,10 @@ use turbosql::{now_ms, select, Turbosql};
 pub struct mail {
  pub rowid: Option<i64>,
  pub recv_ms: Option<i64>,
- pub recv_ip: Option<String>,
  pub recv_ip_enc: Option<Vec<u8>>,
- pub domain: Option<String>,
  pub domain_enc: Option<Vec<u8>>,
- pub from_addr: Option<String>,
  pub from_addr_enc: Option<Vec<u8>>,
  pub is8bit: Option<bool>,
- pub to_addr: Option<String>,
  pub to_addr_enc: Option<Vec<u8>>,
  pub data: Option<Vec<u8>>,
 }

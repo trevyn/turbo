@@ -485,29 +485,14 @@ rust_type = 'Option < i64 >'
 sql_type = 'INTEGER'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
-name = 'recv_ip'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
-
-[[output_generated_tables_do_not_edit.mail.columns]]
 name = 'recv_ip_enc'
 rust_type = 'Option < Vec < u8 > >'
 sql_type = 'BLOB'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
-name = 'domain'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
-
-[[output_generated_tables_do_not_edit.mail.columns]]
 name = 'domain_enc'
 rust_type = 'Option < Vec < u8 > >'
 sql_type = 'BLOB'
-
-[[output_generated_tables_do_not_edit.mail.columns]]
-name = 'from_addr'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
 name = 'from_addr_enc'
@@ -518,11 +503,6 @@ sql_type = 'BLOB'
 name = 'is8bit'
 rust_type = 'Option < bool >'
 sql_type = 'INTEGER'
-
-[[output_generated_tables_do_not_edit.mail.columns]]
-name = 'to_addr'
-rust_type = 'Option < String >'
-sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit.mail.columns]]
 name = 'to_addr_enc'
