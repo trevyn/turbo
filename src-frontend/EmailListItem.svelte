@@ -5,7 +5,7 @@
 
 <tr>
  <td
-  class="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-extralight text-gray-900 sm:w-auto sm:max-w-none sm:pl-6"
+  class="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-extralight text-gray-900 sm:pl-6"
  >
   {item.from}
   <dl>
