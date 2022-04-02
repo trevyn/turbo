@@ -163,7 +163,10 @@ impl FromIterator<i64> for Veci64 {
 #[tracked]
 #[backend]
 async fn mailrowidlist() -> Result<Veci64, tracked::Error> {
- let rowids = select!(Vec<mail>)?.into_iter().map(|m| m.rowid.unwrap()).collect();
+ let rowids = select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?
+  .into_iter()
+  .map(|m| m.rowid.unwrap())
+  .collect();
  Ok(rowids)
 }
 
