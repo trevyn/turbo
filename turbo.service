@@ -1,0 +1,11 @@
+[Unit]
+Description=Turbo server
+
+[Service]
+ExecStart=/usr/local/bin/turbo
+User=turbo
+Group=turbo
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

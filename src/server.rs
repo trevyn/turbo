@@ -5,6 +5,7 @@
 mod backend;
 mod mail;
 
+use std::process::Command;
 use tracked::tracked;
 use turbosql::{select, Turbosql};
 
@@ -44,6 +45,50 @@ async fn main() -> tracked::Result<()> {
 
  if select!(Option<Flags>)?.is_none() {
   Flags::default().insert()?;
+ }
+
+ let output = Command::new("whoami").output().unwrap();
+ let whoami = std::str::from_utf8(&output.stdout[..output.stdout.len() - 1]).unwrap();
+ log::warn!("Running as {}", whoami);
+
+ match whoami {
+  "root" => {
+   use std::io::{stdin, stdout, Write};
+   let mut s = String::new();
+   print!("Install turbo as systemd service? [Y/n] ");
+   let _ = stdout().flush();
+   stdin().read_line(&mut s).unwrap();
+   if let Some('\n') = s.chars().next_back() {
+    s.pop();
+   }
+   if let Some('\r') = s.chars().next_back() {
+    s.pop();
+   }
+   println!("You typed: {}", s);
+   println!("Installing systemd service...");
+   Command::new("/usr/sbin/useradd")
+    .args(["-r", "-d", "/home/turbo", "-s", "/sbin/nologin", "turbo"])
+    .output()
+    .unwrap();
+   Command::new("/usr/bin/mkdir").args(["-p", "/home/turbo"]).output().unwrap();
+   Command::new("/usr/bin/chown").args(["turbo:turbo", "/home/turbo"]).output().unwrap();
+   std::fs::write("/etc/systemd/system/turbo.service", include_str!("../turbo.service"))?;
+   Command::new("/usr/bin/chmod")
+    .args(["a+r", "/etc/systemd/system/turbo.service"])
+    .output()
+    .unwrap();
+   std::fs::write("/usr/local/bin/turbo", std::fs::read(&std::env::current_exe()?)?)?;
+   Command::new("/usr/bin/chmod").args(["a+x", "/usr/local/bin/turbo"]).output().unwrap();
+   Command::new("/usr/bin/systemctl").args(["daemon-reload"]).output().unwrap();
+   Command::new("/usr/bin/systemctl").args(["start", "turbo"]).output().unwrap();
+   Command::new("/usr/bin/systemctl").args(["enable", "turbo"]).output().unwrap();
+   println!("Now running as systemd service.");
+   std::process::exit(0);
+  }
+  "turbo" => {}
+  _ => {
+   log::warn!("Run as root or sudo to install as systemd service.");
+  }
  }
 
  if TLS.is_present() || PORT.is_present() {
