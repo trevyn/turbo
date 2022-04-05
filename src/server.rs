@@ -13,11 +13,17 @@ gflags::define!(--tls = true);
 gflags::define!(-p, --port: u16);
 gflags::define!(-h, --help = false);
 
-#[derive(Turbosql, Default, Clone)]
+#[derive(Turbosql, Clone)]
 struct Flags {
  rowid: Option<i64>,
  tls: Option<bool>,
  port: Option<u16>,
+}
+
+impl Default for Flags {
+ fn default() -> Self {
+  Self { rowid: None, tls: Some(true), port: None }
+ }
 }
 
 #[tokio::main]
@@ -94,7 +100,7 @@ async fn main() -> tracked::Result<()> {
  if TLS.is_present() || PORT.is_present() {
   Flags {
    rowid: Some(1),
-   tls: if TLS.is_present() { Some(TLS.flag) } else { None },
+   tls: if TLS.is_present() { Some(TLS.flag) } else { Some(true) },
    port: if PORT.is_present() { Some(PORT.flag) } else { None },
   }
   .update()?;
