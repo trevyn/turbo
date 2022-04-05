@@ -97,7 +97,7 @@ jobs:
       - run: cargo tree --target=wasm32-unknown-unknown
       - run: npm list --depth=99
       - run: |
-          target/x86_64-unknown-linux-gnu/release/turbo &
+          target/x86_64-unknown-linux-gnu/release/turbo --notls &
           sleep 1
           cd src-frontend
           npx web-test-runner "**/*.test.{svelte,js,ts}" --node-resolve
