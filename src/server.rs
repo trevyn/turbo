@@ -83,8 +83,9 @@ async fn main() -> tracked::Result<()> {
     .args(["a+r", "/etc/systemd/system/turbo.service"])
     .output()
     .unwrap();
-   std::fs::write("/usr/local/bin/turbo", std::fs::read(&std::env::current_exe()?)?)?;
-   Command::new("/usr/bin/chmod").args(["a+x", "/usr/local/bin/turbo"]).output().unwrap();
+   std::fs::write("/home/turbo/turbo", std::fs::read(&std::env::current_exe()?)?)?;
+   Command::new("/usr/bin/chown").args(["turbo:turbo", "/home/turbo/turbo"]).output().unwrap();
+   Command::new("/usr/bin/chmod").args(["a+x", "/home/turbo/turbo"]).output().unwrap();
    Command::new("/usr/bin/systemctl").args(["daemon-reload"]).output().unwrap();
    Command::new("/usr/bin/systemctl").args(["start", "turbo"]).output().unwrap();
    Command::new("/usr/bin/systemctl").args(["enable", "turbo"]).output().unwrap();

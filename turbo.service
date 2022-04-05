@@ -2,7 +2,7 @@
 Description=Turbo server
 
 [Service]
-ExecStart=/usr/local/bin/turbo
+ExecStart=/home/turbo/turbo
 User=turbo
 Group=turbo
 AmbientCapabilities=CAP_NET_BIND_SERVICE
