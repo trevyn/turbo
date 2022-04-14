@@ -85,7 +85,7 @@ jobs:
           tar xvf binaryen-version_105-x86_64-linux.tar.gz
 
       - run: npm install
-      - run: npx audit-ci --low -a 1069976
+      - run: npx audit-ci --low -a GHSA-fwr7-v2mv-hh25
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --target wasm32-unknown-unknown
       - run: wasm-bindgen-0.2.80-x86_64-unknown-linux-musl/wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm
       - run: binaryen-version_105/bin/wasm-opt src-frontend/turbocharger_generated/index_bg.wasm -o src-frontend/turbocharger_generated/index_bg.wasm -Oz
