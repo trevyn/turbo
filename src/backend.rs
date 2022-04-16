@@ -37,13 +37,13 @@ pub struct client {
 }
 
 #[backend]
-pub async fn heartbeat() -> Result<String, tracked::Error> {
+pub async fn heartbeat() -> Result<String, tracked::StringError> {
  Ok("beat".to_string())
 }
 
 #[backend]
 #[tracked]
-pub async fn getblockchaininfo() -> Result<String, tracked::Error> {
+pub async fn getblockchaininfo() -> Result<String, tracked::StringError> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
  let [username, password]: [&str; 2] = cookie.split(':').collect::<Vec<&str>>().try_into().ok()?;
 
@@ -66,7 +66,7 @@ pub async fn animal_time() -> String {
 
 #[tracked]
 #[backend]
-pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> {
+pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {
  client {
   rowid: None,
   timestamp: Some(now_ms()),
@@ -95,7 +95,7 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> 
 #[tracked]
 #[backend]
 #[async_stream::try_stream_attribute]
-fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
+fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
  animal_time_stream_log {
   rowid: None,
   timestamp: Some(now_ms()),
@@ -113,7 +113,7 @@ fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
 
 #[tracked]
 #[server_only]
-pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::Error> {
+pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
  let pk = crypto_box::PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
  Ok(sealed_box::seal(m.as_ref(), &pk))
 }
@@ -121,7 +121,7 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::Error> {
 #[tracked]
 #[backend]
 #[async_stream::try_stream_attribute]
-fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {
+fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
  for i in 0.. {
   dbg!(i);
   let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
@@ -133,7 +133,7 @@ fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::
 
 #[tracked]
 #[backend]
-async fn mail(rowid: i64) -> Result<String, tracked::Error> {
+async fn mail(rowid: i64) -> Result<String, tracked::StringError> {
  let data = select!(mail "WHERE rowid = " rowid)?.data?;
  Ok(hex::encode(data))
 }
@@ -158,7 +158,7 @@ impl FromIterator<i64> for Veci64 {
 
 #[tracked]
 #[backend]
-async fn mailrowidlist() -> Result<Veci64, tracked::Error> {
+async fn mailrowidlist() -> Result<Veci64, tracked::StringError> {
  let rowids = select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?
   .into_iter()
   .map(|m| m.rowid.unwrap())
@@ -168,7 +168,7 @@ async fn mailrowidlist() -> Result<Veci64, tracked::Error> {
 
 #[server_only]
 #[tracked]
-fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::Error> {
+fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::StringError> {
  use tracked::Track;
  Ok(format!(
   "{} {} {}\n{}\n",
@@ -181,7 +181,7 @@ fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::Error> 
 
 #[backend]
 #[tracked]
-pub async fn animal_log() -> Result<String, tracked::Error> {
+pub async fn animal_log() -> Result<String, tracked::StringError> {
  Ok(
   select!(Vec<animal_time_stream_log> "ORDER BY rowid DESC")?
    .into_iter()
@@ -194,7 +194,7 @@ pub async fn animal_log() -> Result<String, tracked::Error> {
 #[tracked]
 #[backend]
 #[async_stream::try_stream_attribute]
-fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {
+fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {
  for i in 0.. {
   yield format!("r{}", i);
   if i == 5 {
@@ -206,7 +206,7 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>>
 
 #[backend]
 #[tracked]
-pub async fn check_for_updates() -> Result<String, tracked::Error> {
+pub async fn check_for_updates() -> Result<String, tracked::StringError> {
  // TODO: handle race conditions
  // also, this seems to block the executor if slow, maybe put it in a spawn_blocking?
 
@@ -226,7 +226,9 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
   .send()
   .await?;
 
- tracked::ensure!(res.status() == 302);
+ if res.status() != 302 {
+  Err(tracked::anyhow!("Err, HTTP status {}, expected 302", res.status()))?;
+ }
  let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
 
  let new_version =
@@ -237,11 +239,11 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
  } else {
   let bytes = reqwest::get(location).await?.bytes().await?;
   if bytes.len() < 10_000_000 {
-   tracked::bail!(
+   Err(tracked::anyhow!(
     "Not updating; new release {} is unexpectedly small: {} bytes.",
     new_version,
     bytes.len()
-   );
+   ))?;
   }
   let current_exe = std::env::current_exe()?;
   std::fs::remove_file(&current_exe)?;

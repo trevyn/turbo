@@ -11,11 +11,11 @@ struct _Turbonet_SelfResponse {
     build_id: String,
 }
 
-async fn animal_log() -> Result<String, tracked::Error> {}
+async fn animal_log() -> Result<String, tracked::StringError> {}
 
 async fn animal_time() -> String {}
 
-fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {}
+fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {}
 
 struct animal_time_stream_log {
     rowid: Option<i64>,
@@ -25,21 +25,23 @@ struct animal_time_stream_log {
     user_agent: Option<String>,
 }
 
-async fn check_for_updates() -> Result<String, tracked::Error> {}
+async fn check_for_updates() -> Result<String, tracked::StringError> {}
 
-fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::Error>> {}
+fn encrypted_animal_time_stream() -> impl Stream<
+        Item = Result<String, tracked::StringError>,
+    > {}
 
-async fn getblockchaininfo() -> Result<String, tracked::Error> {}
+async fn getblockchaininfo() -> Result<String, tracked::StringError> {}
 
-async fn heartbeat() -> Result<String, tracked::Error> {}
+async fn heartbeat() -> Result<String, tracked::StringError> {}
 
-async fn mail(rowid: i64) -> Result<String, tracked::Error> {}
+async fn mail(rowid: i64) -> Result<String, tracked::StringError> {}
 
-async fn mailrowidlist() -> Result<Veci64, tracked::Error> {}
+async fn mailrowidlist() -> Result<Veci64, tracked::StringError> {}
 
-async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::Error> {}
+async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {}
 
-fn stream_example_result() -> impl Stream<Item = Result<String, tracked::Error>> {}
+fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {}
 
 struct Veci64 {
     vec: Vec<i64>,
