@@ -37,7 +37,7 @@ async fn main() -> tracked::Result<()> {
   std::env::set_var("RUST_LOG", "info")
  }
 
- let dev_string = format!("DEV {}", option_env!("BUILD_TIME").unwrap_or_default());
+ let dev_string = format!("DEV-{}", include_str!(concat!(env!("OUT_DIR"), "/BUILD_TIME.txt")));
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
 
  tracked::set_build_id(build_id);

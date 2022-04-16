@@ -214,8 +214,8 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
 
  if option_env!("BUILD_ID").is_none() {
   return Ok(format!(
-   "Running DEV {}; updates disabled on DEV.",
-   option_env!("BUILD_TIME").unwrap_or_default()
+   "Running DEV-{}; updates disabled on DEV.",
+   include_str!(concat!(env!("OUT_DIR"), "/BUILD_TIME.txt"))
   ));
  }
 
