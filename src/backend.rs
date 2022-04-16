@@ -236,7 +236,7 @@ pub async fn check_for_updates() -> Result<String, tracked::Error> {
   Ok(format!("Running latest! {}", new_version))
  } else {
   let bytes = reqwest::get(location).await?.bytes().await?;
-  if bytes.len() < 14_000_000 {
+  if bytes.len() < 10_000_000 {
    tracked::bail!(
     "Not updating; new release {} is unexpectedly small: {} bytes.",
     new_version,
