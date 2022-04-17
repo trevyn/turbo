@@ -104,7 +104,7 @@ impl epi::App for TemplateApp {
    ui.heading("eframe template");
    ui.hyperlink("https://github.com/emilk/eframe_template");
    // ui.add(egui::github_link_file!(
-   //  "https://github.com/emilk/eframe_template/blob/master/",
+   //  "https://github.com/emilk/eframe_template/",
    //  "Source code."
    // ));
    egui::warn_if_debug_build(ui);
