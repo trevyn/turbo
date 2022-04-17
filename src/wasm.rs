@@ -167,6 +167,10 @@ pub fn main() {
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
 
  tracked::set_build_id(build_id);
+}
 
+#[wasm_only]
+#[wasm_bindgen]
+pub fn start_web() {
  eframe::start_web("the_canvas_id", Box::new(app::TemplateApp::default()));
 }
