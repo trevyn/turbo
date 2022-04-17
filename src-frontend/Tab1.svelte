@@ -1,6 +1,5 @@
 <script lang="ts">
  import * as backend from "./turbocharger_generated";
- import StreamSpan from "./StreamSpan.svelte";
  import EmailListItem from "./EmailListItem.svelte";
 </script>
 
