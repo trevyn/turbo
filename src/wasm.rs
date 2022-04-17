@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
+mod app;
 mod backend;
 
 use crypto_box::{rand_core::OsRng, SecretKey};
@@ -157,6 +158,7 @@ pub fn wasm_test_crypto_box() -> String {
  std::str::from_utf8(&decrypted_plaintext).unwrap().to_string()
 }
 
+#[wasm_only]
 #[wasm_bindgen(start)]
 pub fn main() {
  console_error_panic_hook::set_once();
@@ -165,4 +167,6 @@ pub fn main() {
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
 
  tracked::set_build_id(build_id);
+
+ eframe::start_web("the_canvas_id", Box::new(app::TemplateApp::default()));
 }
