@@ -1,4 +1,3 @@
-#![feature(generators)]
 #![forbid(unsafe_code)]
 #![allow(non_camel_case_types)]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
