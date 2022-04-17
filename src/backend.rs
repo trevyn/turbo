@@ -171,13 +171,9 @@ async fn mailrowidlist() -> Result<Veci64, tracked::StringError> {
 #[server_only]
 #[tracked]
 fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::StringError> {
- use tracked::Track;
  Ok(format!(
   "{} {} {}\n{}\n",
-  Track::t(row.remote_addr)?,
-  Track::t(row.animal_timestamp)?,
-  Track::t(row.timestamp)?,
-  Track::t(row.user_agent)?
+  row.remote_addr?, row.animal_timestamp?, row.timestamp?, row.user_agent?
  ))
 }
 
