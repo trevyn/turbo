@@ -94,21 +94,22 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
 
 #[tracked]
 #[backend]
-#[async_stream::try_stream_attribute]
 fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
- animal_time_stream_log {
-  rowid: None,
-  timestamp: Some(now_ms()),
-  animal_timestamp: Some(animal_time().await),
-  remote_addr: remote_addr.map(|addr| addr.to_string()),
-  user_agent,
- }
- .insert()?;
- for i in 0.. {
-  dbg!(i);
-  yield format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
-  tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
- }
+ turbocharger::async_stream::try_stream!({
+  animal_time_stream_log {
+   rowid: None,
+   timestamp: Some(now_ms()),
+   animal_timestamp: Some(animal_time().await),
+   remote_addr: remote_addr.map(|addr| addr.to_string()),
+   user_agent,
+  }
+  .insert()?;
+  for i in 0.. {
+   dbg!(i);
+   yield format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
+   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+  }
+ })
 }
 
 #[tracked]
@@ -120,15 +121,16 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
 
 #[tracked]
 #[backend]
-#[async_stream::try_stream_attribute]
 fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
- for i in 0.. {
-  dbg!(i);
-  let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
-  let c = encrypt(val.as_bytes())?;
-  yield hex::encode(c);
-  tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
- }
+ turbocharger::async_stream::try_stream!({
+  for i in 0.. {
+   dbg!(i);
+   let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
+   let c = encrypt(val.as_bytes())?;
+   yield hex::encode(c);
+   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+  }
+ })
 }
 
 #[tracked]
@@ -193,15 +195,16 @@ pub async fn animal_log() -> Result<String, tracked::StringError> {
 
 #[tracked]
 #[backend]
-#[async_stream::try_stream_attribute]
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {
- for i in 0.. {
-  yield format!("r{}", i);
-  if i == 5 {
-   None?;
+ turbocharger::async_stream::try_stream!({
+  for i in 0.. {
+   yield format!("r{}", i);
+   if i == 5 {
+    None?;
+   }
+   tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
-  tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
- }
+ })
 }
 
 #[backend]

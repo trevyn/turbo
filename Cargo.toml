@@ -40,7 +40,6 @@ turbosql = "0.5"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
 animal-time = "0.1"
-async-stream = {version = "0.3", git = "https://github.com/trevyn/async-stream", branch = "try_stream_attribute"}
 gflags = "0.3"
 log = "0.4"
 mailin-embedded = {version = "0.7", features = ["rtls"]}
@@ -62,6 +61,7 @@ time = {version = "0.3", features = ["formatting"]}
 # turbosql = {path = "../turbosql/turbosql"}
 # tracked = {path = "../tracked/tracked"}
 # tracked = {git = "https://github.com/trevyn/tracked", branch = "main"}
+async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "master"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 # turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
