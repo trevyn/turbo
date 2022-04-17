@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 use crypto_box::PublicKey;
 use tracked::tracked;
-use turbocharger::{backend, server_only};
+use turbocharger::{backend, server_only, wasm_bindgen_futures};
 use turbosql::{now_ms, select, Turbosql};
 
 #[derive(Turbosql, Default, Clone)]
