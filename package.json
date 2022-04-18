@@ -1,7 +1,7 @@
 {
  "scripts": {
-  "start-info": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --timings --lib --release --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=info cargo run --timings --bin turbo -- --notls; }",
-  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --lib --release --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=debug cargo run --bin turbo -- --notls; }",
+  "start-info": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --lib --features wasm --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/debug/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=info cargo run --bin turbo -- --notls; }",
+  "start-debug": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --lib --features wasm --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/debug/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=debug cargo run --bin turbo -- --notls; }",
   "svelte-check": "npx svelte-check",
   "update-rs-deps": "cargo update",
   "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install"

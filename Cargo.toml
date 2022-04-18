@@ -16,17 +16,19 @@ name = "turbo"
 path = "src/server.rs"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-# dependencies for wasm only
+# set features for real wasm build only
 getrandom = {version = "0.2", features = ["js"]}
 rand_core = {version = "0.6", features = ["getrandom"]}
 
+[features]
+wasm = ["console_error_panic_hook", "eframe", "mailparse", "wasm-bindgen", "web-sys"]
 [dependencies]
 # dependencies that are really only for wasm, but rust-analyzer uses too
-console_error_panic_hook = "0.1" 
-eframe = "0.17.0" 
-mailparse = "0.13" 
-wasm-bindgen = "=0.2.80" # This should be synced with the wasm-bindgen CLI version in CI
-web-sys = {version = "0.3", features = ["Storage", "Window"]} 
+console_error_panic_hook = {version = "0.1", optional = true}
+eframe = {version = "0.17.0", optional = true}
+mailparse = {version = "0.13", optional = true}
+wasm-bindgen = {version = "=0.2.80", optional = true}# This should be synced with the wasm-bindgen CLI version in CI
+web-sys = {version = "0.3", features = ["Storage", "Window"], optional = true}
 
 # dependencies for both server and wasm
 crypto_box = "0.7.1"

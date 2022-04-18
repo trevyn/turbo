@@ -158,7 +158,6 @@ pub fn wasm_test_crypto_box() -> String {
  std::str::from_utf8(&decrypted_plaintext).unwrap().to_string()
 }
 
-#[wasm_only]
 #[wasm_bindgen(start)]
 pub fn main() {
  console_error_panic_hook::set_once();
