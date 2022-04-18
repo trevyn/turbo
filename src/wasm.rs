@@ -9,7 +9,7 @@ use crypto_box::{rand_core::OsRng, SecretKey};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use tracked::tracked;
-use turbocharger::{wasm_bindgen, wasm_bindgen::prelude::*, wasm_bindgen_futures, wasm_only};
+use turbocharger::{prelude::*, wasm_only};
 
 struct client_sk([u8; 32]);
 
