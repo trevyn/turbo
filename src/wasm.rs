@@ -47,11 +47,10 @@ impl client_sk {
 
 static CLIENT_SK: Lazy<Mutex<client_sk>> = Lazy::new(|| Mutex::new(client_sk::load()));
 
-#[wasm_only]
 #[wasm_bindgen]
 pub async fn wasm_notify_client_pk() -> Result<(), JsValue> {
  let pk = CLIENT_SK.lock().unwrap().pk();
- backend::notify_client_pk(pk.to_vec()).await
+ backend::notify_client_pk(pk.to_vec()).await.map_err(|e| e.to_string().into())
 }
 
 #[wasm_bindgen]
@@ -171,5 +170,5 @@ pub fn main() {
 #[wasm_only]
 #[wasm_bindgen]
 pub fn start_web() {
- eframe::start_web("the_canvas_id", Box::new(app::TemplateApp::default()));
+ eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TemplateApp::new(cc)))).unwrap();
 }

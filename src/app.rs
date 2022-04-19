@@ -1,4 +1,7 @@
-use eframe::{egui, epaint::Vec2, epi};
+use eframe::{egui, epaint::Vec2};
+use std::sync::{Arc, Mutex};
+use turbocharger::futures_util::StreamExt;
+use turbocharger::prelude::*;
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
@@ -10,40 +13,48 @@ pub struct TemplateApp {
  // this how you opt-out of serialization of a member
  #[cfg_attr(feature = "persistence", serde(skip))]
  value: f32,
+
+ encrypted_animal_time_stream: Arc<Mutex<String>>,
 }
 
-impl Default for TemplateApp {
- fn default() -> Self {
-  Self {
-   // Example stuff:
-   label: "Hello World!".to_owned(),
-   value: 2.7,
-  }
- }
-}
+impl TemplateApp {
+ pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+  // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
+  // Restore app state using cc.storage (requires the "persistence" feature).
+  // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
+  // for e.g. egui::PaintCallback.
 
-impl epi::App for TemplateApp {
- fn name(&self) -> &str {
-  "eframe template"
- }
-
- fn max_size_points(&self) -> Vec2 {
-  Vec2::new(2048.0, 250.0)
- }
-
- /// Called once before the first frame.
- fn setup(
-  &mut self,
-  _ctx: &egui::Context,
-  _frame: &epi::Frame,
-  _storage: Option<&dyn epi::Storage>,
- ) {
   // Load previous app state (if any).
   // Note that you must enable the `persistence` feature for this to work.
-  #[cfg(feature = "persistence")]
-  if let Some(storage) = _storage {
-   *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
-  }
+  // #[cfg(feature = "persistence")]
+  // if let Some(storage) = _storage {
+  //  *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
+  // }
+
+  let s = Self {
+   label: "Hello World!".to_owned(),
+   value: 2.7,
+   encrypted_animal_time_stream: Default::default(),
+  };
+
+  let mut stream = Box::pin(crate::backend::encrypted_animal_time_stream());
+  let encrypted_animal_time_stream = s.encrypted_animal_time_stream.clone();
+  let ctx = cc.egui_ctx.clone();
+  wasm_bindgen_futures::spawn_local(async move {
+   while let Some(item) = stream.next().await {
+    *encrypted_animal_time_stream.lock().unwrap() = format!("{:?}", item);
+    ctx.request_repaint();
+    ::turbocharger::console_log!("{:?}", item);
+   }
+  });
+
+  s
+ }
+}
+
+impl eframe::App for TemplateApp {
+ fn max_size_points(&self) -> Vec2 {
+  Vec2::new(2048.0, 250.0)
  }
 
  /// Called by the frame work to save state before shutdown.
@@ -55,8 +66,8 @@ impl epi::App for TemplateApp {
 
  /// Called each time the UI needs repainting, which may be many times per second.
  /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
- fn update(&mut self, ctx: &egui::Context, frame: &epi::Frame) {
-  let Self { label, value } = self;
+ fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+  let Self { label, value, encrypted_animal_time_stream } = self;
 
   // Examples of how to create different panels and windows.
   // Pick whichever suits you.
@@ -86,37 +97,13 @@ impl epi::App for TemplateApp {
    if ui.button("Increment").clicked() {
     *value += 1.0;
    }
-
-   ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-    ui.horizontal(|ui| {
-     ui.spacing_mut().item_spacing.x = 0.0;
-     ui.label("powered by ");
-     ui.hyperlink_to("egui", "https://github.com/emilk/egui");
-     ui.label(" and ");
-     ui.hyperlink_to("eframe", "https://github.com/emilk/egui/tree/master/eframe");
-    });
-   });
   });
 
   egui::CentralPanel::default().show(ctx, |ui| {
    // The central panel the region left after adding TopPanel's and SidePanel's
 
-   ui.heading("eframe template");
-   ui.hyperlink("https://github.com/emilk/eframe_template");
-   // ui.add(egui::github_link_file!(
-   //  "https://github.com/emilk/eframe_template/",
-   //  "Source code."
-   // ));
+   ui.heading(encrypted_animal_time_stream.lock().unwrap().as_str());
    egui::warn_if_debug_build(ui);
   });
-
-  if false {
-   egui::Window::new("Window").show(ctx, |ui| {
-    ui.label("Windows can be moved by dragging them.");
-    ui.label("They are automatically sized based on contents.");
-    ui.label("You can turn on resizing and scrolling if you like.");
-    ui.label("You would normally chose either panels OR windows.");
-   });
-  }
  }
 }

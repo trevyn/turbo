@@ -121,7 +121,7 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
 
 #[tracked]
 #[backend]
-fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
+pub fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
  turbocharger::async_stream::try_stream!({
   for i in 0.. {
    dbg!(i);
