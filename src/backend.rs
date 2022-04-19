@@ -36,12 +36,12 @@ pub struct client {
  pub client_pk: Option<[u8; 32]>,
 }
 
-#[backend]
+#[backend(js)]
 pub async fn heartbeat() -> Result<String, tracked::StringError> {
  Ok("beat".to_string())
 }
 
-#[backend]
+#[backend(js)]
 #[tracked]
 pub async fn getblockchaininfo() -> Result<String, tracked::StringError> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
@@ -59,13 +59,13 @@ pub async fn getblockchaininfo() -> Result<String, tracked::StringError> {
  )
 }
 
-#[backend]
+#[backend(js)]
 pub async fn animal_time() -> String {
  animal_time::now()
 }
 
 #[tracked]
-#[backend]
+#[backend(js)]
 pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {
  client {
   rowid: None,
@@ -93,7 +93,7 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
 // }
 
 #[tracked]
-#[backend]
+#[backend(js)]
 fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
  turbocharger::async_stream::try_stream!({
   animal_time_stream_log {
@@ -121,20 +121,20 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
 
 #[tracked]
 #[backend]
-pub fn encrypted_animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {
+pub fn encrypted_animal_time_stream() -> impl Stream<Item = Result<Vec<u8>, tracked::StringError>> {
  turbocharger::async_stream::try_stream!({
   for i in 0.. {
    dbg!(i);
    let val = format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
    let c = encrypt(val.as_bytes())?;
-   yield hex::encode(c);
+   yield c;
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
  })
 }
 
 #[tracked]
-#[backend]
+#[backend(js)]
 async fn mail(rowid: i64) -> Result<String, tracked::StringError> {
  let data = select!(mail "WHERE rowid = " rowid)?.data?;
  Ok(hex::encode(data))
@@ -159,7 +159,7 @@ impl FromIterator<i64> for Veci64 {
 }
 
 #[tracked]
-#[backend]
+#[backend(js)]
 async fn mailrowidlist() -> Result<Veci64, tracked::StringError> {
  let rowids = select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?
   .into_iter()
@@ -177,7 +177,7 @@ fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::StringE
  ))
 }
 
-#[backend]
+#[backend(js)]
 #[tracked]
 pub async fn animal_log() -> Result<String, tracked::StringError> {
  Ok(
@@ -190,7 +190,7 @@ pub async fn animal_log() -> Result<String, tracked::StringError> {
 }
 
 #[tracked]
-#[backend]
+#[backend(js)]
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {
  turbocharger::async_stream::try_stream!({
   for i in 0.. {
@@ -203,7 +203,7 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
  })
 }
 
-#[backend]
+#[backend(js)]
 #[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::StringError> {
  // TODO: handle race conditions

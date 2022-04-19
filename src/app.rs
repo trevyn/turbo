@@ -14,7 +14,7 @@ pub struct TemplateApp {
  #[cfg_attr(feature = "persistence", serde(skip))]
  value: f32,
 
- encrypted_animal_time_stream: Arc<Mutex<String>>,
+ encrypted_animal_time_stream: Arc<Mutex<Vec<u8>>>,
 }
 
 impl TemplateApp {
@@ -42,9 +42,9 @@ impl TemplateApp {
   let ctx = cc.egui_ctx.clone();
   wasm_bindgen_futures::spawn_local(async move {
    while let Some(item) = stream.next().await {
-    *encrypted_animal_time_stream.lock().unwrap() = format!("{:?}", item);
+    *encrypted_animal_time_stream.lock().unwrap() = item.unwrap();
     ctx.request_repaint();
-    ::turbocharger::console_log!("{:?}", item);
+    // ::turbocharger::console_log!("{:?}", item);
    }
   });
 
@@ -102,7 +102,10 @@ impl eframe::App for TemplateApp {
   egui::CentralPanel::default().show(ctx, |ui| {
    // The central panel the region left after adding TopPanel's and SidePanel's
 
-   ui.heading(encrypted_animal_time_stream.lock().unwrap().as_str());
+   ui.heading(
+    crate::wasm_decrypt((*encrypted_animal_time_stream.lock().unwrap()).clone())
+     .unwrap_or_default(),
+   );
    egui::warn_if_debug_build(ui);
   });
  }

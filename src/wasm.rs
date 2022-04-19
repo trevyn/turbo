@@ -63,13 +63,8 @@ pub fn wasm_set_client_sk(sk: String) {
  CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
-#[wasm_bindgen]
-pub fn wasm_decrypt(data: String) -> Option<String> {
- CLIENT_SK
-  .lock()
-  .unwrap()
-  .decrypt(hex::decode(data).unwrap())
-  .map(|data| std::str::from_utf8(&data).unwrap().to_string())
+pub fn wasm_decrypt(data: Vec<u8>) -> Option<String> {
+ CLIENT_SK.lock().unwrap().decrypt(data).map(|data| std::str::from_utf8(&data).unwrap().to_string())
 }
 
 #[wasm_bindgen(getter_with_clone)]

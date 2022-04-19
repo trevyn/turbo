@@ -28,7 +28,7 @@ struct animal_time_stream_log {
 async fn check_for_updates() -> Result<String, tracked::StringError> {}
 
 fn encrypted_animal_time_stream() -> impl Stream<
-        Item = Result<String, tracked::StringError>,
+        Item = Result<Vec<u8>, tracked::StringError>,
     > {}
 
 async fn getblockchaininfo() -> Result<String, tracked::StringError> {}
