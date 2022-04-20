@@ -27,7 +27,7 @@ impl Default for Flags {
 
 #[tokio::main]
 #[tracked]
-async fn main() -> tracked::Result<()> {
+async fn main() -> Result<(), tracked::StringError> {
  #[derive(rust_embed::RustEmbed)]
  #[folder = "src-frontend/dist"]
  struct Frontend;

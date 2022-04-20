@@ -106,6 +106,9 @@ fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringErro
   .insert()?;
   for i in 0.. {
    dbg!(i);
+   if i == 5 {
+    Err("oh no")?;
+   }
    yield format!("{:?} - {} {}s!!", remote_addr, i, animal_time().await);
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
@@ -226,7 +229,7 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
   .await?;
 
  if res.status() != 302 {
-  Err(tracked::anyhow!("Err, HTTP status {}, expected 302", res.status()))?;
+  Err(format!("Err, HTTP status {}, expected 302", res.status()))?;
  }
  let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
 
@@ -238,7 +241,7 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
  } else {
   let bytes = reqwest::get(location).await?.bytes().await?;
   if bytes.len() < 10_000_000 {
-   Err(tracked::anyhow!(
+   Err(format!(
     "Not updating; new release {} is unexpectedly small: {} bytes.",
     new_version,
     bytes.len()
