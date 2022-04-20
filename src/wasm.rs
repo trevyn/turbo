@@ -164,6 +164,6 @@ pub fn main() {
 
 #[wasm_only]
 #[wasm_bindgen]
-pub fn start_web() {
+pub fn turbo_start_web() {
  eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TemplateApp::new(cc)))).unwrap();
 }

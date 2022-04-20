@@ -3,7 +3,7 @@
  import App from "./App.svelte";
 
  let prom = turbocharger_init().then(async () => {
-  backend.start_web();
+  backend.turbo_start_web();
   if (
    window.location.href == "http://127.0.0.1:3000/" ||
    window.location.href == "http://localhost:3000/"
