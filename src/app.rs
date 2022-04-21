@@ -15,6 +15,8 @@ pub struct TemplateApp {
  value: f32,
 
  encrypted_animal_time_stream: Arc<Mutex<Vec<u8>>>,
+
+ selected_anchor: String,
 }
 
 impl TemplateApp {
@@ -31,10 +33,17 @@ impl TemplateApp {
   //  *self = epi::get_value(storage, epi::APP_KEY).unwrap_or_default()
   // }
 
+  let mut style = (*cc.egui_ctx.style()).clone();
+  style.visuals.widgets.noninteractive.fg_stroke.color = egui::Color32::WHITE;
+  style.visuals.widgets.active.fg_stroke.color = egui::Color32::WHITE;
+  style.visuals.widgets.inactive.fg_stroke.color = egui::Color32::WHITE;
+  cc.egui_ctx.set_style(style);
+
   let s = Self {
    label: "Hello World!".to_owned(),
    value: 2.7,
    encrypted_animal_time_stream: Default::default(),
+   selected_anchor: "".to_string(),
   };
 
   let mut stream = Box::pin(crate::backend::encrypted_animal_time_stream());
@@ -67,7 +76,7 @@ impl eframe::App for TemplateApp {
  /// Called each time the UI needs repainting, which may be many times per second.
  /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
  fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-  let Self { label, value, encrypted_animal_time_stream } = self;
+  let Self { label, value, encrypted_animal_time_stream, selected_anchor, .. } = self;
 
   // Examples of how to create different panels and windows.
   // Pick whichever suits you.
@@ -75,14 +84,27 @@ impl eframe::App for TemplateApp {
   // For inspiration and more examples, go to https://emilk.github.io/egui
 
   egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-   // The top panel is often a good place for a menu bar:
-   egui::menu::bar(ui, |ui| {
-    ui.menu_button("File", |ui| {
-     if ui.button("Quit").clicked() {
-      frame.quit();
+   ui.horizontal_wrapped(|ui| {
+    ui.spacing_mut().button_padding = egui::vec2(10.0, 8.0);
+
+    egui::widgets::global_dark_light_mode_switch(ui);
+
+    for (name, anchor) in
+     vec![("📪 Mail", "mail"), ("🐙 Animal Time", "animal-time"), ("⛭ Settings", "settings")]
+      .into_iter()
+    {
+     let label = ui.selectable_label(
+      self.selected_anchor == anchor,
+      egui::RichText::new(name).font(egui::FontId::proportional(25.0)),
+     );
+     if label.hovered() {
+      ui.output().cursor_icon = egui::CursorIcon::PointingHand;
      }
-    });
-   });
+     if label.clicked() {
+      self.selected_anchor = anchor.to_owned();
+     }
+    }
+   })
   });
 
   egui::SidePanel::left("side_panel").show(ctx, |ui| {
@@ -102,10 +124,22 @@ impl eframe::App for TemplateApp {
   egui::CentralPanel::default().show(ctx, |ui| {
    // The central panel the region left after adding TopPanel's and SidePanel's
 
-   ui.heading(
-    crate::wasm_decrypt((*encrypted_animal_time_stream.lock().unwrap()).clone())
-     .unwrap_or_default(),
-   );
+   let text = crate::wasm_decrypt((*encrypted_animal_time_stream.lock().unwrap()).clone())
+    .unwrap_or_default();
+
+   let mut size = ui.available_size();
+   size.y = 0.0;
+
+   if ui
+    .add_sized(
+     size,
+     egui::TextEdit::multiline(&mut text.as_str()).font(egui::FontId::proportional(15.0)),
+    )
+    .hovered()
+   {
+    ui.output().cursor_icon = egui::CursorIcon::Default;
+   };
+
    egui::warn_if_debug_build(ui);
   });
  }
