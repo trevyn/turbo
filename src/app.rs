@@ -1,3 +1,4 @@
+use arc_swap::ArcSwap;
 use eframe::{egui, epaint::Vec2};
 use std::sync::{Arc, Mutex};
 use turbocharger::futures_util::StreamExt;
@@ -6,6 +7,7 @@ use turbocharger::prelude::*;
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
+#[derive(Default)]
 pub struct TemplateApp {
  // Example stuff:
  label: String,
@@ -15,6 +17,8 @@ pub struct TemplateApp {
  value: f32,
 
  encrypted_animal_time_stream: Arc<Mutex<Vec<u8>>>,
+
+ mail_list: Arc<ArcSwap<Vec<crate::backend::mail>>>,
 
  selected_anchor: String,
 }
@@ -39,12 +43,7 @@ impl TemplateApp {
   style.visuals.widgets.inactive.fg_stroke.color = egui::Color32::WHITE;
   cc.egui_ctx.set_style(style);
 
-  let s = Self {
-   label: "Hello World!".to_owned(),
-   value: 2.7,
-   encrypted_animal_time_stream: Default::default(),
-   selected_anchor: "".to_string(),
-  };
+  let s = Self::default();
 
   let mut stream = Box::pin(crate::backend::encrypted_animal_time_stream());
   let encrypted_animal_time_stream = s.encrypted_animal_time_stream.clone();
@@ -53,8 +52,14 @@ impl TemplateApp {
    while let Some(item) = stream.next().await {
     *encrypted_animal_time_stream.lock().unwrap() = item.unwrap();
     ctx.request_repaint();
-    // ::turbocharger::console_log!("{:?}", item);
    }
+  });
+
+  let ctx = cc.egui_ctx.clone();
+  let mail_list = s.mail_list.clone();
+  wasm_bindgen_futures::spawn_local(async move {
+   mail_list.store(Arc::new(crate::backend::mail_list().await.unwrap()));
+   ctx.request_repaint();
   });
 
   s
@@ -63,7 +68,7 @@ impl TemplateApp {
 
 impl eframe::App for TemplateApp {
  fn max_size_points(&self) -> Vec2 {
-  Vec2::new(2048.0, 250.0)
+  Vec2::new(2048.0, 350.0)
  }
 
  /// Called by the frame work to save state before shutdown.
@@ -75,8 +80,8 @@ impl eframe::App for TemplateApp {
 
  /// Called each time the UI needs repainting, which may be many times per second.
  /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
- fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-  let Self { label, value, encrypted_animal_time_stream, selected_anchor, .. } = self;
+ fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+  let Self { label, value, encrypted_animal_time_stream, .. } = self;
 
   // Examples of how to create different panels and windows.
   // Pick whichever suits you.
@@ -119,6 +124,8 @@ impl eframe::App for TemplateApp {
    if ui.button("Increment").clicked() {
     *value += 1.0;
    }
+
+   egui::warn_if_debug_build(ui);
   });
 
   egui::CentralPanel::default().show(ctx, |ui| {
@@ -130,17 +137,30 @@ impl eframe::App for TemplateApp {
    let mut size = ui.available_size();
    size.y = 0.0;
 
-   if ui
-    .add_sized(
-     size,
-     egui::TextEdit::multiline(&mut text.as_str()).font(egui::FontId::proportional(15.0)),
-    )
-    .hovered()
-   {
-    ui.output().cursor_icon = egui::CursorIcon::Default;
-   };
+   egui::ScrollArea::vertical().show(ui, |ui| {
+    if ui
+     .add_sized(
+      size,
+      egui::TextEdit::multiline(&mut text.as_str()).font(egui::FontId::proportional(15.0)),
+     )
+     .hovered()
+    {
+     ui.output().cursor_icon = egui::CursorIcon::Default;
+    };
 
-   egui::warn_if_debug_build(ui);
+    for mail in self.mail_list.load().iter() {
+     let text = crate::wasm_decrypt(mail.data.clone().unwrap()).unwrap();
+     if ui
+      .add_sized(
+       size,
+       egui::TextEdit::multiline(&mut text.as_str()).font(egui::FontId::proportional(15.0)),
+      )
+      .hovered()
+     {
+      ui.output().cursor_icon = egui::CursorIcon::Default;
+     };
+    }
+   });
   });
  }
 }

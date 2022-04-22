@@ -1,10 +1,11 @@
 #![allow(unused_imports)]
 use crypto_box::PublicKey;
+use serde::{Deserialize, Serialize};
 use tracked::tracked;
 use turbocharger::{backend, prelude::*, server_only};
 use turbosql::{now_ms, select, Turbosql};
 
-#[derive(Turbosql, Default, Clone)]
+#[derive(Turbosql, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct mail {
  pub rowid: Option<i64>,
  pub recv_ms: Option<i64>,
@@ -162,13 +163,9 @@ impl FromIterator<i64> for Veci64 {
 }
 
 #[tracked]
-#[backend(js)]
-async fn mailrowidlist() -> Result<Veci64, tracked::StringError> {
- let rowids = select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?
-  .into_iter()
-  .map(|m| m.rowid.unwrap())
-  .collect();
- Ok(rowids)
+#[backend]
+pub async fn mail_list() -> Result<Vec<mail>, tracked::StringError> {
+ Ok(select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?)
 }
 
 #[server_only]

@@ -3,7 +3,7 @@
  import EmailListItem from "./EmailListItem.svelte";
 </script>
 
-{#await backend.mailrowidlist() then mailrowidlist}
+<!-- {#await backend.mailrowidlist() then mailrowidlist}
  {#each mailrowidlist.vec as mailrowid}
   <div class="px-4 sm:px-6 lg:px-8">
    <div
@@ -21,4 +21,4 @@
    </div>
   </div>
  {/each}
-{/await}
+{/await} -->
