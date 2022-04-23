@@ -230,7 +230,7 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
   .await?;
 
  if res.status() != 302 {
-  Err(format!("Err, HTTP status {}, expected 302", res.status()))?;
+  Err(format!("Err, HTTP status {}, expected 302 redirect", res.status()))?;
  }
  let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
 
