@@ -76,9 +76,9 @@ impl TemplateApp {
 }
 
 impl eframe::App for TemplateApp {
- fn max_size_points(&self) -> Vec2 {
-  Vec2::new(2048.0, 350.0)
- }
+ // fn max_size_points(&self) -> Vec2 {
+ //  Vec2::new(2048.0, 1024.0)
+ // }
 
  /// Called by the frame work to save state before shutdown.
  /// Note that you must enable the `persistence` feature for this to work.
