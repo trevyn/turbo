@@ -211,7 +211,7 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
 
  static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
 
- let update_mutex = UPDATE_MUTEX.lock();
+ let update_mutex = UPDATE_MUTEX.lock().await;
 
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
