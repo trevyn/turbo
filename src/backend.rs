@@ -1,5 +1,6 @@
 #![allow(unused_imports)]
 use crypto_box::PublicKey;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use tracked::tracked;
 use turbocharger::{backend, prelude::*, server_only};
@@ -206,8 +207,11 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
 #[backend(js)]
 #[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::StringError> {
- // TODO: handle race conditions
- // also, this seems to block the executor if slow, maybe put it in a spawn_blocking?
+ // TODO: this fn seems to block the executor if the dl is slow, debug that?
+
+ static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
+
+ let update_mutex = UPDATE_MUTEX.lock();
 
  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
@@ -254,6 +258,7 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
   tokio::spawn(async move {
    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
    std::process::Command::new(current_exe).exec();
+   drop(update_mutex);
   });
 
   Ok(format!(
