@@ -20,10 +20,10 @@
 </script>
 
 <div>
- <p>
+ <!-- <p>
   {#await backend.check_for_updates()}Checking for updates...{:then info}{info}{:catch error}Error
    checking for updates: {error}{/await}
- </p>
+ </p> -->
 
  <TabGroup>
   <TabList class="pt-1.5">

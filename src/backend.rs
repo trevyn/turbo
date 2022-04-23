@@ -204,7 +204,7 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
  })
 }
 
-#[backend(js)]
+#[backend]
 #[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::StringError> {
  // TODO: this fn seems to block the executor if the dl is slow, debug that?

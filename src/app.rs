@@ -1,4 +1,4 @@
-use arc_swap::ArcSwap;
+use arc_swap::{ArcSwap, ArcSwapOption};
 use eframe::{egui, epaint::Vec2};
 use std::sync::{Arc, Mutex};
 use turbocharger::futures_util::StreamExt;
@@ -19,6 +19,8 @@ pub struct TemplateApp {
  encrypted_animal_time_stream: Arc<Mutex<Vec<u8>>>,
 
  mail_list: Arc<ArcSwap<Vec<crate::backend::mail>>>,
+
+ check_for_updates: Arc<ArcSwapOption<Result<String, tracked::StringError>>>,
 
  selected_anchor: String,
 }
@@ -59,6 +61,13 @@ impl TemplateApp {
   let mail_list = s.mail_list.clone();
   wasm_bindgen_futures::spawn_local(async move {
    mail_list.store(Arc::new(crate::backend::mail_list().await.unwrap()));
+   ctx.request_repaint();
+  });
+
+  let ctx = cc.egui_ctx.clone();
+  let check_for_updates = s.check_for_updates.clone();
+  wasm_bindgen_futures::spawn_local(async move {
+   check_for_updates.store(Some(Arc::new(crate::backend::check_for_updates().await)));
    ctx.request_repaint();
   });
 
@@ -131,13 +140,25 @@ impl eframe::App for TemplateApp {
   egui::CentralPanel::default().show(ctx, |ui| {
    // The central panel the region left after adding TopPanel's and SidePanel's
 
-   let text = crate::wasm_decrypt((*encrypted_animal_time_stream.lock().unwrap()).clone())
-    .unwrap_or_default();
-
    let mut size = ui.available_size();
    size.y = 0.0;
 
    egui::ScrollArea::vertical().show(ui, |ui| {
+    let text = format!("check_for_updates: {:?}", self.check_for_updates.load());
+
+    if ui
+     .add_sized(
+      size,
+      egui::TextEdit::multiline(&mut text.as_str()).font(egui::FontId::proportional(15.0)),
+     )
+     .hovered()
+    {
+     ui.output().cursor_icon = egui::CursorIcon::Default;
+    };
+
+    let text = crate::wasm_decrypt((*encrypted_animal_time_stream.lock().unwrap()).clone())
+     .unwrap_or_default();
+
     if ui
      .add_sized(
       size,
