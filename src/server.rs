@@ -25,7 +25,7 @@ impl Default for Flags {
  }
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 #[tracked]
 async fn main() -> Result<(), tracked::StringError> {
  #[derive(rust_embed::RustEmbed)]
