@@ -1,3 +1,5 @@
+#![allow(clippy::option_map_unit_fn)]
+
 use crate::backend;
 use arc_swap::ArcSwapOption;
 use eframe::egui;
@@ -25,6 +27,7 @@ type BackendLinkStream<T> = Arc<ArcSwapOption<T>>;
 
 trait LinkBackend<T> {
  fn link_backend(&self, ctx: &egui::Context, fut: impl std::future::Future<Output = T> + 'static);
+ fn map(&self, f: impl FnMut(&T));
 }
 
 trait LinkBackendStream<T, U> {
@@ -48,6 +51,12 @@ impl<T: 'static> LinkBackend<T> for BackendLink<T> {
    store.store(Some(Arc::new(fut.await)));
    ctx.request_repaint();
   });
+ }
+
+ fn map(&self, mut f: impl FnMut(&T)) {
+  if let Some(data) = self.load().as_deref() {
+   f(data);
+  }
  }
 }
 
@@ -97,12 +106,12 @@ impl TemplateApp {
     .into_iter()
     .map(|mail| {
      let decrypted = crate::wasm_decrypt(mail.data.unwrap()).unwrap();
-     let parsed = mailparse::parse_mail(&decrypted.as_bytes()).unwrap();
+     let parsed = mailparse::parse_mail(decrypted.as_bytes()).unwrap();
      let body = parsed
       .subparts
       .iter()
       .find(|subpart| subpart.ctype.mimetype == "text/plain")
-      .map(|subpart| subpart.get_body().unwrap());
+      .map(|subpart| subpart.get_body().unwrap_or_else(|e| format!("get_body error: {}", e)));
      body.unwrap_or_default()
     })
     .collect()
@@ -111,7 +120,7 @@ impl TemplateApp {
   s.encrypted_animal_time_stream.link_backend_stream(
    ctx,
    backend::encrypted_animal_time_stream(),
-   |r| crate::wasm_decrypt(r.unwrap()).unwrap_or("decrypt error".into()),
+   |r| crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()),
   );
 
   s
@@ -178,14 +187,11 @@ impl eframe::App for TemplateApp {
   });
 
   egui::CentralPanel::default().show(ctx, |ui| {
-   // The central panel the region left after adding TopPanel's and SidePanel's
-
-   let mut size = ui.available_size();
-   size.y = 0.0;
+   let full_width = egui::vec2(ui.available_size().x, 0.0);
 
    egui::ScrollArea::vertical().show(ui, |ui| {
     ui.add_sized(
-     size,
+     full_width,
      egui::TextEdit::multiline(
       &mut format!("check_for_updates: {:?}", self.check_for_updates.load()).as_str(),
      )
@@ -193,24 +199,23 @@ impl eframe::App for TemplateApp {
      .desired_rows(2),
     );
 
-    if let Some(encrypted_animal_time) = self.encrypted_animal_time_stream.load().as_deref() {
+    self.encrypted_animal_time_stream.map(|data| {
      ui.add_sized(
-      size,
-      egui::TextEdit::multiline(&mut encrypted_animal_time.as_str())
+      full_width,
+      egui::TextEdit::multiline(&mut data.as_str())
        .font(egui::FontId::proportional(15.0))
        .desired_rows(2),
      );
-    }
+    });
 
-    // for mail in self.mail_list.load().iter() {
-    if let Some(mail_list) = self.mail_list.load().as_deref() {
-     if let Some(mail) = mail_list.first() {
+    self.mail_list.map(|mail_list| {
+     mail_list.first().map(|mail| {
       ui.add_sized(
-       size,
+       full_width,
        egui::TextEdit::multiline(&mut mail.as_str()).font(egui::FontId::proportional(15.0)),
       );
-     }
-    }
+     });
+    });
    });
   });
  }
