@@ -11,7 +11,7 @@ use turbocharger::prelude::*;
 #[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 #[cfg_attr(feature = "persistence", serde(default))] // if we add new fields, give them default values when deserializing old state
 #[derive(Default)]
-pub struct TemplateApp {
+pub struct TurboApp {
  label: String,
  #[cfg_attr(feature = "persistence", serde(skip))]
  value: f32,
@@ -30,12 +30,12 @@ trait LinkBackend<T> {
  fn map(&self, f: impl FnMut(&T));
 }
 
-trait LinkBackendStream<T, U> {
+trait LinkBackendStream<T, S> {
  fn link_backend_stream(
   &self,
   ctx: &egui::Context,
-  stream: impl futures_util::stream::Stream<Item = U> + 'static,
-  transform: impl Fn(U) -> T + 'static,
+  stream: impl futures_util::stream::Stream<Item = S> + 'static,
+  transform: impl Fn(S) -> T + 'static,
  );
 }
 
@@ -60,12 +60,12 @@ impl<T: 'static> LinkBackend<T> for BackendLink<T> {
  }
 }
 
-impl<T: 'static, U> LinkBackendStream<T, U> for BackendLinkStream<T> {
+impl<T: 'static, S> LinkBackendStream<T, S> for BackendLinkStream<T> {
  fn link_backend_stream(
   self: &BackendLink<T>,
   ctx: &egui::Context,
-  stream: impl futures_util::stream::Stream<Item = U> + 'static,
-  transform: impl Fn(U) -> T + 'static,
+  stream: impl futures_util::stream::Stream<Item = S> + 'static,
+  transform: impl Fn(S) -> T + 'static,
  ) {
   let ctx = ctx.clone();
   let store = self.clone();
@@ -79,7 +79,7 @@ impl<T: 'static, U> LinkBackendStream<T, U> for BackendLinkStream<T> {
  }
 }
 
-impl TemplateApp {
+impl TurboApp {
  pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
   let ctx = &cc.egui_ctx;
   let mut style = ctx.style().as_ref().clone();
@@ -127,7 +127,7 @@ impl TemplateApp {
  }
 }
 
-impl eframe::App for TemplateApp {
+impl eframe::App for TurboApp {
  // fn max_size_points(&self) -> Vec2 {
  //  Vec2::new(2048.0, 1024.0)
  // }
@@ -140,8 +140,6 @@ impl eframe::App for TemplateApp {
 
  /// Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
  fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-  let Self { label, value, .. } = self;
-
   egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
    ui.horizontal_wrapped(|ui| {
     ui.spacing_mut().button_padding = egui::vec2(10.0, 8.0);
@@ -160,7 +158,7 @@ impl eframe::App for TemplateApp {
       ui.output().cursor_icon = egui::CursorIcon::PointingHand;
      }
      if label.clicked() {
-      self.selected_anchor = anchor.to_owned();
+      self.selected_anchor = anchor.into();
      }
     }
    })
@@ -171,12 +169,12 @@ impl eframe::App for TemplateApp {
 
    ui.horizontal(|ui| {
     ui.label("Write something: ");
-    ui.text_edit_singleline(label);
+    ui.text_edit_singleline(&mut self.label);
    });
 
-   ui.add(egui::Slider::new(value, 0.0..=10.0).text("value"));
+   ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
    if ui.button("Increment").clicked() {
-    *value += 1.0;
+    self.value += 1.0;
    }
 
    self.num_frames += 1;

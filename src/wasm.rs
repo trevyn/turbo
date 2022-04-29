@@ -165,5 +165,5 @@ pub fn main() {
 #[wasm_only]
 #[wasm_bindgen]
 pub fn turbo_start_web() {
- eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TemplateApp::new(cc)))).unwrap();
+ eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
 }
