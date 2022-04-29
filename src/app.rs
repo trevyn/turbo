@@ -1,3 +1,4 @@
+use crate::backend;
 use arc_swap::ArcSwapOption;
 use eframe::egui;
 use std::sync::Arc;
@@ -12,41 +13,61 @@ pub struct TemplateApp {
  label: String,
  #[cfg_attr(feature = "persistence", serde(skip))]
  value: f32,
- encrypted_animal_time_stream: Arc<ArcSwapOption<String>>,
- mail_list: Arc<ArcSwapOption<Vec<String>>>,
- check_for_updates: Arc<ArcSwapOption<Result<String, tracked::StringError>>>,
+ encrypted_animal_time_stream: BackendLinkStream<String>,
+ mail_list: BackendLink<Vec<String>>,
+ check_for_updates: BackendLink<Result<String, tracked::StringError>>,
  selected_anchor: String,
  num_frames: u32,
 }
 
-fn do_backend<T: 'static>(
- ctx: &egui::Context,
- store: &Arc<ArcSwapOption<T>>,
- fut: impl std::future::Future<Output = T> + 'static,
-) {
- let ctx = ctx.clone();
- let store = store.clone();
- wasm_bindgen_futures::spawn_local(async move {
-  store.store(Some(Arc::new(fut.await)));
-  ctx.request_repaint();
- });
+type BackendLink<T> = Arc<ArcSwapOption<T>>;
+type BackendLinkStream<T> = Arc<ArcSwapOption<T>>;
+
+trait LinkBackend<T> {
+ fn link_backend(&self, ctx: &egui::Context, fut: impl std::future::Future<Output = T> + 'static);
 }
 
-fn do_backend_stream<T: 'static, U>(
- ctx: &egui::Context,
- store: &Arc<ArcSwapOption<T>>,
- stream: impl futures_util::stream::Stream<Item = U> + 'static,
- transform: impl Fn(U) -> T + 'static,
-) {
- let ctx = ctx.clone();
- let store = store.clone();
- let mut stream = Box::pin(stream);
- wasm_bindgen_futures::spawn_local(async move {
-  while let Some(item) = stream.next().await {
-   store.store(Some(Arc::new(transform(item))));
+trait LinkBackendStream<T, U> {
+ fn link_backend_stream(
+  &self,
+  ctx: &egui::Context,
+  stream: impl futures_util::stream::Stream<Item = U> + 'static,
+  transform: impl Fn(U) -> T + 'static,
+ );
+}
+
+impl<T: 'static> LinkBackend<T> for BackendLink<T> {
+ fn link_backend(
+  self: &BackendLink<T>,
+  ctx: &egui::Context,
+  fut: impl std::future::Future<Output = T> + 'static,
+ ) {
+  let ctx = ctx.clone();
+  let store = self.clone();
+  wasm_bindgen_futures::spawn_local(async move {
+   store.store(Some(Arc::new(fut.await)));
    ctx.request_repaint();
-  }
- });
+  });
+ }
+}
+
+impl<T: 'static, U> LinkBackendStream<T, U> for BackendLinkStream<T> {
+ fn link_backend_stream(
+  self: &BackendLink<T>,
+  ctx: &egui::Context,
+  stream: impl futures_util::stream::Stream<Item = U> + 'static,
+  transform: impl Fn(U) -> T + 'static,
+ ) {
+  let ctx = ctx.clone();
+  let store = self.clone();
+  let mut stream = Box::pin(stream);
+  wasm_bindgen_futures::spawn_local(async move {
+   while let Some(item) = stream.next().await {
+    store.store(Some(Arc::new(transform(item))));
+    ctx.request_repaint();
+   }
+  });
+ }
 }
 
 impl TemplateApp {
@@ -67,10 +88,10 @@ impl TemplateApp {
 
   let s = Self::default();
 
-  do_backend(ctx, &s.check_for_updates, crate::backend::check_for_updates());
+  s.check_for_updates.link_backend(ctx, backend::check_for_updates());
 
-  do_backend(ctx, &s.mail_list, async {
-   crate::backend::mail_list()
+  s.mail_list.link_backend(ctx, async {
+   backend::mail_list()
     .await
     .unwrap()
     .into_iter()
@@ -87,10 +108,9 @@ impl TemplateApp {
     .collect()
   });
 
-  do_backend_stream(
+  s.encrypted_animal_time_stream.link_backend_stream(
    ctx,
-   &s.encrypted_animal_time_stream,
-   crate::backend::encrypted_animal_time_stream(),
+   backend::encrypted_animal_time_stream(),
    |r| crate::wasm_decrypt(r.unwrap()).unwrap_or("decrypt error".into()),
   );
 
