@@ -155,6 +155,7 @@ pub fn wasm_test_crypto_box() -> String {
 #[wasm_bindgen(start)]
 pub fn main() {
  console_error_panic_hook::set_once();
+ tracing_wasm::set_as_global_default();
 
  let dev_string = format!("DEV-{}", include_str!(concat!(env!("OUT_DIR"), "/BUILD_TIME.txt")));
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
