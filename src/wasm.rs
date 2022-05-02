@@ -174,6 +174,9 @@ pub fn turbo_start_web() {
 pub fn app(cx: Scope) -> Element {
  let data = use_state(&cx, String::new);
 
+ let check_for_updates =
+  use_future(&cx, (), |_| async move { backend::check_for_updates().await.unwrap() });
+
  let data_cloned = data.clone();
  let _: &CoroutineHandle<()> = use_coroutine(&cx, |_| async move {
   let mut conn = Box::pin(backend::encrypted_animal_time_stream());
@@ -182,5 +185,8 @@ pub fn app(cx: Scope) -> Element {
   }
  });
 
- cx.render(rsx! { p { "hello {data}" } })
+ cx.render(rsx! {
+  p { check_for_updates.value().map(Clone::clone) }
+  p { "hello {data}" }
+ })
 }
