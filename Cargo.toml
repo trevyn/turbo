@@ -22,12 +22,12 @@ rand_core = {version = "0.6", features = ["getrandom"]}
 wasm-bindgen = "=0.2.80" # Version to be synced with the wasm-bindgen CLI version in CI
 
 [features]
-wasm = ["console_error_panic_hook", "dioxus", "eframe", "mailparse", "tracing-wasm", "web-sys", "turbocharger/wasm"]
+wasm = ["console_error_panic_hook", "dioxus", "mailparse", "tracing-wasm", "web-sys", "turbocharger/wasm"]
 [dependencies]
 # dependencies that are really only for wasm, but rust-analyzer uses too
 console_error_panic_hook = {version = "0.1", optional = true}
 dioxus = {version = "0.2", features = ["web"], optional = true}
-eframe = {version = "0.18", optional = true}
+# eframe = {version = "0.18", optional = true}
 mailparse = {version = "0.13", optional = true}
 tracing-wasm = {version = "0.2", optional = true}
 web-sys = {version = "0.3", features = ["Storage", "Window"], optional = true}
@@ -72,7 +72,7 @@ async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "mast
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 # turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 blst = {git = "https://github.com/supranational/blst", branch = "master"}
-eframe = {git = "https://github.com/emilk/egui", branch = "master"}
+# eframe = {git = "https://github.com/emilk/egui", branch = "master"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
