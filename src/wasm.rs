@@ -6,10 +6,11 @@ mod app;
 mod backend;
 
 use crypto_box::{rand_core::OsRng, SecretKey};
+use dioxus::prelude::*;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use tracked::tracked;
-use turbocharger::{prelude::*, wasm_only};
+use turbocharger::{futures_util::StreamExt, prelude::*, wasm_only};
 
 struct client_sk([u8; 32]);
 
@@ -166,5 +167,20 @@ pub fn main() {
 #[wasm_only]
 #[wasm_bindgen]
 pub fn turbo_start_web() {
- eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
+ dioxus::web::launch(app);
+ // eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
+}
+
+pub fn app(cx: Scope) -> Element {
+ let data = use_state(&cx, String::new);
+
+ let data_cloned = data.clone();
+ let _: &CoroutineHandle<()> = use_coroutine(&cx, |_| async move {
+  let mut conn = Box::pin(backend::encrypted_animal_time_stream());
+  while let Some(r) = conn.next().await {
+   data_cloned.set(crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
+  }
+ });
+
+ cx.render(rsx! { p { "hello {data}" } })
 }
