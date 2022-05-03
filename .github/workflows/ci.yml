@@ -39,6 +39,12 @@ jobs:
       # - name: Fail if there were link-check errors
       #   run: exit ${{ steps.lychee.outputs.exit_code }}
 
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: EmbarkStudios/cargo-deny-action@v1
+
   test:
     needs: [assign]
     name: test rust ${{ matrix.rust }} ${{ matrix.os }} 
