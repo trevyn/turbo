@@ -6,6 +6,7 @@ ignore = [
 ]
 notice = "deny"
 unmaintained = "deny"
+unsound = "deny"
 vulnerability = "deny"
 yanked = "deny"
 
