@@ -130,7 +130,7 @@ jobs:
             !target/x86_64-unknown-linux-gnu/release/*.so
 
   release:
-    needs: [assign, checklinks, test]
+    needs: [assign, checklinks, cargo-deny, test]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
