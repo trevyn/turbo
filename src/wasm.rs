@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-#![allow(non_camel_case_types)]
+#![allow(non_camel_case_types, non_snake_case)]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
 // mod app;
@@ -167,11 +167,11 @@ pub fn main() {
 #[wasm_only]
 #[wasm_bindgen]
 pub fn turbo_start_web() {
- dioxus::web::launch(app);
+ dioxus::web::launch(App);
  // eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
 }
 
-pub fn app(cx: Scope) -> Element {
+pub fn App(cx: Scope) -> Element {
  let data = use_state(&cx, String::new);
 
  let check_for_updates =
@@ -188,5 +188,18 @@ pub fn app(cx: Scope) -> Element {
  cx.render(rsx! {
   p { check_for_updates.value().map(Clone::clone) }
   p { "hello {data}" }
+  (1..=10).map(|n| rsx! {
+   Mail(title: format!("{}", n))
+  })
+ })
+}
+
+#[inline_props]
+pub fn Mail(cx: Scope, title: String) -> Element {
+ cx.render(rsx! {
+  p {
+   class: "text-red-500",
+   "mail -> {title}"
+  }
  })
 }
