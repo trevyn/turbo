@@ -63,7 +63,7 @@ time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
 acme-lib = {git = "https://github.com/trevyn/acme-lib", branch = "ureq_v2"}
-dioxus = {git = "https://github.com/DioxusLabs/dioxus", branch = "master"}
+# dioxus = {git = "https://github.com/DioxusLabs/dioxus", branch = "master"}
 # rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 # turbocharger = {path = "../turbocharger/turbocharger"}
 # turbosql = {path = "../turbosql/turbosql"}
