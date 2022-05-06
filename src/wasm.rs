@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-#![allow(non_camel_case_types, non_snake_case)]
+#![allow(non_camel_case_types, non_snake_case, clippy::type_complexity)]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
 // mod app;
@@ -8,9 +8,14 @@ mod backend;
 use crypto_box::{rand_core::OsRng, SecretKey};
 use dioxus::prelude::*;
 use once_cell::sync::Lazy;
-use std::sync::Mutex;
+use std::future::Future;
+use std::{pin::Pin, sync::Mutex};
 use tracked::tracked;
-use turbocharger::{futures_util::StreamExt, prelude::*, wasm_only};
+use turbocharger::{
+ futures_util::{Stream, StreamExt},
+ prelude::*,
+ wasm_only,
+};
 
 struct client_sk([u8; 32]);
 
@@ -171,23 +176,64 @@ pub fn turbo_start_web() {
  // eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
 }
 
-pub fn App(cx: Scope) -> Element {
- let data = use_state(&cx, String::new);
-
- let check_for_updates =
-  use_future(&cx, (), |_| async move { backend::check_for_updates().await.unwrap() });
+fn use_encrypted_stream<'a>(
+ cx: &'a ScopeState,
+ stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = Result<Vec<u8>, tracked::StringError>> + 'static)>>
+  + 'static,
+) -> &'a UseState<String> {
+ let data = use_state(cx, String::new);
 
  let data_cloned = data.clone();
- let _: &CoroutineHandle<()> = use_coroutine(&cx, |_| async move {
-  let mut conn = Box::pin(backend::encrypted_animal_time_stream());
+
+ let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
+  let mut conn = stream();
   while let Some(r) = conn.next().await {
    data_cloned.set(crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
   }
  });
 
+ data
+}
+
+fn use_string<'a, E: ToString>(
+ cx: &'a ScopeState,
+ fut: impl Future<Output = Result<String, E>> + 'static,
+) -> &'a UseState<String> {
+ let data = use_state(cx, String::new);
+
+ let data_cloned = data.clone();
+
+ let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
+  data_cloned.set(fut.await.unwrap_or_else(|e| e.to_string()));
+ });
+
+ data
+}
+
+pub fn App(cx: Scope) -> Element {
+ // let data = use_state(&cx, String::new);
+
+ // let data_cloned = data.clone();
+ // let _: &CoroutineHandle<()> = use_coroutine(&cx, |_| async move {
+ //  let mut conn = Box::pin(backend::encrypted_animal_time_stream());
+ //  while let Some(r) = conn.next().await {
+ //   data_cloned.set(crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
+ //  }
+ // });
+
+ let encrypted_animal_time_stream =
+  use_encrypted_stream(&cx, || Box::pin(backend::encrypted_animal_time_stream()));
+ // backend::use_encrypted_animal_time_stream(&cx);
+
+ let check_for_updates = use_string(&cx, backend::check_for_updates());
+
+ // let check_for_updates =
+ //  use_future(&cx, (), |_| async move { backend::check_for_updates().await.unwrap() });
+ //   p { check_for_updates.value().map(Clone::clone) }
+
  cx.render(rsx! {
-  p { check_for_updates.value().map(Clone::clone) }
-  p { "hello {data}" }
+  p { "{check_for_updates}" }
+  p { "hello {encrypted_animal_time_stream}" }
   (1..=10).map(|n| rsx! {
    Mail(title: format!("{}", n))
   })
