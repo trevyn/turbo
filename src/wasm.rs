@@ -178,8 +178,7 @@ pub fn turbo_start_web() {
 
 fn use_encrypted_stream<'a>(
  cx: &'a ScopeState,
- stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = Result<Vec<u8>, tracked::StringError>> + 'static)>>
-  + 'static,
+ stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = Result<Vec<u8>, tracked::StringError>>)>> + 'static,
 ) -> &'a UseState<String> {
  let data = use_state(cx, String::new);
 
@@ -197,14 +196,30 @@ fn use_encrypted_stream<'a>(
 
 fn use_string<'a, E: ToString>(
  cx: &'a ScopeState,
- fut: impl Future<Output = Result<String, E>> + 'static,
+ fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<String, E>>)>> + 'static,
 ) -> &'a UseState<String> {
  let data = use_state(cx, String::new);
 
  let data_cloned = data.clone();
 
  let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
-  data_cloned.set(fut.await.unwrap_or_else(|e| e.to_string()));
+  data_cloned.set(fut().await.unwrap_or_else(|e| e.to_string()));
+ });
+
+ data
+}
+
+fn use_mailvec<'a>(
+ cx: &'a ScopeState,
+ fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<Vec<backend::mail>, tracked::StringError>>)>>
+  + 'static,
+) -> &'a UseState<Option<Result<Vec<backend::mail>, tracked::StringError>>> {
+ let data = use_state(cx, || None);
+
+ let data_cloned = data.clone();
+
+ let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
+  data_cloned.set(Some(fut().await));
  });
 
  data
@@ -223,9 +238,22 @@ pub fn App(cx: Scope) -> Element {
 
  let encrypted_animal_time_stream =
   use_encrypted_stream(&cx, || Box::pin(backend::encrypted_animal_time_stream()));
- // backend::use_encrypted_animal_time_stream(&cx);
+ // backend::use_encrypted_animal_time_stream(&cx, parameter1, parameter2);
 
- let check_for_updates = use_string(&cx, backend::check_for_updates());
+ let check_for_updates = use_string(&cx, || Box::pin(backend::check_for_updates()));
+
+ let mail_list = use_mailvec(&cx, || Box::pin(backend::mail_list()));
+
+ let mail_list: Vec<_> = mail_list
+  .get()
+  .clone()
+  .unwrap_or(Ok(vec![]))
+  .unwrap_or_default()
+  .into_iter()
+  .map(|m| crate::wasm_decrypt(m.data.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()))
+  .collect();
+
+ let mail_list = format!("{:?}", mail_list);
 
  // let check_for_updates =
  //  use_future(&cx, (), |_| async move { backend::check_for_updates().await.unwrap() });
@@ -234,6 +262,7 @@ pub fn App(cx: Scope) -> Element {
  cx.render(rsx! {
   p { "{check_for_updates}" }
   p { "hello {encrypted_animal_time_stream}" }
+  p { "mails {mail_list}" }
   (1..=10).map(|n| rsx! {
    Mail(title: format!("{}", n))
   })
