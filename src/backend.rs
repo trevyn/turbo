@@ -145,24 +145,6 @@ async fn mail(rowid: i64) -> Result<String, tracked::StringError> {
  Ok(hex::encode(data))
 }
 
-#[backend]
-#[derive(Default)]
-pub struct Veci64 {
- pub vec: Vec<i64>,
-}
-
-impl From<Vec<i64>> for Veci64 {
- fn from(vec: Vec<i64>) -> Self {
-  Veci64 { vec }
- }
-}
-
-impl FromIterator<i64> for Veci64 {
- fn from_iter<I: IntoIterator<Item = i64>>(iter: I) -> Self {
-  Veci64 { vec: iter.into_iter().collect() }
- }
-}
-
 #[tracked]
 #[backend]
 pub async fn mail_list() -> Result<Vec<mail>, tracked::StringError> {

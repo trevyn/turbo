@@ -28,8 +28,8 @@ struct animal_time_stream_log {
 async fn check_for_updates() -> Result<String, tracked::StringError> {}
 
 fn encrypted_animal_time_stream() -> impl Stream<
-        Item = Result<Vec<u8>, tracked::StringError>,
-    > {}
+    Item = Result<Vec<u8>, tracked::StringError>,
+> {}
 
 async fn getblockchaininfo() -> Result<String, tracked::StringError> {}
 
@@ -42,7 +42,3 @@ async fn mail_list() -> Result<Vec<mail>, tracked::StringError> {}
 async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {}
 
 fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {}
-
-struct Veci64 {
-    vec: Vec<i64>,
-}
