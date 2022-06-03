@@ -89,14 +89,14 @@ jobs:
       - run: |
           wget --no-verbose https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.80/wasm-bindgen-0.2.80-x86_64-unknown-linux-musl.tar.gz
           tar xvf wasm-bindgen-0.2.80-x86_64-unknown-linux-musl.tar.gz
-          wget --no-verbose https://github.com/WebAssembly/binaryen/releases/download/version_105/binaryen-version_105-x86_64-linux.tar.gz
-          tar xvf binaryen-version_105-x86_64-linux.tar.gz
+          wget --no-verbose https://github.com/WebAssembly/binaryen/releases/download/version_108/binaryen-version_108-x86_64-linux.tar.gz
+          tar xvf binaryen-version_108-x86_64-linux.tar.gz
 
       - run: npm install
       - run: npx audit-ci --low
       - run: CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --lib --release --features wasm --target wasm32-unknown-unknown
       - run: wasm-bindgen-0.2.80-x86_64-unknown-linux-musl/wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm
-      - run: binaryen-version_105/bin/wasm-opt src-frontend/turbocharger_generated/index_bg.wasm -o src-frontend/turbocharger_generated/index_bg.wasm -Oz
+      - run: binaryen-version_108/bin/wasm-opt src-frontend/turbocharger_generated/index_bg.wasm -o src-frontend/turbocharger_generated/index_bg.wasm -Oz
       - run: npx vite build
       - run: rm -rf src-frontend/dist/assets
       - run: brotli index.html
