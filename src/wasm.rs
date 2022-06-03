@@ -8,7 +8,6 @@
 )]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
-// mod app;
 mod backend;
 
 use crypto_box::{rand_core::OsRng, SecretKey};
