@@ -174,70 +174,61 @@ pub fn main() {
 #[wasm_bindgen]
 pub fn turbo_start_web() {
  dioxus::web::launch(App);
- // eframe::start_web("the_canvas_id", Box::new(|cc| Box::new(app::TurboApp::new(cc)))).unwrap();
 }
 
-fn use_encrypted_stream<'a>(
+fn use_stream<'a, T, U>(
  cx: &'a ScopeState,
- stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = Result<Vec<u8>, tracked::StringError>>)>> + 'static,
-) -> &'a UseState<String> {
- let data = use_state(cx, String::new);
-
+ stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = T>)>> + 'static,
+ map: impl Fn(T) -> U + 'static,
+) -> &'a UseState<Option<U>> {
+ let data = use_state(cx, || None);
  let data_cloned = data.clone();
-
  let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
   let mut conn = stream();
   while let Some(r) = conn.next().await {
-   data_cloned.set(crate::wasm_decrypt(&r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
+   data_cloned.set(Some(map(r)));
   }
  });
-
  data
 }
 
-fn use_string<'a, E: ToString>(
+fn use_backend<'a, T>(
  cx: &'a ScopeState,
- fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<String, E>>)>> + 'static,
-) -> &'a UseState<String> {
- let data = use_state(cx, String::new);
-
- let data_cloned = data.clone();
-
- let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
-  data_cloned.set(fut().await.unwrap_or_else(|e| e.to_string()));
- });
-
- data
-}
-
-fn use_t<'a, T>(
- cx: &'a ScopeState,
- fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<T, tracked::StringError>>)>> + 'static,
-) -> &'a UseState<Option<Result<T, tracked::StringError>>> {
+ fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = T>)>> + 'static,
+) -> &'a UseState<Option<T>> {
  let data = use_state(cx, || None);
-
  let data_cloned = data.clone();
-
  let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
   data_cloned.set(Some(fut().await));
  });
-
  data
 }
 
 pub fn App(cx: Scope) -> Element {
- let encrypted_animal_time_stream =
-  use_encrypted_stream(&cx, || Box::pin(backend::encrypted_animal_time_stream()));
+ let animal_time_stream = use_stream(
+  &cx,
+  || backend::encrypted_animal_time_stream(),
+  |r| crate::wasm_decrypt(&r.unwrap_or_default()).unwrap_or_else(|| "wasm_decrypt error".into()),
+ )
+ .get()
+ .clone()
+ .unwrap_or_default();
 
- let check_for_updates = use_string(&cx, || Box::pin(backend::check_for_updates()));
+ let check_for_updates = use_backend(&cx, || Box::pin(backend::check_for_updates()))
+  .get()
+  .clone()
+  .unwrap_or_else(|| Ok("checking for updates...".into()))
+  .unwrap_or_else(|e| e.into());
 
- let mail_list = use_t(&cx, || Box::pin(backend::mail_list()));
-
- let mail_list: Vec<_> = mail_list.get().clone().unwrap_or(Ok(vec![])).unwrap_or_default();
+ let mail_list = use_backend(&cx, || Box::pin(backend::mail_list()))
+  .get()
+  .clone()
+  .unwrap_or(Ok(vec![]))
+  .unwrap_or_default();
 
  cx.render(rsx! {
   p { "{check_for_updates}" }
-  p { "hello {encrypted_animal_time_stream}" }
+  p { "hello {animal_time_stream}" }
   mail_list.into_iter().map(|rowid| rsx! {
    Mail(rowid: rowid)
   })
@@ -247,7 +238,7 @@ pub fn App(cx: Scope) -> Element {
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
  let rowid = *rowid;
- let mail = use_t(&cx, move || Box::pin(backend::mail(rowid)));
+ let mail = use_backend(&cx, move || Box::pin(backend::mail(rowid)));
  if let Some(m) = mail.get() {
   match m {
    Ok(m) => {
