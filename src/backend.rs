@@ -139,16 +139,16 @@ pub fn encrypted_animal_time_stream() -> impl Stream<Item = Result<Vec<u8>, trac
 }
 
 #[tracked]
-#[backend(js)]
-async fn mail(rowid: i64) -> Result<String, tracked::StringError> {
- let data = select!(mail "WHERE rowid = " rowid)?.data?;
- Ok(hex::encode(data))
+#[backend]
+pub async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {
+ Ok(select!(mail "WHERE rowid = " rowid)?.data?)
 }
 
 #[tracked]
 #[backend]
-pub async fn mail_list() -> Result<Vec<mail>, tracked::StringError> {
- Ok(select!(Vec<mail> "ORDER BY recv_ms DESC, rowid DESC")?)
+pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
+ // Ok(select!(Vec<mail.rowid> "ORDER BY recv_ms DESC, rowid DESC")?)
+ Ok(select!(Vec<i64> "SELECT rowid FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
 }
 
 #[server_only]

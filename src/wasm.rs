@@ -3,6 +3,7 @@
  non_camel_case_types,
  non_snake_case,
  clippy::type_complexity,
+ unknown_lints,
  clippy::derive_partial_eq_without_eq
 )]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
@@ -51,8 +52,8 @@ impl client_sk {
  // fn encrypt(&self, data: Vec<u8>) -> Vec<u8> {
  //  sealed_box::seal(&data, &SecretKey::from(self.0).public_key())
  // }
- fn decrypt(&self, data: Vec<u8>) -> Option<Vec<u8>> {
-  sealed_box::open(&data, &SecretKey::from(self.0))
+ fn decrypt(&self, data: &[u8]) -> Option<Vec<u8>> {
+  sealed_box::open(data, &SecretKey::from(self.0))
  }
 }
 
@@ -74,11 +75,11 @@ pub fn wasm_set_client_sk(sk: String) {
  CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
-pub fn wasm_decrypt_u8(data: Vec<u8>) -> Option<Vec<u8>> {
+pub fn wasm_decrypt_u8(data: &[u8]) -> Option<Vec<u8>> {
  CLIENT_SK.lock().unwrap().decrypt(data)
 }
 
-pub fn wasm_decrypt(data: Vec<u8>) -> Option<String> {
+pub fn wasm_decrypt(data: &[u8]) -> Option<String> {
  CLIENT_SK.lock().unwrap().decrypt(data).map(|data| std::str::from_utf8(&data).unwrap().to_string())
 }
 
@@ -187,7 +188,7 @@ fn use_encrypted_stream<'a>(
  let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
   let mut conn = stream();
   while let Some(r) = conn.next().await {
-   data_cloned.set(crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
+   data_cloned.set(crate::wasm_decrypt(&r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
   }
  });
 
@@ -209,11 +210,10 @@ fn use_string<'a, E: ToString>(
  data
 }
 
-fn use_mailvec<'a>(
+fn use_t<'a, T>(
  cx: &'a ScopeState,
- fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<Vec<backend::mail>, tracked::StringError>>)>>
-  + 'static,
-) -> &'a UseState<Option<Result<Vec<backend::mail>, tracked::StringError>>> {
+ fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = Result<T, tracked::StringError>>)>> + 'static,
+) -> &'a UseState<Option<Result<T, tracked::StringError>>> {
  let data = use_state(cx, || None);
 
  let data_cloned = data.clone();
@@ -226,59 +226,50 @@ fn use_mailvec<'a>(
 }
 
 pub fn App(cx: Scope) -> Element {
- // let data = use_state(&cx, String::new);
-
- // let data_cloned = data.clone();
- // let _: &CoroutineHandle<()> = use_coroutine(&cx, |_| async move {
- //  let mut conn = Box::pin(backend::encrypted_animal_time_stream());
- //  while let Some(r) = conn.next().await {
- //   data_cloned.set(crate::wasm_decrypt(r.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()));
- //  }
- // });
-
  let encrypted_animal_time_stream =
   use_encrypted_stream(&cx, || Box::pin(backend::encrypted_animal_time_stream()));
- // backend::use_encrypted_animal_time_stream(&cx, parameter1, parameter2);
 
  let check_for_updates = use_string(&cx, || Box::pin(backend::check_for_updates()));
 
- let mail_list = use_mailvec(&cx, || Box::pin(backend::mail_list()));
+ let mail_list = use_t(&cx, || Box::pin(backend::mail_list()));
 
- let mail_list: Vec<_> = mail_list
-  .get()
-  .clone()
-  .unwrap_or(Ok(vec![]))
-  .unwrap_or_default()
-  .into_iter()
-  .map(|m| {
-   crate::wasm_decrypt_u8(m.data.unwrap())
-    .ok_or_else(|| "wasm_decrypt error".into())
-    .and_then(mailparse)
-  })
-  .collect();
-
- let mail_list = format!("{:?}", mail_list);
-
- // let check_for_updates =
- //  use_future(&cx, (), |_| async move { backend::check_for_updates().await.unwrap() });
- //   p { check_for_updates.value().map(Clone::clone) }
+ let mail_list: Vec<_> = mail_list.get().clone().unwrap_or(Ok(vec![])).unwrap_or_default();
 
  cx.render(rsx! {
   p { "{check_for_updates}" }
   p { "hello {encrypted_animal_time_stream}" }
-  p { "mails {mail_list}" }
-  (1..=10).map(|n| rsx! {
-   Mail(title: format!("{}", n))
+  mail_list.into_iter().map(|rowid| rsx! {
+   Mail(rowid: rowid)
   })
  })
 }
 
 #[inline_props]
-pub fn Mail(cx: Scope, title: String) -> Element {
- cx.render(rsx! {
-  p {
-   class: "text-red-500",
-   "mail -> {title}"
+pub fn Mail(cx: Scope, rowid: i64) -> Element {
+ let rowid = *rowid;
+ let mail = use_t(&cx, move || Box::pin(backend::mail(rowid)));
+ if let Some(m) = mail.get() {
+  match m {
+   Ok(m) => {
+    let r = format!(
+     "{:?}",
+     crate::wasm_decrypt_u8(m).ok_or_else(|| "wasm_decrypt error".into()).and_then(mailparse)
+    );
+    cx.render(rsx! {
+     p {
+      class: "text-red-500",
+      "mail -> {r}"
+     }
+    })
+   }
+   Err(e) => cx.render(rsx! {
+    p {
+     class: "text-red-500",
+     "ERROR {e}"
+    }
+   }),
   }
- })
+ } else {
+  cx.render(rsx! { p { "" } })
+ }
 }

@@ -35,9 +35,9 @@ async fn getblockchaininfo() -> Result<String, tracked::StringError> {}
 
 async fn heartbeat() -> Result<String, tracked::StringError> {}
 
-async fn mail(rowid: i64) -> Result<String, tracked::StringError> {}
+async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {}
 
-async fn mail_list() -> Result<Vec<mail>, tracked::StringError> {}
+async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {}
 
 async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {}
 
