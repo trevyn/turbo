@@ -213,17 +213,14 @@ pub fn App(cx: Scope) -> Element {
  .clone()
  .unwrap_or_default();
 
- let check_for_updates = use_backend(&cx, || Box::pin(backend::check_for_updates()))
+ let check_for_updates = use_backend(&cx, || backend::check_for_updates())
   .get()
   .clone()
   .unwrap_or_else(|| Ok("checking for updates...".into()))
   .unwrap_or_else(|e| e.into());
 
- let mail_list = use_backend(&cx, || Box::pin(backend::mail_list()))
-  .get()
-  .clone()
-  .unwrap_or(Ok(vec![]))
-  .unwrap_or_default();
+ let mail_list =
+  use_backend(&cx, || backend::mail_list()).get().clone().unwrap_or(Ok(vec![])).unwrap_or_default();
 
  cx.render(rsx! {
   p { "{check_for_updates}" }
@@ -237,7 +234,7 @@ pub fn App(cx: Scope) -> Element {
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
  let rowid = *rowid;
- let mail = use_backend(&cx, move || Box::pin(backend::mail(rowid)));
+ let mail = use_backend(&cx, move || backend::mail(rowid));
  if let Some(m) = mail.get() {
   match m {
    Ok(m) => {
