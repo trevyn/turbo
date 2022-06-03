@@ -74,12 +74,16 @@ pub fn wasm_set_client_sk(sk: String) {
  CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
+pub fn wasm_decrypt_u8(data: Vec<u8>) -> Option<Vec<u8>> {
+ CLIENT_SK.lock().unwrap().decrypt(data)
+}
+
 pub fn wasm_decrypt(data: Vec<u8>) -> Option<String> {
  CLIENT_SK.lock().unwrap().decrypt(data).map(|data| std::str::from_utf8(&data).unwrap().to_string())
 }
 
 #[wasm_bindgen(getter_with_clone)]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ParsedMail {
  pub from: Option<String>,
  pub to: Option<String>,
@@ -88,22 +92,13 @@ pub struct ParsedMail {
 }
 
 #[tracked]
-#[wasm_bindgen]
-pub fn wasm_mailparse(data: String) -> Result<ParsedMail, JsError> {
- use mailparse::MailHeaderMap;
- let decrypted = CLIENT_SK.lock().unwrap().decrypt(hex::decode(data)?)?;
- let parsed = mailparse::parse_mail(&decrypted)?;
- let body = parsed
-  .subparts
-  .iter()
-  .find(|subpart| subpart.ctype.mimetype == "text/plain")
-  .map(|subpart| subpart.get_body().unwrap());
- let headers = parsed.get_headers();
+pub fn mailparse(data: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
+ let message = mail_parser::Message::parse(&data)?;
  Ok(ParsedMail {
-  from: headers.get_first_value("From"),
-  to: headers.get_first_value("To"),
-  subject: headers.get_first_value("Subject"),
-  body,
+  from: Some(format!("{:?}", message.get_from())),
+  to: Some(format!("{:?}", message.get_to())),
+  subject: message.get_subject().map(ToString::to_string),
+  body: message.get_body_preview(100).map(std::borrow::Cow::into_owned),
  })
 }
 
@@ -255,7 +250,11 @@ pub fn App(cx: Scope) -> Element {
   .unwrap_or(Ok(vec![]))
   .unwrap_or_default()
   .into_iter()
-  .map(|m| crate::wasm_decrypt(m.data.unwrap()).unwrap_or_else(|| "wasm_decrypt error".into()))
+  .map(|m| {
+   crate::wasm_decrypt_u8(m.data.unwrap())
+    .ok_or_else(|| tracked::StringError::from("wasm_decrypt error".to_string()))
+    .and_then(mailparse)
+  })
   .collect();
 
  let mail_list = format!("{:?}", mail_list);
