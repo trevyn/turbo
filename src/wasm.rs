@@ -252,7 +252,7 @@ pub fn App(cx: Scope) -> Element {
   .into_iter()
   .map(|m| {
    crate::wasm_decrypt_u8(m.data.unwrap())
-    .ok_or_else(|| tracked::StringError::from("wasm_decrypt error".to_string()))
+    .ok_or_else(|| "wasm_decrypt error".into())
     .and_then(mailparse)
   })
   .collect();
