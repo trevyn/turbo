@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
-#![allow(non_camel_case_types, non_snake_case, clippy::type_complexity)]
+#![allow(
+ non_camel_case_types,
+ non_snake_case,
+ clippy::type_complexity,
+ clippy::derive_partial_eq_without_eq
+)]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
 // mod app;
