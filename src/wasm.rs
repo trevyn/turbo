@@ -74,12 +74,14 @@ pub fn wasm_set_client_sk(sk: String) {
  CLIENT_SK.lock().unwrap().set_sk(sk);
 }
 
-pub fn wasm_decrypt_u8(data: &[u8]) -> Option<Vec<u8>> {
- CLIENT_SK.lock().unwrap().decrypt(data)
+#[tracked]
+pub fn wasm_decrypt_u8(data: &[u8]) -> Result<Vec<u8>, tracked::StringError> {
+ Ok(CLIENT_SK.lock().unwrap().decrypt(data)?)
 }
 
-pub fn wasm_decrypt(data: &[u8]) -> Option<String> {
- CLIENT_SK.lock().unwrap().decrypt(data).map(|data| std::str::from_utf8(&data).unwrap().to_string())
+#[tracked]
+pub fn wasm_decrypt(data: &[u8]) -> Result<String, tracked::StringError> {
+ Ok(std::str::from_utf8(&CLIENT_SK.lock().unwrap().decrypt(data)?)?.to_string())
 }
 
 #[wasm_bindgen(getter_with_clone)]
@@ -178,14 +180,14 @@ pub fn turbo_start_web() {
 fn use_stream<'a, T, U>(
  cx: &'a ScopeState,
  stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = T>)>> + 'static,
- map: impl Fn(T) -> U + 'static,
+ map_fn: impl Fn(T) -> U + 'static,
 ) -> &'a UseState<Option<U>> {
  let data = use_state(cx, || None);
  let data_cloned = data.clone();
  let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
   let mut conn = stream();
   while let Some(r) = conn.next().await {
-   data_cloned.set(Some(map(r)));
+   data_cloned.set(Some(map_fn(r)));
   }
  });
  data
@@ -204,59 +206,64 @@ fn use_backend<'a, T>(
 }
 
 pub fn App(cx: Scope) -> Element {
- let animal_time_stream = use_stream(
+ let animal_time_stream = match use_stream(
   &cx,
   || backend::encrypted_animal_time_stream(),
-  |r| crate::wasm_decrypt(&r.unwrap_or_default()).unwrap_or_else(|| "wasm_decrypt error".into()),
+  |r| crate::wasm_decrypt(&r.unwrap_or_default()),
  )
  .get()
- .clone()
- .unwrap_or_default();
+ {
+  None => rsx!(""),
+  Some(r) => match r {
+   Ok(r) => rsx!(p { "{r}" }),
+   Err(e) => rsx!(p { "error: {e}" }),
+  },
+ };
 
- let check_for_updates = use_backend(&cx, || backend::check_for_updates())
-  .get()
-  .clone()
-  .unwrap_or_else(|| Ok("checking for updates...".into()))
-  .unwrap_or_else(|e| e.into());
+ let check_for_updates = match use_backend(&cx, || backend::check_for_updates()).get() {
+  None => rsx!(""),
+  Some(r) => match r {
+   Ok(r) => rsx!(p { "{r}" }),
+   Err(e) => rsx!(p { "error: {e}" }),
+  },
+ };
 
- let mail_list =
-  use_backend(&cx, || backend::mail_list()).get().clone().unwrap_or(Ok(vec![])).unwrap_or_default();
+ let mail_list = match use_backend(&cx, || backend::mail_list()).get() {
+  None => rsx!(""),
+  Some(r) => match r {
+   Ok(r) => rsx!(r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
+   Err(e) => rsx!(p { "error: {e} " }),
+  },
+ };
 
  cx.render(rsx! {
-  p { "{check_for_updates}" }
-  p { "hello {animal_time_stream}" }
-  mail_list.into_iter().map(|rowid| rsx! {
-   Mail(rowid: rowid)
-  })
+  check_for_updates
+  animal_time_stream
+  mail_list
  })
 }
 
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
  let rowid = *rowid;
- let mail = use_backend(&cx, move || backend::mail(rowid));
- if let Some(m) = mail.get() {
-  match m {
+ cx.render(match use_backend(&cx, move || backend::mail(rowid)).get() {
+  None => rsx!(""),
+  Some(m) => match m {
    Ok(m) => {
-    let r = format!(
-     "{:?}",
-     crate::wasm_decrypt_u8(m).ok_or_else(|| "wasm_decrypt error".into()).and_then(mailparse)
-    );
-    cx.render(rsx! {
+    let r = format!("{:?}", crate::wasm_decrypt_u8(m).and_then(mailparse));
+    rsx! {
      p {
       class: "text-red-500",
       "mail -> {r}"
      }
-    })
+    }
    }
-   Err(e) => cx.render(rsx! {
+   Err(e) => rsx! {
     p {
      class: "text-red-500",
      "ERROR {e}"
     }
-   }),
-  }
- } else {
-  cx.render(rsx! { p { "" } })
- }
+   },
+  },
+ })
 }
