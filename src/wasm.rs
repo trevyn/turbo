@@ -236,7 +236,18 @@ pub fn App(cx: Scope) -> Element {
   },
  };
 
+ let m = use_state(&cx, || {
+  let mut entropy = [0u8; 16];
+  rand_core::RngCore::fill_bytes(&mut rand_core::OsRng, &mut entropy);
+  bip39::Mnemonic::from_entropy(&entropy).unwrap()
+ })
+ .get();
+
+ let seed = hex::encode(m.to_seed(""));
+
  cx.render(rsx! {
+  p { "{m}" }
+  p { "{seed}" }
   check_for_updates
   animal_time_stream
   mail_list
