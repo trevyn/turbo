@@ -82,7 +82,6 @@ async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "mast
 blst = {git = "https://github.com/supranational/blst", branch = "master"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
-# eframe = {git = "https://github.com/emilk/egui", branch = "master"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
