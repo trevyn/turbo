@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
  import * as backend from "./turbocharger_generated";
  export let item: backend.ParsedMail;
 </script>
@@ -15,4 +15,4 @@
    </dd>
   </dl>
  </td>
-</tr>
+</tr> -->
