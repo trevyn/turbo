@@ -1,12 +1,14 @@
 #![forbid(unsafe_code)]
-#![allow(non_camel_case_types)]
-
-mod app;
-mod mail;
+#![allow(non_camel_case_types, non_snake_case)]
+#![cfg_attr(feature = "wasm", allow(dead_code))]
 
 use std::process::Command;
 use tracked::tracked;
 use turbosql::{select, Turbosql};
+
+#[path = "../app/app.rs"]
+mod app;
+mod smtp;
 
 gflags::define!(--tls = true);
 gflags::define!(-p, --port: u16);
@@ -77,7 +79,7 @@ async fn main() -> Result<(), tracked::StringError> {
     .unwrap();
    Command::new("/usr/bin/mkdir").args(["-p", "/home/turbo"]).output().unwrap();
    Command::new("/usr/bin/chown").args(["turbo:turbo", "/home/turbo"]).output().unwrap();
-   std::fs::write("/etc/systemd/system/turbo.service", include_str!("../turbo.service"))?;
+   std::fs::write("/etc/systemd/system/turbo.service", include_str!("../../turbo.service"))?;
    Command::new("/usr/bin/chmod")
     .args(["a+r", "/etc/systemd/system/turbo.service"])
     .output()
@@ -111,7 +113,7 @@ async fn main() -> Result<(), tracked::StringError> {
  turbonet::spawn_server(build_id).await?;
 
  std::thread::spawn(move || {
-  mail::start_server().unwrap();
+  smtp::start_server().unwrap();
  });
 
  match flags {

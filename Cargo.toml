@@ -9,11 +9,11 @@ version = "0.1.0"
 [lib]
 crate-type = ["cdylib"]
 name = "turbocharger_generated"
-path = "src/wasm.rs"
+path = "src/wasm/wasm.rs"
 
 [[bin]]
 name = "turbo"
-path = "src/server.rs"
+path = "src/server/server.rs"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # overrides for real wasm build
@@ -23,6 +23,7 @@ wasm-bindgen = "=0.2.80" # Version to be synced with the wasm-bindgen CLI versio
 [features]
 wasm = [
   "turbocharger/wasm",
+  "turbocharger/full",
   "bip39",
   "console_error_panic_hook",
   "dioxus",
@@ -42,14 +43,13 @@ tracing-wasm = {version = "0.2", optional = true}
 web-sys = {version = "0.3", features = ["Storage", "Window"], optional = true}
 
 # dependencies for both server and wasm
-arc-swap = "1"
 crypto_box = "0.7.1"
 hex = "0.4"
 once_cell = "1"
 sealed_box = {git = "https://github.com/trevyn/sealed_box", branch = "master"}
 serde = {version = "1", features = ["derive"]}
 tracked = "0.5"
-turbocharger = {version = "0.3", features = ["full", "debug_expansions"], default-features = false}
+turbocharger = {version = "0.3", features = ["axum", "tls", "debug_expansions"], default-features = false}
 turbosql = "0.5"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

@@ -1,24 +1,15 @@
-#![allow(unused_imports)]
-use crypto_box::PublicKey;
-use serde::{Deserialize, Serialize};
 use tracked::tracked;
-use turbocharger::{backend, prelude::*, server_only};
+use turbocharger::prelude::*;
 use turbosql::{now_ms, select, Turbosql};
+
+pub mod mail;
+
+#[cfg(any(feature = "wasm", target_arch = "wasm32"))]
+#[path = "../wasm/wasm_crypto.rs"]
+pub mod wasm_crypto;
 
 mod check_for_updates;
 pub use check_for_updates::check_for_updates;
-
-#[derive(Turbosql, Default, Debug, Clone, Serialize, Deserialize)]
-pub struct mail {
- pub rowid: Option<i64>,
- pub recv_ms: Option<i64>,
- pub recv_ip_enc: Option<Vec<u8>>,
- pub domain_enc: Option<Vec<u8>>,
- pub from_addr_enc: Option<Vec<u8>>,
- pub is8bit: Option<bool>,
- pub to_addr_enc: Option<Vec<u8>>,
- pub data: Option<Vec<u8>>,
-}
 
 #[backend]
 #[derive(Turbosql, Default)]
@@ -140,19 +131,6 @@ pub fn encrypted_animal_time_stream() -> impl Stream<Item = Result<Vec<u8>, trac
  })
 }
 
-#[tracked]
-#[backend]
-pub async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {
- Ok(select!(mail "WHERE rowid = " rowid)?.data?)
-}
-
-#[tracked]
-#[backend]
-pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
- // Ok(select!(Vec<mail.rowid> "ORDER BY recv_ms DESC, rowid DESC")?)
- Ok(select!(Vec<i64> "SELECT rowid FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
-}
-
 #[server_only]
 #[tracked]
 fn row_to_string(row: animal_time_stream_log) -> Result<String, tracked::StringError> {
@@ -185,5 +163,47 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
    }
    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
   }
+ })
+}
+
+#[wasm_only]
+pub fn App(cx: Scope) -> Element {
+ let animal_time_stream = match use_stream(
+  &cx,
+  || encrypted_animal_time_stream(),
+  |r| wasm_crypto::wasm_decrypt(&r.unwrap_or_default()),
+ )
+ .get()
+ {
+  None => rsx!(""),
+  Some(r) => match r {
+   Ok(r) => rsx!(p { "{r}" }),
+   Err(e) => rsx!(p { "error: {e}" }),
+  },
+ };
+
+ let check_for_updates = match use_backend(&cx, || check_for_updates()).get() {
+  None => rsx!(""),
+  Some(r) => match r {
+   Ok(r) => rsx!(p { "{r}" }),
+   Err(e) => rsx!(p { "error: {e}" }),
+  },
+ };
+
+ let m = use_state(&cx, || {
+  let mut entropy = [0u8; 16];
+  rand_core::RngCore::fill_bytes(&mut rand_core::OsRng, &mut entropy);
+  bip39::Mnemonic::from_entropy(&entropy).unwrap()
+ })
+ .get();
+
+ let seed = hex::encode(m.to_seed(""));
+
+ cx.render(rsx! {
+  p { "{m}" }
+  p { "{seed}" }
+  check_for_updates
+  animal_time_stream
+  mail::MailList()
  })
 }

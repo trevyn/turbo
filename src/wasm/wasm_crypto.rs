@@ -1,26 +1,8 @@
-#![forbid(unsafe_code)]
-#![allow(
- non_camel_case_types,
- non_snake_case,
- clippy::type_complexity,
- unknown_lints,
- clippy::derive_partial_eq_without_eq
-)]
-#![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
-
-mod app;
-
 use crypto_box::{rand_core::OsRng, SecretKey};
-use dioxus::prelude::*;
 use once_cell::sync::Lazy;
-use std::future::Future;
-use std::{pin::Pin, sync::Mutex};
+use std::sync::Mutex;
 use tracked::tracked;
-use turbocharger::{
- futures_util::{Stream, StreamExt},
- prelude::*,
- wasm_only,
-};
+use turbocharger::prelude::*;
 
 struct client_sk([u8; 32]);
 
@@ -61,7 +43,7 @@ static CLIENT_SK: Lazy<Mutex<client_sk>> = Lazy::new(|| Mutex::new(client_sk::lo
 #[wasm_bindgen]
 pub async fn wasm_notify_client_pk() -> Result<(), JsValue> {
  let pk = CLIENT_SK.lock().unwrap().pk();
- app::notify_client_pk(pk.to_vec()).await.map_err(|e| e.to_string().into())
+ crate::app::notify_client_pk(pk.to_vec()).await.map_err(|e| e.to_string().into())
 }
 
 #[wasm_bindgen]
@@ -82,26 +64,6 @@ pub fn wasm_decrypt_u8(data: &[u8]) -> Result<Vec<u8>, tracked::StringError> {
 #[tracked]
 pub fn wasm_decrypt(data: &[u8]) -> Result<String, tracked::StringError> {
  Ok(std::str::from_utf8(&CLIENT_SK.lock().unwrap().decrypt(data)?)?.to_string())
-}
-
-#[wasm_bindgen(getter_with_clone)]
-#[derive(Default, Debug)]
-pub struct ParsedMail {
- pub from: Option<String>,
- pub to: Option<String>,
- pub subject: Option<String>,
- pub body: Option<String>,
-}
-
-#[tracked]
-pub fn mailparse(data: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
- let message = mail_parser::Message::parse(&data)?;
- Ok(ParsedMail {
-  from: Some(format!("{:?}", message.get_from())),
-  to: Some(format!("{:?}", message.get_to())),
-  subject: message.get_subject().map(ToString::to_string),
-  body: message.get_body_preview(100).map(std::borrow::Cow::into_owned),
- })
 }
 
 #[wasm_bindgen]
@@ -169,112 +131,4 @@ pub fn main() {
  let build_id = option_env!("BUILD_ID").unwrap_or(&dev_string);
 
  tracked::set_build_id(build_id);
-}
-
-#[wasm_only]
-#[wasm_bindgen]
-pub fn turbo_start_web() {
- dioxus::web::launch(App);
-}
-
-fn use_stream<'a, T, U>(
- cx: &'a ScopeState,
- stream: impl FnOnce() -> Pin<Box<(dyn Stream<Item = T>)>> + 'static,
- map_fn: impl Fn(T) -> U + 'static,
-) -> &'a UseState<Option<U>> {
- let data = use_state(cx, || None);
- let data_cloned = data.clone();
- let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
-  let mut conn = stream();
-  while let Some(r) = conn.next().await {
-   data_cloned.set(Some(map_fn(r)));
-  }
- });
- data
-}
-
-fn use_backend<'a, T>(
- cx: &'a ScopeState,
- fut: impl FnOnce() -> Pin<Box<(dyn Future<Output = T>)>> + 'static,
-) -> &'a UseState<Option<T>> {
- let data = use_state(cx, || None);
- let data_cloned = data.clone();
- let _: &'a CoroutineHandle<()> = use_coroutine(cx, |_| async move {
-  data_cloned.set(Some(fut().await));
- });
- data
-}
-
-pub fn App(cx: Scope) -> Element {
- let animal_time_stream = match use_stream(
-  &cx,
-  || app::encrypted_animal_time_stream(),
-  |r| crate::wasm_decrypt(&r.unwrap_or_default()),
- )
- .get()
- {
-  None => rsx!(""),
-  Some(r) => match r {
-   Ok(r) => rsx!(p { "{r}" }),
-   Err(e) => rsx!(p { "error: {e}" }),
-  },
- };
-
- let check_for_updates = match use_backend(&cx, || app::check_for_updates()).get() {
-  None => rsx!(""),
-  Some(r) => match r {
-   Ok(r) => rsx!(p { "{r}" }),
-   Err(e) => rsx!(p { "error: {e}" }),
-  },
- };
-
- let mail_list = match use_backend(&cx, || app::mail_list()).get() {
-  None => rsx!(""),
-  Some(r) => match r {
-   Ok(r) => rsx!(r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
-   Err(e) => rsx!(p { "error: {e} " }),
-  },
- };
-
- let m = use_state(&cx, || {
-  let mut entropy = [0u8; 16];
-  rand_core::RngCore::fill_bytes(&mut rand_core::OsRng, &mut entropy);
-  bip39::Mnemonic::from_entropy(&entropy).unwrap()
- })
- .get();
-
- let seed = hex::encode(m.to_seed(""));
-
- cx.render(rsx! {
-  p { "{m}" }
-  p { "{seed}" }
-  check_for_updates
-  animal_time_stream
-  mail_list
- })
-}
-
-#[inline_props]
-pub fn Mail(cx: Scope, rowid: i64) -> Element {
- let rowid = *rowid;
- cx.render(match use_backend(&cx, move || app::mail(rowid)).get() {
-  None => rsx!(""),
-  Some(m) => match m {
-   Ok(m) => {
-    let r = format!("{:?}", crate::wasm_decrypt_u8(m).and_then(mailparse));
-    rsx! {
-     p {
-      class: "text-red-500",
-      "mail -> {r}"
-     }
-    }
-   }
-   Err(e) => rsx! {
-    p {
-     class: "text-red-500",
-     "ERROR {e}"
-    }
-   },
-  },
- })
 }
