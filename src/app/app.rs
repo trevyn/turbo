@@ -168,26 +168,22 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
 
 #[wasm_only]
 pub fn App(cx: Scope) -> Element {
- let animal_time_stream = match use_stream(
+ let animal_time_stream = match use_stream_map(
   &cx,
   || encrypted_animal_time_stream(),
   |r| wasm_crypto::wasm_decrypt(&r.unwrap_or_default()),
  )
  .get()
  {
-  None => rsx!(""),
-  Some(r) => match r {
-   Ok(r) => rsx!(p { "{r}" }),
-   Err(e) => rsx!(p { "error: {e}" }),
-  },
+  Pending => rsx!(""),
+  Ready(Ok(r)) => rsx!(p { "{r}" }),
+  Ready(Err(e)) => rsx!(p { "error: {e}" }),
  };
 
  let check_for_updates = match use_backend(&cx, || check_for_updates()).get() {
-  None => rsx!(""),
-  Some(r) => match r {
-   Ok(r) => rsx!(p { "{r}" }),
-   Err(e) => rsx!(p { "error: {e}" }),
-  },
+  Pending => rsx!(""),
+  Ready(Ok(r)) => rsx!(p { "{r}" }),
+  Ready(Err(e)) => rsx!(p { "error: {e}" }),
  };
 
  let m = use_state(&cx, || {
