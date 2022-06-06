@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 #![allow(non_camel_case_types)]
 
-mod backend;
+mod app;
 mod mail;
 
 use std::process::Command;

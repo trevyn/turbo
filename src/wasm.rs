@@ -8,7 +8,7 @@
 )]
 #![cfg_attr(not(target_arch = "wasm32"), allow(unused_imports, dead_code))]
 
-mod backend;
+mod app;
 
 use crypto_box::{rand_core::OsRng, SecretKey};
 use dioxus::prelude::*;
@@ -61,7 +61,7 @@ static CLIENT_SK: Lazy<Mutex<client_sk>> = Lazy::new(|| Mutex::new(client_sk::lo
 #[wasm_bindgen]
 pub async fn wasm_notify_client_pk() -> Result<(), JsValue> {
  let pk = CLIENT_SK.lock().unwrap().pk();
- backend::notify_client_pk(pk.to_vec()).await.map_err(|e| e.to_string().into())
+ app::notify_client_pk(pk.to_vec()).await.map_err(|e| e.to_string().into())
 }
 
 #[wasm_bindgen]
@@ -208,7 +208,7 @@ fn use_backend<'a, T>(
 pub fn App(cx: Scope) -> Element {
  let animal_time_stream = match use_stream(
   &cx,
-  || backend::encrypted_animal_time_stream(),
+  || app::encrypted_animal_time_stream(),
   |r| crate::wasm_decrypt(&r.unwrap_or_default()),
  )
  .get()
@@ -220,7 +220,7 @@ pub fn App(cx: Scope) -> Element {
   },
  };
 
- let check_for_updates = match use_backend(&cx, || backend::check_for_updates()).get() {
+ let check_for_updates = match use_backend(&cx, || app::check_for_updates()).get() {
   None => rsx!(""),
   Some(r) => match r {
    Ok(r) => rsx!(p { "{r}" }),
@@ -228,7 +228,7 @@ pub fn App(cx: Scope) -> Element {
   },
  };
 
- let mail_list = match use_backend(&cx, || backend::mail_list()).get() {
+ let mail_list = match use_backend(&cx, || app::mail_list()).get() {
   None => rsx!(""),
   Some(r) => match r {
    Ok(r) => rsx!(r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
@@ -257,7 +257,7 @@ pub fn App(cx: Scope) -> Element {
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
  let rowid = *rowid;
- cx.render(match use_backend(&cx, move || backend::mail(rowid)).get() {
+ cx.render(match use_backend(&cx, move || app::mail(rowid)).get() {
   None => rsx!(""),
   Some(m) => match m {
    Ok(m) => {

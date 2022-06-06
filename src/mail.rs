@@ -1,4 +1,4 @@
-use crate::backend::{encrypt, mail};
+use crate::app::{encrypt, mail};
 use mailin_embedded::response::{NO_MAILBOX, OK};
 use mailin_embedded::{Response, Server, SslConfig};
 use tracked::tracked;
