@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
  import * as backend from "./turbocharger_generated";
  import StreamSpan from "./StreamSpan.svelte";
 
@@ -24,4 +24,4 @@
  style="height:60vh"
  class="mt-3 w-full bg-gray-700 p-4 pb-16 font-mono outline-none"
  >{log}</textarea
->
+> -->

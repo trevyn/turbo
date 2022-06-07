@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
  import * as backend from "./turbocharger_generated";
 
  let sk = backend.wasm_client_sk();
@@ -23,4 +23,4 @@
  <pre class="text-xs pt-1">{info}</pre>
 {:catch error}
  {error}
-{/await}
+{/await} -->
