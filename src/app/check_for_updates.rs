@@ -1,6 +1,14 @@
 use once_cell::sync::Lazy;
 use tracked::tracked;
-use turbocharger::{backend, prelude::*};
+use turbocharger::prelude::*;
+
+#[wasm_only]
+pub fn CheckForUpdates(cx: Scope) -> Element {
+ use_future(&cx, (), |_| check_for_updates()).value().and_then(|r| match r {
+  Ok(r) => rsx!(cx, p { "{r}" }),
+  Err(e) => rsx!(cx, p { "error: {e}" }),
+ })
+}
 
 #[backend]
 #[tracked]

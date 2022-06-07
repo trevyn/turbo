@@ -9,11 +9,11 @@ version = "0.1.0"
 [lib]
 crate-type = ["cdylib"]
 name = "turbocharger_generated"
-path = "src/wasm/wasm.rs"
+path = "src/wasm.rs"
 
 [[bin]]
 name = "turbo"
-path = "src/server/server.rs"
+path = "src/server.rs"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # overrides for real wasm build

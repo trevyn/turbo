@@ -5,7 +5,6 @@
 
 use turbocharger::prelude::*;
 
-#[path = "../app/app.rs"]
 mod app;
 
 #[wasm_only]
