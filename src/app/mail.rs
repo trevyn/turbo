@@ -50,33 +50,26 @@ pub fn mailparse(data: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
 
 #[wasm_only]
 pub fn MailList(cx: Scope) -> Element {
- let mail_list = match use_backend(&cx, || mail_list()).get() {
-  Pending => rsx!(""),
-  Ready(Ok(r)) => rsx!(r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
-  Ready(Err(e)) => rsx!(p { "error: {e} " }),
- };
-
- cx.render(rsx! {
-  mail_list
+ use_future(&cx, (), |_| mail_list()).value().and_then(|r| match r {
+  Ok(r) => rsx!(cx, r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
+  Err(e) => rsx!(cx, p { "error: {e} " }),
  })
 }
 
 #[wasm_only]
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
- let rowid = *rowid;
- cx.render(match use_backend(&cx, move || mail(rowid)).get() {
-  Pending => rsx!(""),
-  Ready(Ok(m)) => {
+ use_future(&cx, (rowid,), |(rowid,)| mail(rowid)).value().and_then(|r| match r {
+  Ok(m) => {
    let r = format!("{:?}", super::wasm_crypto::wasm_decrypt_u8(m).and_then(mailparse));
-   rsx! {
+   rsx! {cx,
     p {
      class: "text-red-500",
      "mail -> {r}"
     }
    }
   }
-  Ready(Err(e)) => rsx! {
+  Err(e) => rsx! {cx,
    p {
     class: "text-red-500",
     "ERROR {e}"

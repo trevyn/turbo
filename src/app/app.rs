@@ -168,23 +168,24 @@ fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringE
 
 #[wasm_only]
 pub fn App(cx: Scope) -> Element {
- let animal_time_stream = match use_stream_map(
+ let animal_time_stream = use_stream(
   &cx,
-  || encrypted_animal_time_stream(),
-  |r| wasm_crypto::wasm_decrypt(&r.unwrap_or_default()),
+  encrypted_animal_time_stream,
+  || None,
+  |s, v| v.map(|v| s.set(Some(wasm_crypto::wasm_decrypt(&v.unwrap_or_default())))),
  )
  .get()
- {
-  Pending => rsx!(""),
-  Ready(Ok(r)) => rsx!(p { "{r}" }),
-  Ready(Err(e)) => rsx!(p { "error: {e}" }),
- };
+ .as_ref()
+ .and_then(|r| match r {
+  Ok(r) => rsx!(cx, p { "{r}" }),
+  Err(e) => rsx!(cx, p { "error: {e}" }),
+ });
 
- let check_for_updates = match use_backend(&cx, || check_for_updates()).get() {
-  Pending => rsx!(""),
-  Ready(Ok(r)) => rsx!(p { "{r}" }),
-  Ready(Err(e)) => rsx!(p { "error: {e}" }),
- };
+ let check_for_updates =
+  use_future(&cx, (), |_| check_for_updates()).value().and_then(|r| match r {
+   Ok(r) => rsx!(cx, p { "{r}" }),
+   Err(e) => rsx!(cx, p { "error: {e}" }),
+  });
 
  let m = use_state(&cx, || {
   let mut entropy = [0u8; 16];
@@ -195,11 +196,11 @@ pub fn App(cx: Scope) -> Element {
 
  let seed = hex::encode(m.to_seed(""));
 
- cx.render(rsx! {
+ rsx! {cx,
   p { "{m}" }
   p { "{seed}" }
   check_for_updates
   animal_time_stream
   mail::MailList()
- })
+ }
 }
