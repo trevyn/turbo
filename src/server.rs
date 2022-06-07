@@ -3,7 +3,7 @@
 #![cfg_attr(feature = "wasm", allow(dead_code))]
 
 use std::process::Command;
-use tracked::tracked;
+use turbocharger::prelude::*;
 use turbosql::{select, Turbosql};
 
 mod app;

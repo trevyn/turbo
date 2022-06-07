@@ -1,7 +1,6 @@
 use crypto_box::{rand_core::OsRng, SecretKey};
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
-use tracked::tracked;
 use turbocharger::prelude::*;
 
 struct client_sk([u8; 32]);
