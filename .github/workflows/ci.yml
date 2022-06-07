@@ -102,7 +102,6 @@ jobs:
       - run: brotli index.html
         working-directory: 'src-frontend/dist'
       - run: ls -la src-frontend/dist
-      - run: npx svelte-check
       - run: RUSTFLAGS="-Ctarget-cpu=nehalem"  CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --bin turbo --release --target x86_64-unknown-linux-gnu
       - run: cargo tree --target=x86_64-unknown-linux-gnu
       - run: cargo tree --features wasm --target=wasm32-unknown-unknown
