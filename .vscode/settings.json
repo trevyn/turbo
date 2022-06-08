@@ -2,6 +2,8 @@
  "css.lint.unknownAtRules": "ignore",
  "editor.detectIndentation": false,
  "editor.tabSize": 1,
+ "tailwindCSS.experimental.classRegex": ["[\\s{]class:\\s?\"([^\"]*)\""],
+ "tailwindCSS.includeLanguages": { "rust": "html" },
  "rust-analyzer.checkOnSave.command": "clippy",
  "rust-analyzer.procMacro.enable": true,
  "rust-analyzer.cargo.features": ["wasm"],
