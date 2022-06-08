@@ -47,9 +47,9 @@ impl TryFrom<Vec<u8>> for ParsedMail {
    from: match m.get_from() {
     mail_parser::HeaderValue::Address(a) => {
      format!(
-      "{} ({})",
-      a.address.as_ref().unwrap_or(&std::borrow::Cow::from("")),
-      a.name.as_ref().unwrap_or(&std::borrow::Cow::from("")),
+      "{}{}",
+      a.address.as_ref().unwrap_or(&"".into()),
+      a.name.as_ref().map(|n| format!(" ({})", n)).unwrap_or_default()
      )
     }
     // mail_parser::HeaderValue::AddressList(_) => todo!(),
