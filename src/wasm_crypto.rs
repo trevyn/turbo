@@ -56,13 +56,13 @@ pub fn wasm_set_client_sk(sk: String) {
 }
 
 #[tracked]
-pub fn wasm_decrypt_u8(data: &[u8]) -> Result<Vec<u8>, tracked::StringError> {
- Ok(CLIENT_SK.lock().unwrap().decrypt(data)?)
+pub fn wasm_decrypt_u8<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, tracked::StringError> {
+ Ok(CLIENT_SK.lock().unwrap().decrypt(data.as_ref())?)
 }
 
 #[tracked]
-pub fn wasm_decrypt(data: &[u8]) -> Result<String, tracked::StringError> {
- Ok(std::str::from_utf8(&CLIENT_SK.lock().unwrap().decrypt(data)?)?.to_string())
+pub fn wasm_decrypt<T: AsRef<[u8]>>(data: T) -> Result<String, tracked::StringError> {
+ Ok(std::str::from_utf8(&CLIENT_SK.lock().unwrap().decrypt(data.as_ref())?)?.to_string())
 }
 
 #[wasm_bindgen]

@@ -31,10 +31,35 @@ struct mail_log {
 
 #[derive(Default, Debug)]
 pub struct ParsedMail {
- pub from: Option<String>,
- pub to: Option<String>,
- pub subject: Option<String>,
- pub body: Option<String>,
+ pub from: String,
+ pub to: String,
+ pub subject: String,
+ pub body: String,
+}
+
+#[wasm_only]
+impl TryFrom<Vec<u8>> for ParsedMail {
+ type Error = tracked::StringError;
+ #[tracked]
+ fn try_from(m: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
+  let m = mail_parser::Message::parse(&m)?;
+  Ok(ParsedMail {
+   from: match m.get_from() {
+    mail_parser::HeaderValue::Address(a) => {
+     format!(
+      "{} ({})",
+      a.address.as_ref().unwrap_or(&std::borrow::Cow::from("")),
+      a.name.as_ref().unwrap_or(&std::borrow::Cow::from("")),
+     )
+    }
+    // mail_parser::HeaderValue::AddressList(_) => todo!(),
+    other => format!("{:?}", other),
+   },
+   to: format!("{:?}", m.get_to()),
+   subject: m.get_subject().map(ToString::to_string).unwrap_or_default(),
+   body: m.get_body_preview(1000).map(std::borrow::Cow::into_owned).unwrap_or_default(),
+  })
+ }
 }
 
 #[tracked]
@@ -47,7 +72,23 @@ pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
 #[wasm_only]
 pub fn MailList(cx: Scope) -> Element {
  use_future(&cx, (), |_| mail_list()).value().and_then(|r| match r {
-  Ok(r) => rsx!(cx, r.iter().map(|rowid| rsx!(Mail(rowid: *rowid)))),
+  Ok(r) => rsx! {cx,
+   div { class: "px-4 sm:px-6 lg:px-8",
+    div { class: "-mx-4 mt-px overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0",
+     table { class: "min-w-full divide-y divide-gray-300",
+      tbody { class: "divide-y divide-gray-200 bg-white",
+       r.iter().map(|rowid| rsx! {
+        tr {
+         td { class: "w-full max-w-0 py-4 pl-4 pr-3 text-sm font-extralight text-gray-900 sm:pl-6",
+          Mail(rowid: *rowid)
+         }
+        }
+       })
+      }
+     }
+    }
+   }
+  },
   Err(e) => rsx!(cx, p { "error: {e} " }),
  })
 }
@@ -61,31 +102,25 @@ pub async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {
 #[wasm_only]
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
- #[tracked]
- fn mailparse(data: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
-  let message = mail_parser::Message::parse(&data)?;
-  Ok(ParsedMail {
-   from: Some(format!("{:?}", message.get_from())),
-   to: Some(format!("{:?}", message.get_to())),
-   subject: message.get_subject().map(ToString::to_string),
-   body: message.get_body_preview(100).map(std::borrow::Cow::into_owned),
-  })
- }
-
- use_future(&cx, (rowid,), |(rowid,)| mail(rowid)).value().and_then(|r| match r {
-  Ok(m) => {
-   let r = format!("{:?}", super::wasm_crypto::wasm_decrypt_u8(m).and_then(mailparse));
-   rsx! {cx,
-    p {
-     class: "text-red-500",
-     "mail -> {r}"
-    }
+ use turbocharger::futures_util::TryFutureExt;
+ use_future(&cx, (rowid,), |(rowid,)| {
+  mail(rowid)
+   .and_then(|v| async { super::wasm_crypto::wasm_decrypt_u8(v) })
+   .and_then(|v| async { ParsedMail::try_from(v) })
+ })
+ .value()
+ .and_then(|r| match r {
+  Ok(m) => rsx! {cx,
+   "{m.from}"
+   dl {
+    dd { class: "mt-1 truncate font-normal text-gray-700", "{m.subject}" }
+    dd { class: "mt-1 break-words font-light text-gray-500", "{m.body}" }
    }
-  }
+  },
   Err(e) => rsx! {cx,
    p {
     class: "text-red-500",
-    "ERROR {e}"
+    "mail rowid {rowid} ERROR {e}"
    }
   },
  })
