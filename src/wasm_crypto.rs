@@ -56,7 +56,7 @@ pub fn wasm_set_client_sk(sk: String) {
 }
 
 #[tracked]
-pub fn wasm_decrypt_u8<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, tracked::StringError> {
+pub async fn wasm_decrypt_u8<T: AsRef<[u8]>>(data: T) -> Result<Vec<u8>, tracked::StringError> {
  Ok(CLIENT_SK.lock().unwrap().decrypt(data.as_ref())?)
 }
 

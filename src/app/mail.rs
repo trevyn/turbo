@@ -42,9 +42,8 @@ impl TryFrom<Vec<u8>> for ParsedMail {
  type Error = tracked::StringError;
  #[tracked]
  fn try_from(m: Vec<u8>) -> Result<ParsedMail, tracked::StringError> {
-  let m = mail_parser::Message::parse(&m)?;
-  Ok(ParsedMail {
-   from: match m.get_from() {
+  fn address_to_string(header: &mail_parser::HeaderValue) -> String {
+   match header {
     mail_parser::HeaderValue::Address(a) => {
      format!(
       "{}{}",
@@ -54,8 +53,12 @@ impl TryFrom<Vec<u8>> for ParsedMail {
     }
     // mail_parser::HeaderValue::AddressList(_) => todo!(),
     other => format!("{:?}", other),
-   },
-   to: format!("{:?}", m.get_to()),
+   }
+  }
+  let m = mail_parser::Message::parse(&m)?;
+  Ok(ParsedMail {
+   from: address_to_string(m.get_from()),
+   to: address_to_string(m.get_to()),
    subject: m.get_subject().map(ToString::to_string).unwrap_or_default(),
    body: m.get_body_preview(1000).map(std::borrow::Cow::into_owned).unwrap_or_default(),
   })
@@ -105,13 +108,13 @@ pub fn Mail(cx: Scope, rowid: i64) -> Element {
  use turbocharger::futures_util::TryFutureExt;
  use_future(&cx, (rowid,), |(rowid,)| {
   mail(rowid)
-   .and_then(|v| async { super::wasm_crypto::wasm_decrypt_u8(v) })
+   .and_then(super::wasm_crypto::wasm_decrypt_u8)
    .and_then(|v| async { ParsedMail::try_from(v) })
  })
  .value()
  .and_then(|r| match r {
   Ok(m) => rsx! {cx,
-   "{m.from}"
+   "{m.from} ⇀ {m.to}"
    dl {
     dd { class: "mt-1 truncate font-normal text-gray-700", "{m.subject}" }
     dd { class: "mt-1 break-words font-light text-gray-500", "{m.body}" }
