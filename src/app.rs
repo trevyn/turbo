@@ -5,6 +5,7 @@ mod animal_time_stream;
 mod bip39;
 mod check_for_updates;
 pub mod mail;
+mod settings;
 
 #[cfg(any(feature = "wasm", target_arch = "wasm32"))]
 #[path = "wasm_crypto.rs"]
@@ -53,6 +54,7 @@ pub fn App(cx: Scope) -> Element {
   bip39::Bip39()
   check_for_updates::CheckForUpdates()
   animal_time_stream::AnimalTimeStream()
+  settings::Settings()
   mail::MailList()
  }
 }
