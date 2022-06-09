@@ -7,6 +7,9 @@ mod check_for_updates;
 pub mod mail;
 mod settings;
 
+#[path = "components/navbar.rs"]
+mod navbar;
+
 #[cfg(any(feature = "wasm", target_arch = "wasm32"))]
 #[path = "wasm_crypto.rs"]
 pub mod wasm_crypto;
@@ -50,11 +53,14 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
 
 #[wasm_only]
 pub fn App(cx: Scope) -> Element {
- rsx! {cx,
-  bip39::Bip39()
-  check_for_updates::CheckForUpdates()
-  animal_time_stream::AnimalTimeStream()
-  settings::Settings()
-  mail::MailList()
- }
+ navbar::NavBar(
+  cx,
+  vec![
+   ("Mail", mail::MailList),
+   ("Bip39", bip39::Bip39),
+   ("CheckForUpdates", check_for_updates::CheckForUpdates),
+   ("AnimalTimeStream", animal_time_stream::AnimalTimeStream),
+   ("Settings", settings::Settings),
+  ],
+ )
 }
