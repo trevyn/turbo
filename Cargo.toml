@@ -78,7 +78,6 @@ acme-lib = {git = "https://github.com/trevyn/acme-lib", branch = "ureq_v2"}
 # tracked = {path = "../tracked/tracked"}
 # tracked = {git = "https://github.com/trevyn/tracked", branch = "main"}
 async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "master"}
-blst = {git = "https://github.com/supranational/blst", branch = "master"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
