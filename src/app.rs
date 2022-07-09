@@ -36,8 +36,8 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
   rowid: None,
   timestamp: Some(now_ms()),
   animal_timestamp: Some(animal_time::now()),
-  remote_addr: remote_addr.map(|addr| addr.to_string()),
-  user_agent,
+  remote_addr: remote_addr!().map(|addr| addr.to_string()),
+  user_agent: user_agent!().cloned(),
   client_pk: client_pk.try_into().ok(),
  }
  .insert()?;
