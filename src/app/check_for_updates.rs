@@ -1,7 +1,7 @@
 use once_cell::sync::Lazy;
 use turbocharger::prelude::*;
 
-#[wasm_only]
+#[frontend]
 pub fn CheckForUpdates(cx: Scope) -> Element {
  use_future(&cx, (), |_| check_for_updates()).value().and_then(|r| match r {
   Ok(r) => rsx!(cx, p { "{r}" }),
@@ -10,7 +10,6 @@ pub fn CheckForUpdates(cx: Scope) -> Element {
 }
 
 #[backend]
-#[tracked]
 pub async fn check_for_updates() -> Result<String, tracked::StringError> {
  dbg!("checking for updates");
  // TODO: this fn seems to block the executor if the dl is slow, debug that?

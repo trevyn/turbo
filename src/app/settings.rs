@@ -1,6 +1,6 @@
 use turbocharger::prelude::*;
 
-#[wasm_only]
+#[frontend]
 pub fn Settings(cx: Scope) -> Element {
  let verified_sk = super::wasm_crypto::wasm_client_sk();
  let inputvalue = use_state(&cx, || verified_sk.clone());

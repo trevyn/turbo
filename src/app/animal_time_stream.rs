@@ -1,6 +1,6 @@
 use turbocharger::prelude::*;
 
-#[wasm_only]
+#[frontend]
 pub fn AnimalTimeStream(cx: Scope) -> Element {
  use_stream(&cx, encrypted_animal_time_stream, |s, v| {
   *s = Some(super::wasm_crypto::wasm_decrypt(&v.unwrap_or_default()))
@@ -13,7 +13,6 @@ pub fn AnimalTimeStream(cx: Scope) -> Element {
  })
 }
 
-#[tracked]
 #[backend]
 fn encrypted_animal_time_stream() -> impl Stream<Item = Result<Vec<u8>, tracked::StringError>> {
  turbocharger::async_stream::try_stream!({

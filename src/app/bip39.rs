@@ -1,6 +1,6 @@
 use turbocharger::prelude::*;
 
-#[wasm_only]
+#[frontend]
 pub fn Bip39(cx: Scope) -> Element {
  let m = use_state(&cx, || {
   let mut entropy = [0u8; 16];

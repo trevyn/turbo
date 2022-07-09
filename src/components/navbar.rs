@@ -2,7 +2,7 @@
 
 use turbocharger::prelude::*;
 
-#[wasm_only]
+#[frontend]
 pub fn NavBar<'a>(cx: Scope<'a>, tabs: Vec<(&'static str, fn(Scope) -> Element)>) -> Element<'a> {
  let active_tab = use_state(&cx, || 0);
  let component = tabs[*active_tab.get()].1;
@@ -26,7 +26,7 @@ pub fn NavBar<'a>(cx: Scope<'a>, tabs: Vec<(&'static str, fn(Scope) -> Element)>
  }
 }
 
-#[wasm_only]
+#[frontend]
 #[inline_props]
 fn Tab<'a>(cx: Scope, title: &'static str, active: bool, onclick: EventHandler<'a>) -> Element {
  let classes = if *active {

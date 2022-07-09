@@ -1,9 +1,8 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
 use serde::Deserialize;
-use turbocharger::backend;
+use turbocharger::prelude::*;
 use turbosql::Turbosql;
-use wasm_bindgen::prelude::*;
 
 #[derive(Deserialize, Debug)]
 pub struct ConfigResponse {

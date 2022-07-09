@@ -1,5 +1,6 @@
+use turbocharger::prelude::*;
+
 #[backend]
-#[tracked]
 pub async fn getblockchaininfo() -> Result<String, tracked::StringError> {
  let cookie = std::fs::read_to_string("/root/.bitcoin/.cookie")?;
  let [username, password]: [&str; 2] = cookie.split(':').collect::<Vec<&str>>().try_into().ok()?;

@@ -37,7 +37,7 @@ pub struct ParsedMail {
  pub body: String,
 }
 
-#[wasm_only]
+#[frontend]
 impl TryFrom<Vec<u8>> for ParsedMail {
  type Error = tracked::StringError;
  #[tracked]
@@ -65,7 +65,6 @@ impl TryFrom<Vec<u8>> for ParsedMail {
  }
 }
 
-#[tracked]
 #[backend]
 pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
  // Ok(select!(Vec<mail.rowid> "ORDER BY recv_ms DESC, rowid DESC")?)
@@ -74,7 +73,7 @@ pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
  // Ok(select!(Vec<"rowid": i64, "bla AS blaa": String> "FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
 }
 
-#[wasm_only]
+#[frontend]
 pub fn MailList(cx: Scope) -> Element {
  use_future(&cx, (), |_| mail_list()).value().and_then(|r| match r {
   Ok(r) => rsx! {cx,
@@ -98,13 +97,12 @@ pub fn MailList(cx: Scope) -> Element {
  })
 }
 
-#[tracked]
 #[backend]
 pub async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {
  Ok(select!(mail "WHERE rowid = " rowid)?.data?)
 }
 
-#[wasm_only]
+#[frontend]
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
  use turbocharger::futures_util::TryFutureExt;

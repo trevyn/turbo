@@ -29,7 +29,6 @@ pub async fn heartbeat() -> Result<String, tracked::StringError> {
  Ok("beat".to_string())
 }
 
-#[tracked]
 #[backend(js)]
 pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {
  client {
@@ -44,14 +43,14 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
  Ok(())
 }
 
-#[tracked]
 #[server_only]
+#[tracked]
 pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
  let pk = crypto_box::PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
  Ok(sealed_box::seal(m.as_ref(), &pk))
 }
 
-#[wasm_only]
+#[frontend]
 pub fn App(cx: Scope) -> Element {
  navbar::NavBar(
   cx,
