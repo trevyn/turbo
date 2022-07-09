@@ -9,6 +9,6 @@ mod app;
 
 #[wasm_only]
 #[wasm_bindgen]
-pub fn turbo_start_web() {
+pub fn start_web() {
  dioxus::web::launch(app::App);
 }

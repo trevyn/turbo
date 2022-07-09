@@ -7,7 +7,7 @@ let prom = turbocharger_init().then(async () => {
  )
   backend.set_socket_url("ws://127.0.0.1:8080/turbocharger_socket");
  // await backend.wasm_notify_client_pk();
- backend.turbo_start_web();
+ backend.start_web();
 });
 
 (async () => {

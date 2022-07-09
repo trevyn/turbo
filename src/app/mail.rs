@@ -69,7 +69,9 @@ impl TryFrom<Vec<u8>> for ParsedMail {
 #[backend]
 pub async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {
  // Ok(select!(Vec<mail.rowid> "ORDER BY recv_ms DESC, rowid DESC")?)
- Ok(select!(Vec<i64> "SELECT rowid FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
+ Ok(select!(Vec<i64> "rowid FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
+ // Ok(select!(Vec<"rowid": i64> "FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
+ // Ok(select!(Vec<"rowid": i64, "bla AS blaa": String> "FROM mail ORDER BY recv_ms DESC, rowid DESC")?)
 }
 
 #[wasm_only]
