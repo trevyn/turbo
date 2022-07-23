@@ -3,7 +3,7 @@ name: ci
 on:
   push:
   pull_request:
-  schedule: [cron: '40 1 * * *']
+  schedule: [cron: '40 7 * * *']
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,7 +12,7 @@ jobs:
   assign:
     name: assign build_id
     runs-on: ubuntu-latest
-    
+
     steps:
       - run: wget https://github.com/trevyn/animal-time/releases/latest/download/animal-time
       - run: chmod +x animal-time
@@ -49,7 +49,7 @@ jobs:
 
   test:
     needs: [assign]
-    name: test rust ${{ matrix.rust }} ${{ matrix.os }} 
+    name: test rust ${{ matrix.rust }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
