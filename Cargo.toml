@@ -48,8 +48,8 @@ hex = "0.4"
 once_cell = "1"
 sealed_box = {git = "https://github.com/trevyn/sealed_box", branch = "master"}
 serde = {version = "1", features = ["derive"]}
-turbocharger = {version = "0.3", features = ["axum", "tls", "debug_expansions"], default-features = false}
-turbosql = "0.6"
+turbocharger = {version = "0.4", features = ["axum", "tls", "debug_expansions"], default-features = false}
+turbosql = "0.7"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
