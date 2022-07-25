@@ -1,14 +1,10 @@
 use turbocharger::prelude::*;
 use turbosql::{now_ms, select, Turbosql};
 
-mod animal_time_stream;
-mod bip39;
-mod check_for_updates;
-pub mod mail;
-mod settings;
-
-#[path = "components/navbar.rs"]
-mod navbar;
+automod::dir!(pub "src/app");
+mod components;
+#[allow(unused_imports)]
+use components::*;
 
 #[cfg(any(feature = "wasm", target_arch = "wasm32"))]
 #[path = "wasm_crypto.rs"]

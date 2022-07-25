@@ -81,6 +81,20 @@ migrations_append_only = [
   'ALTER TABLE mail ADD COLUMN domain_enc BLOB',
   'ALTER TABLE mail ADD COLUMN from_addr_enc BLOB',
   'ALTER TABLE mail ADD COLUMN to_addr_enc BLOB',
+  'CREATE TABLE jackettresult (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE jackettresult ADD COLUMN tracker TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN tracker_id TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN category_desc TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN title TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN guid TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN link TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN details TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN publish_date TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN category TEXT',
+  'ALTER TABLE jackettresult ADD COLUMN size INTEGER',
+  'ALTER TABLE jackettresult ADD COLUMN seeders INTEGER',
+  'ALTER TABLE jackettresult ADD COLUMN peers INTEGER',
+  'ALTER TABLE jackettresult ADD COLUMN gain REAL',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -162,6 +176,22 @@ output_generated_schema_for_your_information_do_not_edit = '''
     key_path TEXT,
     port INTEGER,
     tls INTEGER
+  ) STRICT
+  CREATE TABLE jackettresult (
+    rowid INTEGER PRIMARY KEY,
+    tracker TEXT,
+    tracker_id TEXT,
+    category_desc TEXT,
+    title TEXT,
+    guid TEXT,
+    link TEXT,
+    details TEXT,
+    publish_date TEXT,
+    category TEXT,
+    size INTEGER,
+    seeders INTEGER,
+    peers INTEGER,
+    gain REAL
   ) STRICT
   CREATE TABLE mail (
     rowid INTEGER PRIMARY KEY,
@@ -470,6 +500,79 @@ sql_type = 'INTEGER'
 name = 'port'
 rust_type = 'Option < u16 >'
 sql_type = 'INTEGER'
+
+[output_generated_tables_do_not_edit.jackettresult]
+name = 'jackettresult'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'tracker'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'tracker_id'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'category_desc'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'title'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'guid'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'link'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'details'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'publish_date'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'category'
+rust_type = 'Option < Vec < i64 > >'
+sql_type = 'TEXT'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'size'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'seeders'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'peers'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER'
+
+[[output_generated_tables_do_not_edit.jackettresult.columns]]
+name = 'gain'
+rust_type = 'Option < f64 >'
+sql_type = 'REAL'
 
 [output_generated_tables_do_not_edit.mail]
 name = 'mail'

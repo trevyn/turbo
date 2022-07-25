@@ -12,20 +12,6 @@ struct _Turbonet_SelfResponse {
     build_id: String,
 }
 
-async fn animal_log() -> Result<String, tracked::StringError> {}
-
-async fn animal_time() -> String {}
-
-fn animal_time_stream() -> impl Stream<Item = Result<String, tracked::StringError>> {}
-
-struct animal_time_stream_log {
-    rowid: Option<i64>,
-    timestamp: Option<i64>,
-    animal_timestamp: Option<String>,
-    remote_addr: Option<String>,
-    user_agent: Option<String>,
-}
-
 async fn check_for_updates() -> Result<String, tracked::StringError> {}
 
 fn encrypted_animal_time_stream() -> impl Stream<
@@ -41,5 +27,3 @@ async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {}
 async fn mail_list() -> Result<Vec<i64>, tracked::StringError> {}
 
 async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {}
-
-fn stream_example_result() -> impl Stream<Item = Result<String, tracked::StringError>> {}

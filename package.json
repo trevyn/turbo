@@ -5,7 +5,8 @@
   "start-info-release-wasm": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --release --lib --features wasm --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/release/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=info cargo run --bin turbo -- --notls; }",
   "start-debug": "if [ ! -d node_modules ]; then npm install; fi && if [ ! -d src-frontend/dist ]; then mkdir src-frontend/dist; fi && cargo build --lib --features wasm --target wasm32-unknown-unknown && wasm-bindgen --out-dir src-frontend/turbocharger_generated --out-name index --target web target/wasm32-unknown-unknown/debug/turbocharger_generated.wasm && { npx vite > /dev/null & RUST_LOG=debug cargo run --bin turbo -- --notls; }",
   "update-rs-deps": "cargo update",
-  "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install"
+  "update-js-deps": "rm -rf node_modules && rm -rf package-lock.json && npm install",
+  "regen-backend-api-rs": "cargo clean && rm backend_api.rs && cargo check"
  },
  "devDependencies": {
   "@web/test-runner": "^0.13",

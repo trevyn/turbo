@@ -1,7 +1,7 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
 use serde::Deserialize;
-use turbocharger::prelude::*;
+// use turbocharger::prelude::*;
 use turbosql::Turbosql;
 
 #[derive(Deserialize, Debug)]
@@ -16,9 +16,8 @@ pub struct JackettResults {
  pub results: Vec<JackettResult>,
 }
 
-#[backend]
+#[derive(Turbosql, Debug, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-#[derive(Turbosql)]
 pub struct JackettResult {
  pub rowid: Option<i64>,
  pub tracker: Option<String>,
