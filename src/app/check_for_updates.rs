@@ -1,51 +1,72 @@
 use once_cell::sync::Lazy;
+use turbocharger::futures_util::StreamExt;
 use turbocharger::prelude::*;
 
 #[frontend]
 pub fn CheckForUpdates(cx: Scope) -> Element {
- use_future(&cx, (), |_| check_for_updates()).value().and_then(|r| match r {
+ use_stream(&cx, check_for_updates, |s, v| *s = Some(v)).read().as_ref().and_then(|r| match r {
   Ok(r) => rsx!(cx, p { "{r}" }),
   Err(e) => rsx!(cx, p { "error: {e}" }),
  })
 }
 
 #[backend]
-pub async fn check_for_updates() -> Result<String, tracked::StringError> {
- dbg!("checking for updates");
- // TODO: this fn seems to block the executor if the dl is slow, debug that?
+fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError>> {
+ try_stream!({
+  yield "waiting for update lock...".into();
 
- static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
+  // TODO: this fn seems to block the executor if the dl is slow, debug that?
 
- let update_mutex = UPDATE_MUTEX.lock().await;
+  static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
 
- use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
+  let update_mutex = UPDATE_MUTEX.lock().await;
 
- if option_env!("BUILD_ID").is_none() {
-  return Ok(format!(
-   "Running DEV-{}; updates disabled on DEV.",
-   include_str!(concat!(env!("OUT_DIR"), "/BUILD_TIME.txt"))
-  ));
- }
+  use std::os::unix::{prelude::OpenOptionsExt, process::CommandExt};
 
- let res = reqwest::Client::builder()
-  .redirect(reqwest::redirect::Policy::none())
-  .build()?
-  .get("https://github.com/trevyn/turbo/releases/latest/download/turbo-linux")
-  .send()
-  .await?;
+  if option_env!("BUILD_ID").is_none() {
+   yield format!(
+    "Running DEV-{}; updates disabled on DEV.",
+    include_str!(concat!(env!("OUT_DIR"), "/BUILD_TIME.txt"))
+   );
+   return;
+  }
 
- if res.status() != 302 {
-  Err(format!("Err, HTTP status {}, expected 302 redirect", res.status()))?;
- }
- let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
+  yield "checking for updates...".into();
 
- let new_version =
-  regex::Regex::new(r"/releases/download/([a-z]+-[a-z]+)/")?.captures(location)?.get(1)?.as_str();
+  let res = reqwest::Client::builder()
+   .redirect(reqwest::redirect::Policy::none())
+   .build()?
+   .get("https://github.com/trevyn/turbo/releases/latest/download/turbo-linux")
+   .send()
+   .await?;
 
- if option_env!("BUILD_ID").unwrap_or_default() == new_version {
-  Ok(format!("Running latest! {}", new_version))
- } else {
-  let bytes = reqwest::get(location).await?.bytes().await?;
+  if res.status() != 302 {
+   Err(format!("Err, HTTP status {}, expected 302 redirect", res.status()))?;
+  }
+  let location = res.headers().get(reqwest::header::LOCATION)?.to_str()?;
+
+  let new_version =
+   regex::Regex::new(r"/releases/download/([a-z]+-[a-z]+)/")?.captures(location)?.get(1)?.as_str();
+
+  if option_env!("BUILD_ID").unwrap_or_default() == new_version {
+   yield format!("Running latest! {}", new_version);
+   return;
+  }
+
+  yield format!("downloading update {}...", new_version);
+
+  let mut bytes = Vec::new();
+  let res = reqwest::get(location).await?;
+  let total_size = res.content_length()?;
+  let mut stream = res.bytes_stream();
+
+  while let Some(item) = stream.next().await {
+   bytes.extend_from_slice(&item?);
+   yield format!("downloading update {} {}/{}...", new_version, bytes.len(), total_size);
+  }
+
+  yield format!("downloading update {} complete, {} bytes...", new_version, bytes.len());
+
   if bytes.len() < 10_000_000 {
    Err(format!(
     "Not updating; new release {} is unexpectedly small: {} bytes.",
@@ -53,6 +74,15 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
     bytes.len()
    ))?;
   }
+
+  if bytes.len() != total_size as usize {
+   Err(format!(
+    "Not updating; downloaded incorrect number of bytes: {} of {}.",
+    bytes.len(),
+    total_size
+   ))?;
+  }
+
   let current_exe = std::env::current_exe()?;
   std::fs::remove_file(&current_exe)?;
   let mut f =
@@ -66,11 +96,11 @@ pub async fn check_for_updates() -> Result<String, tracked::StringError> {
    drop(update_mutex);
   });
 
-  Ok(format!(
+  yield format!(
    "Updated from {} to {}, {} bytes, relaunching!",
    option_env!("BUILD_ID").unwrap_or_default(),
    new_version,
    bytes.len()
-  ))
- }
+  )
+ })
 }

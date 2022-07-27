@@ -12,7 +12,7 @@ struct _Turbonet_SelfResponse {
     build_id: String,
 }
 
-async fn check_for_updates() -> Result<String, tracked::StringError> {}
+fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError>> {}
 
 fn encrypted_animal_time_stream() -> impl Stream<
     Item = Result<Vec<u8>, tracked::StringError>,
@@ -21,6 +21,8 @@ fn encrypted_animal_time_stream() -> impl Stream<
 async fn getblockchaininfo() -> Result<String, tracked::StringError> {}
 
 async fn heartbeat() -> Result<String, tracked::StringError> {}
+
+async fn jackett_search() -> Result<JackettResults, tracked::StringError> {}
 
 async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {}
 

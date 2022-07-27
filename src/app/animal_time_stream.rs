@@ -15,7 +15,7 @@ pub fn AnimalTimeStream(cx: Scope) -> Element {
 
 #[backend]
 fn encrypted_animal_time_stream() -> impl Stream<Item = Result<Vec<u8>, tracked::StringError>> {
- turbocharger::async_stream::try_stream!({
+ try_stream!({
   for i in 0.. {
    dbg!(i);
    let val = format!("{:?} - {} {}s!!", remote_addr!(), i, animal_time::now());
