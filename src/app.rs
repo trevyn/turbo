@@ -51,6 +51,7 @@ pub fn App(cx: Scope) -> Element {
  navbar::NavBar(
   cx,
   vec![
+   ("Jackett", jackett::JackettList),
    ("Mail", mail::MailList),
    ("Bip39", bip39::Bip39),
    ("CheckForUpdates", check_for_updates::CheckForUpdates),
