@@ -18,7 +18,7 @@ path = "src/server.rs"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # overrides for real wasm build
 getrandom = {version = "0.2", features = ["js"]} 
-wasm-bindgen = "=0.2.81" # Version to be synced with the wasm-bindgen CLI version in CI
+wasm-bindgen = "=0.2.82" # Version to be synced with the wasm-bindgen CLI version in CI
 
 [features]
 wasm = [
