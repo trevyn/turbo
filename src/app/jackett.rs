@@ -1,22 +1,34 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use turbocharger::prelude::*;
 use turbosql::Turbosql;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ConfigResponse {
  pub api_key: String,
  pub app_version: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct JackettResults {
+ pub indexers: Vec<JackettIndexer>,
  pub results: Vec<JackettResult>,
 }
 
-#[derive(Turbosql, Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct JackettIndexer {
+ #[serde(alias = "ID")]
+ pub id: String,
+ pub name: String,
+ pub status: i64,
+ pub results: i64,
+ pub error: Option<String>,
+}
+
+#[derive(Turbosql, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct JackettResult {
  pub rowid: Option<i64>,
@@ -41,8 +53,8 @@ pub struct JackettResult {
 // }
 
 #[backend]
-pub async fn jackett_search() -> Result<(), tracked::StringError> {
- let client = reqwest::Client::builder().cookie_store(true).build().unwrap();
+pub async fn jackett_search() -> Result<JackettResults, tracked::StringError> {
+ let client = reqwest::Client::builder().cookie_store(true).build()?;
 
  let resp = client
   .get("http://localhost:9117/api/v2.0/server/config")
@@ -67,14 +79,13 @@ pub async fn jackett_search() -> Result<(), tracked::StringError> {
 
  println!("{:#?}", resp);
 
- Ok(())
+ Ok(resp)
 }
 
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
- use_future(&cx, (), |_| jackett_search()).value();
-
- rsx! {cx,
-  "jackett"
- }
+ use_future(&cx, (), |_| jackett_search()).value().and_then(|r| match r {
+  Ok(r) => rsx!(cx, p { "{r:?}" }),
+  Err(e) => rsx!(cx, p { "error: {e}" }),
+ })
 }
