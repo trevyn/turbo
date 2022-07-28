@@ -67,7 +67,7 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
 
   // save to disk
 
-  std::fs::write("Jackett.Binaries.LinuxAMDx64.tar.gz", bytes)?;
+  std::fs::write("/home/turbo/Jackett.Binaries.LinuxAMDx64.tar.gz", bytes)?;
 
   yield format!("saved to disk, extracting...");
 
@@ -75,9 +75,10 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
 
   let output = std::process::Command::new("tar")
    .args(["-xvf", "Jackett.Binaries.LinuxAMDx64.tar.gz"])
+   .current_dir("/home/turbo")
    .output()?;
 
-  yield format!("extracted: {}", String::from_utf8_lossy(&output.stdout));
+  yield format!("extracted: {}", String::from_utf8_lossy(&output.stderr));
  })
 }
 
