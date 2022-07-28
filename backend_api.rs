@@ -14,6 +14,8 @@ struct _Turbonet_SelfResponse {
 
 fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError>> {}
 
+fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {}
+
 fn encrypted_animal_time_stream() -> impl Stream<
     Item = Result<Vec<u8>, tracked::StringError>,
 > {}
