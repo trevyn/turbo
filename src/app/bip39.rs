@@ -9,10 +9,10 @@ pub fn Bip39(cx: Scope) -> Element {
  })
  .get();
 
- let seed = hex::encode(m.to_seed(""));
+ // let seed = hex::encode(m.to_seed_normalized(""));
 
  rsx! {cx,
   p { "{m}" }
-  p { "{seed}" }
+  // p { "{seed}" }
  }
 }
