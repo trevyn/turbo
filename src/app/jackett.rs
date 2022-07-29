@@ -89,12 +89,20 @@ pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringE
 
   let client = reqwest::Client::builder().cookie_store(true).build()?;
 
-  let res = client.post("http://localhost:9117/api/v2.0/indexers/rarbg/config")
-    .body(r#"[{"id":"sitelink","value":"https://rarbg.to/"},{"id":"apiurl","value":"https://torrentapi.org/pubapi_v2.php"},{"id":"sortrequestedfromsite","value":"last"},{"id":"numberofretries","value":"5"},{"id":"tags","value":""}]"#)
-    .send()
-    .await?;
+  let _ = client.get("http://localhost:9117/UI/Login").send().await?.text().await?;
 
-  yield format!("jackett configured, status {}", res.status());
+  yield format!("logged in...");
+
+  let res = client.post("http://localhost:9117/api/v2.0/indexers/rarbg/config")
+   .header(reqwest::header::CONTENT_TYPE, "application/json")
+   .body(r#"[{"id":"sitelink","type":"inputstring","name":"Site Link","value":"https://rarbg.to/"},{"id":"apiurl","type":"inputstring","name":"API URL","value":"https://torrentapi.org/pubapi_v2.php"},{"id":"sortrequestedfromsite","type":"inputselect","name":"Sort requested from site","value":"last","options":{"last":"created","seeders":"seeders","leechers":"leechers"}},{"id":"numberofretries","type":"inputselect","name":"Number of retries","value":"5","options":{"0":"No retries (fail fast)","1":"1 retry (0.5s delay)","2":"2 retries (1s delay)","3":"3 retries (2s delay)","4":"4 retries (4s delay)","5":"5 retries (8s delay)"}},{"id":"tags","type":"inputtags","name":"Tags","value":"","separator":",","delimiters":"[^A-Za-z0-9\\-\\._~]+","pattern":"^[A-Za-z0-9\\-\\._~]+$"}]"#)
+   .send()
+   .await?;
+
+  let status = res.status();
+  let text = res.text().await?;
+
+  yield format!("jackett configured, status {} {}", status, text);
  })
 }
 
