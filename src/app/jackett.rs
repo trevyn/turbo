@@ -82,15 +82,24 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
  })
 }
 
-// #[backend]
-// pub fn run_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
-//  try_stream!({
+#[backend]
+pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
+ try_stream!({
+  yield format!("configuring jackett...");
 
-//  }
-// }
+  let client = reqwest::Client::builder().cookie_store(true).build()?;
+
+  let res = client.post("http://localhost:9117/api/v2.0/indexers/rarbg/config")
+    .body(r#"[{"id":"sitelink","value":"https://rarbg.to/"},{"id":"apiurl","value":"https://torrentapi.org/pubapi_v2.php"},{"id":"sortrequestedfromsite","value":"last"},{"id":"numberofretries","value":"5"},{"id":"tags","value":""}]"#)
+    .send()
+    .await?;
+
+  yield format!("jackett configured, status {}", res.status());
+ })
+}
 
 #[backend]
-pub async fn jackett_search() -> Result<JackettResults, tracked::StringError> {
+pub async fn search_jackett() -> Result<JackettResults, tracked::StringError> {
  let client = reqwest::Client::builder().cookie_store(true).build()?;
 
  let resp = client
@@ -121,19 +130,51 @@ pub async fn jackett_search() -> Result<JackettResults, tracked::StringError> {
 
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
- let stream =
-  use_stream(&cx, download_jackett, |s, v| *s = Some(v)).read().as_ref().and_then(|r| match r {
-   Ok(r) => rsx!(cx, p { "{r}" }),
-   Err(e) => rsx!(cx, p { "error: {e}" }),
-  });
-
- let search = use_future(&cx, (), |_| jackett_search()).value().and_then(|r| match r {
-  Ok(r) => rsx!(cx, p { "{r:?}" }),
-  Err(e) => rsx!(cx, p { "error: {e}" }),
- });
+ let download_status = use_state(&cx, || "download_status".to_string());
+ let configure_status = use_state(&cx, || "configure_status".to_string());
+ let search_status = use_state(&cx, || "search_status".to_string());
 
  rsx!(cx, p {
-  p { class: "p-4", stream }
-  p { class: "p-4", search }
+  p { class: "p-4", button { onclick: move |_| {
+   to_owned![download_status];
+   cx.spawn(async move {
+    let stream = download_jackett();
+    pin_mut!(stream);
+    while let Some(r) = stream.next().await {
+     download_status.set(match r {
+      Ok(r) => r,
+      Err(e) => e.into(),
+     });
+    };
+   });
+  }, "Download Jackett" }}
+
+  p{ class: "p-4", button { onclick: move |_| {
+   to_owned![configure_status];
+   cx.spawn(async move {
+    let stream = configure_jackett();
+    pin_mut!(stream);
+    while let Some(r) = stream.next().await {
+     configure_status.set(match r {
+      Ok(r) => r,
+      Err(e) => e.into(),
+     });
+    };
+   });
+  }, "Configure Jackett" }}
+
+  p{ class: "p-4", button { onclick: move |_| {
+   to_owned![search_status];
+   cx.spawn(async move {
+    search_status.set(match search_jackett().await {
+     Ok(r) => format!("{:?}", r),
+     Err(e) => e.into(),
+    });
+   });
+  }, "Search Jackett" }}
+
+  p { class: "p-4", "{download_status}" }
+  p { class: "p-4", "{configure_status}" }
+  p { class: "p-4", "{search_status}" }
  })
 }
