@@ -34,7 +34,7 @@ wasm = [
 ]
 [dependencies]
 # dependencies that are really only for wasm, but rust-analyzer uses too
-bip39 = {version = "1", optional = true}
+bip39 = {version = "1", default-features = false, optional = true}
 console_error_panic_hook = {version = "0.1", optional = true}
 dioxus = {version = "0.2", features = ["web"], optional = true}
 mail-parser = {version = "0.5", optional = true}
@@ -72,7 +72,6 @@ time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
 acme-lib = {git = "https://github.com/trevyn/acme-lib", branch = "ureq_v2"}
-bip39 = {git = "https://github.com/trevyn/rust-bip39", branch = "unpin-unicode-normalization"}
 # dioxus = {git = "https://github.com/DioxusLabs/dioxus", branch = "master"}
 # rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
 # turbocharger = {path = "../turbocharger/turbocharger"}
