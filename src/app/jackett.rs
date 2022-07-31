@@ -1,7 +1,7 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
 #[frontend]
-use super::components::button::Button;
+use super::components::actionbutton::ActionButton;
 
 use serde::{Deserialize, Serialize};
 use turbocharger::prelude::*;
@@ -13,14 +13,14 @@ pub struct ConfigResponse {
  pub app_version: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct JackettResults {
  pub indexers: Vec<JackettIndexer>,
  pub results: Vec<JackettResult>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 pub struct JackettIndexer {
  #[serde(alias = "ID")]
@@ -31,7 +31,7 @@ pub struct JackettIndexer {
  pub error: Option<String>,
 }
 
-#[derive(Turbosql, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, Turbosql)]
 #[serde(rename_all = "PascalCase")]
 pub struct JackettResult {
  pub rowid: Option<i64>,
@@ -86,6 +86,13 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
 }
 
 #[backend]
+pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
+ try_stream!({
+  yield "launching jackett...".into();
+ })
+}
+
+#[backend]
 pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
   yield format!("configuring jackett...");
@@ -110,82 +117,55 @@ pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringE
 }
 
 #[backend]
-pub async fn search_jackett() -> Result<JackettResults, tracked::StringError> {
- let client = reqwest::Client::builder().cookie_store(true).build()?;
+pub fn search_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
+ try_stream!({
+  yield "Searching...".into();
 
- let resp = client
-  .get("http://localhost:9117/api/v2.0/server/config")
-  .send()
-  .await?
-  .json::<ConfigResponse>()
-  .await?;
+  let client = reqwest::Client::builder().cookie_store(true).build()?;
 
- println!("{:#?}", resp);
+  let resp = client
+   .get("http://localhost:9117/api/v2.0/server/config")
+   .send()
+   .await?
+   .json::<ConfigResponse>()
+   .await?;
 
- let api_key = resp.api_key;
+  println!("{:#?}", resp);
 
- let resp = client
-  .get(format!(
-   "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query=test&Tracker[]=rarbg",
-   api_key
-  ))
-  .send()
-  .await?
-  .json::<JackettResults>()
-  .await?;
+  let api_key = resp.api_key;
 
- println!("{:#?}", resp);
+  let resp = client
+   .get(format!(
+    "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query=test&Tracker[]=rarbg",
+    api_key
+   ))
+   .send()
+   .await?
+   .json::<JackettResults>()
+   .await?;
 
- Ok(resp)
+  println!("{:#?}", resp);
+
+  yield format!("{:?}", resp);
+ })
+}
+
+#[backend]
+pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringError>> {
+ try_stream!({
+  yield format!("doing test action...");
+  tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+  yield format!("test action done!");
+ })
 }
 
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
- let download_status = use_state(&cx, || "download_status".to_string());
- let configure_status = use_state(&cx, || "configure_status".to_string());
- let search_status = use_state(&cx, || "search_status".to_string());
-
  rsx!(cx, p {
-  p { class: "p-4", Button { onclick: move |_| {
-   to_owned![download_status];
-   cx.spawn(async move {
-    let stream = download_jackett();
-    pin_mut!(stream);
-    while let Some(r) = stream.next().await {
-     download_status.set(match r {
-      Ok(r) => r,
-      Err(e) => e.into(),
-     });
-    };
-   });
-  }, "Download Jackett" }}
-
-  p{ class: "p-4", button { onclick: move |_| {
-   to_owned![configure_status];
-   cx.spawn(async move {
-    let stream = configure_jackett();
-    pin_mut!(stream);
-    while let Some(r) = stream.next().await {
-     configure_status.set(match r {
-      Ok(r) => r,
-      Err(e) => e.into(),
-     });
-    };
-   });
-  }, "Configure Jackett" }}
-
-  p{ class: "p-4", button { onclick: move |_| {
-   to_owned![search_status];
-   cx.spawn(async move {
-    search_status.set(match search_jackett().await {
-     Ok(r) => format!("{:?}", r),
-     Err(e) => e.into(),
-    });
-   });
-  }, "Search Jackett" }}
-
-  p { class: "p-4", "{download_status}" }
-  p { class: "p-4", "{configure_status}" }
-  p { class: "p-4", "{search_status}" }
+  ActionButton{stream: do_test_action, "Do Test Action"}
+  ActionButton{stream: download_jackett, "Download Jackett"}
+  ActionButton{stream: launch_jackett, "Launch Jackett"}
+  ActionButton{stream: configure_jackett, "Configure Jackett"}
+  ActionButton{stream: search_jackett, "Search Jackett"}
  })
 }

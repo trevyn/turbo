@@ -105,7 +105,6 @@ pub async fn mail(rowid: i64) -> Result<Vec<u8>, tracked::StringError> {
 #[frontend]
 #[inline_props]
 pub fn Mail(cx: Scope, rowid: i64) -> Element {
- use turbocharger::futures_util::TryFutureExt;
  use_future(&cx, (rowid,), |(rowid,)| {
   mail(rowid)
    .and_then(super::wasm_crypto::wasm_decrypt_u8)
