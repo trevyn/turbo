@@ -1,5 +1,8 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
+#[frontend]
+use super::components::button::Button;
+
 use serde::{Deserialize, Serialize};
 use turbocharger::prelude::*;
 use turbosql::Turbosql;
@@ -143,7 +146,7 @@ pub fn JackettList(cx: Scope) -> Element {
  let search_status = use_state(&cx, || "search_status".to_string());
 
  rsx!(cx, p {
-  p { class: "p-4", button { onclick: move |_| {
+  p { class: "p-4", Button { onclick: move |_| {
    to_owned![download_status];
    cx.spawn(async move {
     let stream = download_jackett();

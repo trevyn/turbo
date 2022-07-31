@@ -4,7 +4,7 @@ use turbosql::{now_ms, select, Turbosql};
 automod::dir!(pub "src/app");
 mod components;
 #[allow(unused_imports)]
-use components::*;
+pub use components::*;
 
 #[cfg(any(feature = "wasm", target_arch = "wasm32"))]
 #[path = "wasm_crypto.rs"]
