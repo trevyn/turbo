@@ -6,6 +6,15 @@ pub fn Settings(cx: Scope) -> Element {
  let inputvalue = use_state(&cx, || verified_sk.clone());
 
  rsx! {cx,
+  super::button::Button {
+   onclick: move |_| {
+    cx.spawn(async move {
+     let _ = super::wasm_crypto::wasm_notify_client_pk().await;
+    });
+   },
+   "Notify Client PK"
+  }
+
   p { "{verified_sk}" }
   input { class: "font-mono text-gray-600",
    "type": "text",

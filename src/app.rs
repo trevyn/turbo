@@ -27,7 +27,7 @@ pub async fn heartbeat() -> Result<String, tracked::StringError> {
 
 #[backend(js)]
 pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringError> {
- client {
+ let rowid = client {
   rowid: None,
   timestamp: Some(now_ms()),
   animal_timestamp: Some(animal_time::now()),
@@ -36,6 +36,7 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
   client_pk: client_pk.try_into().ok(),
  }
  .insert()?;
+ log::info!("inserted client_pk row {}", rowid);
  Ok(())
 }
 
