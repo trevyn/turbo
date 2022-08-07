@@ -1,8 +1,8 @@
 use turbocharger::prelude::*;
 use turbosql::{now_ms, select, Turbosql};
 
-automod::dir!(pub "src/app");
-mod components;
+automod!(pub use "src/app");
+pub mod components;
 #[allow(unused_imports)]
 pub use components::*;
 
@@ -51,12 +51,12 @@ pub fn App(cx: Scope) -> Element {
  navbar::NavBar(
   cx,
   vec![
-   ("Jackett", jackett::JackettList),
-   ("Mail", mail::MailList),
-   ("Bip39", bip39::Bip39),
-   ("CheckForUpdates", check_for_updates::CheckForUpdates),
-   ("AnimalTimeStream", animal_time_stream::AnimalTimeStream),
-   ("Settings", settings::Settings),
+   ("Jackett", JackettList),
+   ("Mail", MailList),
+   ("Bip39", Bip39),
+   ("CheckForUpdates", CheckForUpdates),
+   ("AnimalTimeStream", AnimalTimeStream),
+   ("Settings", Settings),
   ],
  )
 }

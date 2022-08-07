@@ -1,1 +1,3 @@
-automod::dir!(pub "src/app/components");
+use turbocharger::prelude::*;
+
+automod!(pub use "src/app/components");

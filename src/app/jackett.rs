@@ -1,7 +1,7 @@
 // https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
 
 #[frontend]
-use super::components::actionbutton::ActionButton;
+use super::components::*;
 
 use serde::{Deserialize, Serialize};
 use turbocharger::prelude::*;
@@ -162,10 +162,10 @@ pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringErro
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
  rsx!(cx, p {
-  ActionButton{stream: do_test_action, "Do Test Action"}
-  ActionButton{stream: download_jackett, "Download Jackett"}
-  ActionButton{stream: launch_jackett, "Launch Jackett"}
-  ActionButton{stream: configure_jackett, "Configure Jackett"}
-  ActionButton{stream: search_jackett, "Search Jackett"}
+  ActionButton{action: do_test_action, "Do Test Action"}
+  ActionButton{action: download_jackett, "Download Jackett"}
+  ActionButton{action: launch_jackett, "Launch Jackett"}
+  ActionButton{action: configure_jackett, "Configure Jackett"}
+  ActionButton{action: search_jackett, "Search Jackett"}
  })
 }
