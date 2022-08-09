@@ -95,6 +95,8 @@ migrations_append_only = [
   'ALTER TABLE jackettresult ADD COLUMN seeders INTEGER',
   'ALTER TABLE jackettresult ADD COLUMN peers INTEGER',
   'ALTER TABLE jackettresult ADD COLUMN gain REAL',
+  'CREATE TABLE auth (rowid INTEGER PRIMARY KEY) STRICT',
+  'ALTER TABLE auth ADD COLUMN password TEXT',
 ]
 output_generated_schema_for_your_information_do_not_edit = '''
   CREATE TABLE _turbocharger_tls_cert (
@@ -154,6 +156,10 @@ output_generated_schema_for_your_information_do_not_edit = '''
     remote_addr TEXT,
     user_agent TEXT,
     animal_timestamp TEXT
+  ) STRICT
+  CREATE TABLE auth (
+    rowid INTEGER PRIMARY KEY,
+    password TEXT
   ) STRICT
   CREATE TABLE certs (
     rowid INTEGER PRIMARY KEY,
@@ -424,6 +430,19 @@ sql_type = 'TEXT'
 
 [[output_generated_tables_do_not_edit.animal_time_stream_log.columns]]
 name = 'user_agent'
+rust_type = 'Option < String >'
+sql_type = 'TEXT'
+
+[output_generated_tables_do_not_edit.auth]
+name = 'auth'
+
+[[output_generated_tables_do_not_edit.auth.columns]]
+name = 'rowid'
+rust_type = 'Option < i64 >'
+sql_type = 'INTEGER PRIMARY KEY'
+
+[[output_generated_tables_do_not_edit.auth.columns]]
+name = 'password'
 rust_type = 'Option < String >'
 sql_type = 'TEXT'
 

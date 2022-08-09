@@ -1,5 +1,3 @@
-// https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz
-
 #[frontend]
 use super::components::*;
 
@@ -54,11 +52,16 @@ pub struct JackettResult {
 pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
  // #[cfg(target_os = "linux")]
  try_stream!({
+  connection_local!(authed: &mut bool);
+  if !*authed {
+   Err("not authed")?;
+  }
+
   yield "downloading jackett...".into();
 
-  let mut bytes = Vec::new();
   let res = reqwest::get("https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz").await?;
-  let total_size = res.content_length()?;
+  let total_size: usize = res.content_length()?.try_into()?;
+  let mut bytes = Vec::with_capacity(total_size);
   let mut stream = res.bytes_stream();
 
   while let Some(item) = stream.next().await {
@@ -81,13 +84,22 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
    .current_dir("/home/turbo")
    .output()?;
 
-  yield format!("extracted: {}", String::from_utf8_lossy(&output.stderr));
+  if !output.status.success() {
+   Err(format!("Extract failed, exit code {:?}: {:?}", output.status.code(), &output.stderr))?;
+  }
+
+  yield format!("extracted: {:?} {:?}", &output.stdout, &output.stderr);
  })
 }
 
 #[backend]
 pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
+  connection_local!(authed: &mut bool);
+  if !*authed {
+   Err("not authed")?;
+  }
+
   yield "launching jackett...".into();
  })
 }
@@ -95,6 +107,11 @@ pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
 #[backend]
 pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
+  connection_local!(authed: &mut bool);
+  if !*authed {
+   Err("not authed")?;
+  }
+
   yield format!("configuring jackett...");
 
   let client = reqwest::Client::builder().cookie_store(true).build()?;
@@ -112,13 +129,18 @@ pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringE
   let status = res.status();
   let text = res.text().await?;
 
-  yield format!("jackett configured, status {} {}", status, text);
+  yield format!("jackett configured, status {} {:?}", status, text);
  })
 }
 
 #[backend]
 pub fn search_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
+  connection_local!(authed: &mut bool);
+  if !*authed {
+   Err("not authed")?;
+  }
+
   yield "Searching...".into();
 
   let client = reqwest::Client::builder().cookie_store(true).build()?;
@@ -153,6 +175,11 @@ pub fn search_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
 #[backend]
 pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
+  connection_local!(authed: &mut bool);
+  if !*authed {
+   Err("not authed")?;
+  }
+
   yield format!("doing test action...");
   tokio::time::sleep(std::time::Duration::from_secs(2)).await;
   yield format!("test action done!");

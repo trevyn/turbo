@@ -54,9 +54,24 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
 
   yield format!("downloading update {}...", new_version);
 
-  let mut bytes = Vec::new();
   let res = reqwest::get(location).await?;
-  let total_size = res.content_length()?;
+  let total_size: usize = res.content_length()?.try_into()?;
+
+  if total_size < 10_000_000 {
+   Err(format!(
+    "Not updating; new release {} is unexpectedly small: {} bytes.",
+    new_version, total_size
+   ))?;
+  }
+
+  if total_size > 50_000_000 {
+   Err(format!(
+    "Not updating; new release {} is unexpectedly large: {} bytes.",
+    new_version, total_size
+   ))?;
+  }
+
+  let mut bytes = Vec::with_capacity(total_size);
   let mut stream = res.bytes_stream();
 
   while let Some(item) = stream.next().await {
@@ -66,15 +81,7 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
 
   yield format!("downloading update {} complete, {} bytes...", new_version, bytes.len());
 
-  if bytes.len() < 10_000_000 {
-   Err(format!(
-    "Not updating; new release {} is unexpectedly small: {} bytes.",
-    new_version,
-    bytes.len()
-   ))?;
-  }
-
-  if bytes.len() != total_size as usize {
+  if bytes.len() != total_size {
    Err(format!(
     "Not updating; downloaded incorrect number of bytes: {} of {}.",
     bytes.len(),
