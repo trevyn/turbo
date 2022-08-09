@@ -4,7 +4,6 @@
 
 use std::process::Command;
 use turbocharger::prelude::*;
-use turbosql::{select, Turbosql};
 
 mod app;
 

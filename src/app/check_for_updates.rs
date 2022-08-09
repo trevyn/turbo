@@ -1,4 +1,3 @@
-use once_cell::sync::Lazy;
 use turbocharger::prelude::*;
 
 #[frontend]
@@ -16,7 +15,8 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
 
   // TODO: this fn seems to block the executor if the dl is slow, debug that?
 
-  static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
+  static UPDATE_MUTEX: once_cell::sync::Lazy<tokio::sync::Mutex<()>> =
+   once_cell::sync::Lazy::new(Default::default);
 
   let update_mutex = UPDATE_MUTEX.lock().await;
 

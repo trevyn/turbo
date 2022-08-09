@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
 use turbocharger::prelude::*;
-use turbosql::{now_ms, select, Turbosql};
 
 #[derive(Turbosql, Default, Debug, Clone, Serialize, Deserialize)]
 pub struct mail {

@@ -1,7 +1,5 @@
-#[frontend]
-use super::components::*;
+use super::*;
 use turbocharger::prelude::*;
-use turbosql::{select, Turbosql};
 
 #[derive(Clone, Debug, Turbosql)]
 pub struct auth {
