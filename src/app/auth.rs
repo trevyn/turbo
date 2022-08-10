@@ -1,5 +1,4 @@
 use super::*;
-use turbocharger::prelude::*;
 
 #[derive(Clone, Debug, Turbosql)]
 pub struct auth {

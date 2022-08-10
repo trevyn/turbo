@@ -1,5 +1,4 @@
 use super::*;
-use turbocharger::prelude::*;
 
 #[derive(Debug, Deserialize)]
 pub struct ConfigResponse {
@@ -62,7 +61,12 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
 
   while let Some(item) = stream.next().await {
    bytes.extend_from_slice(&item?);
-   yield format!("downloading jackett {}/{}...", bytes.len(), total_size);
+   yield format!(
+    "downloading jackett {}% {}/{}...",
+    bytes.len() * 100 / total_size,
+    bytes.len(),
+    total_size
+   );
   }
 
   yield format!("downloading jackett complete, {} bytes...", bytes.len());
@@ -84,7 +88,12 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
    Err(format!("Extract failed, exit code {:?}: {:?}", output.status.code(), &output.stderr))?;
   }
 
-  yield format!("extracted: {:?} {:?}", &output.stdout, &output.stderr);
+  yield format!(
+   "extracted: {:?} {:?} {:?}",
+   String::from_utf8_lossy(&output.stdout),
+   &output.stdout,
+   &output.stderr
+  );
  })
 }
 
@@ -97,6 +106,10 @@ pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
   }
 
   yield "launching jackett...".into();
+
+  std::process::Command::new("jackett").current_dir("/home/turbo/Jackett").spawn()?;
+
+  yield "launched.".into();
  })
 }
 

@@ -76,7 +76,13 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
 
   while let Some(item) = stream.next().await {
    bytes.extend_from_slice(&item?);
-   yield format!("downloading update {} {}/{}...", new_version, bytes.len(), total_size);
+   yield format!(
+    "downloading update {} {}% {}/{}...",
+    new_version,
+    bytes.len() * 100 / total_size,
+    bytes.len(),
+    total_size
+   );
   }
 
   yield format!("downloading update {} complete, {} bytes...", new_version, bytes.len());

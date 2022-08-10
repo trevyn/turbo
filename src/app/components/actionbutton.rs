@@ -24,7 +24,7 @@ where
  let state = use_state(&cx, String::new);
 
  rsx! {cx,
-  p { class: "p-4", super::button::Button { onclick: move |_| {
+  p { super::button::Button { onclick: move |_| {
    let s = (cx.props.action)();
    to_owned![state];
    cx.spawn(async move {
