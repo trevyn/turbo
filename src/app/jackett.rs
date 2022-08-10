@@ -107,7 +107,9 @@ pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
 
   yield "launching jackett...".into();
 
-  std::process::Command::new("jackett").current_dir("/home/turbo/Jackett").spawn()?;
+  std::process::Command::new("/home/turbo/Jackett/jackett")
+   .current_dir("/home/turbo/Jackett")
+   .spawn()?;
 
   yield "launched.".into();
  })
