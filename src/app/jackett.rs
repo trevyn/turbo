@@ -145,14 +145,15 @@ pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringE
 }
 
 #[backend]
-pub fn search_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
+pub fn search_jackett(
+) -> impl Stream<Item = Result<(String, Option<JackettResults>), tracked::StringError>> {
  try_stream!({
   connection_local!(authed: &mut bool);
   if !*authed {
    Err("not authed")?;
   }
 
-  yield "Searching...".into();
+  yield ("Searching...".into(), None);
 
   let client = reqwest::Client::builder().cookie_store(true).build()?;
 
@@ -179,7 +180,7 @@ pub fn search_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
 
   println!("{:#?}", resp);
 
-  yield format!("{:?}", resp);
+  yield (format!("{} results", resp.results.len()), Some(resp));
  })
 }
 
@@ -199,11 +200,14 @@ pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringErro
 
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
+ let results = use_state(&cx, || None);
+
  rsx!(cx, p {
   ActionButton{action: do_test_action, "Do Test Action"}
   ActionButton{action: download_jackett, "Download Jackett"}
   ActionButton{action: launch_jackett, "Launch Jackett"}
   ActionButton{action: configure_jackett, "Configure Jackett"}
-  ActionButton{action: search_jackett, "Search Jackett"}
+  ResultsButton{action: search_jackett, results: results, "Search Jackett"}
+  "{results:?}"
  })
 }
