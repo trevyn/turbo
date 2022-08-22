@@ -67,7 +67,7 @@ pub fn wasm_decrypt<T: AsRef<[u8]>>(data: T) -> Result<String, tracked::StringEr
 
 #[wasm_bindgen]
 pub fn wasm_test_crypto_box() -> String {
- use crypto_box::{aead::Aead, Box, PublicKey, SecretKey};
+ use crypto_box::{aead::Aead, aead::AeadCore, PublicKey, SalsaBox, SecretKey};
 
  let mut rng = crypto_box::rand_core::OsRng;
  let alice_secret_key = crypto_box::SecretKey::generate(&mut rng);
@@ -83,10 +83,10 @@ pub fn wasm_test_crypto_box() -> String {
 
  // Create a `Box` by performing Diffie-Hellman key agreement between
  // the two keys.
- let alice_box = Box::new(&bob_public_key, &alice_secret_key);
+ let alice_box = SalsaBox::new(&bob_public_key, &alice_secret_key);
 
  // Get a random nonce to encrypt the message under
- let nonce = crypto_box::generate_nonce(&mut rng);
+ let nonce = SalsaBox::generate_nonce(&mut rng);
 
  // Message to encrypt
  let plaintext = b"Top secret message we're encrypting";
@@ -110,7 +110,7 @@ pub fn wasm_test_crypto_box() -> String {
 
  // Bob can compute the same Box as Alice by performing the reciprocal
  // key exchange operation.
- let bob_box = Box::new(&alice_public_key, &bob_secret_key);
+ let bob_box = SalsaBox::new(&alice_public_key, &bob_secret_key);
 
  // Decrypt the message, using the same randomly generated nonce
  let decrypted_plaintext = bob_box.decrypt(&nonce, &ciphertext[..]).unwrap();

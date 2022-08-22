@@ -1,3 +1,4 @@
+#![allow(unknown_lints, clippy::derive_partial_eq_without_eq)]
 use turbocharger::prelude::*;
 
 automod!(pub use "src/app");
