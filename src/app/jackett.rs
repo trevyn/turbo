@@ -208,6 +208,7 @@ pub fn JackettList(cx: Scope) -> Element {
   ActionButton{action: launch_jackett, "Launch Jackett"}
   ActionButton{action: configure_jackett, "Configure Jackett"}
   ResultsButton{action: search_jackett, results: results, "Search Jackett"}
+  Table{results: results}
   "{results:?}"
  })
 }
