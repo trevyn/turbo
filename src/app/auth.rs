@@ -34,15 +34,10 @@ pub fn auth_password(password: String) -> impl Stream<Item = Result<String, trac
 #[frontend]
 pub fn Auth(cx: Scope) -> Element {
  let password = use_state(&cx, || "bob".to_string());
- let password_string = password.get().clone();
+ let password_value = password.get().clone();
 
  rsx! {cx,
-  input { class: "font-mono text-gray-600",
-   "type": "text",
-   value: "{password}",
-   oninput: move |evt| password.set(evt.value.clone()),
-  }
-
-  ActionButton{action: move || auth_password(password_string.clone()), "Submit Password"}
+  TextField{value: password}
+  ActionButton{action: move || auth_password(password_value.clone()), "Submit Password"}
  }
 }

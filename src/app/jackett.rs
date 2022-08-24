@@ -146,11 +146,16 @@ pub fn configure_jackett() -> impl Stream<Item = Result<String, tracked::StringE
 
 #[backend]
 pub fn search_jackett(
+ query: String,
 ) -> impl Stream<Item = Result<(String, Option<JackettResults>), tracked::StringError>> {
  try_stream!({
   connection_local!(authed: &mut bool);
   if !*authed {
    Err("not authed")?;
+  }
+
+  if query.is_empty() {
+   Err("empty query")?;
   }
 
   yield ("Searching...".into(), None);
@@ -170,8 +175,9 @@ pub fn search_jackett(
 
   let resp = client
    .get(format!(
-    "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query=test&Tracker[]=rarbg",
-    api_key
+    "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query={}&Tracker[]=rarbg",
+    api_key,
+    urlencoding::encode(&query)
    ))
    .send()
    .await?
@@ -200,6 +206,9 @@ pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringErro
 
 #[frontend]
 pub fn JackettList(cx: Scope) -> Element {
+ let query = use_state(&cx, String::new);
+ let query_value = query.get().clone();
+
  let results = use_state(&cx, || None);
 
  rsx!(cx, p {
@@ -207,7 +216,8 @@ pub fn JackettList(cx: Scope) -> Element {
   ActionButton{action: download_jackett, "Download Jackett"}
   ActionButton{action: launch_jackett, "Launch Jackett"}
   ActionButton{action: configure_jackett, "Configure Jackett"}
-  ResultsButton{action: search_jackett, results: results, "Search Jackett"}
+  TextField{value: query}
+  ResultsButton{action: move || search_jackett(query_value.clone()), results: results, "Search Jackett"}
   Table{results: results}
   "{results:?}"
  })
