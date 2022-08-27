@@ -55,7 +55,10 @@ turbosql = "0.7"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # dependencies for server only
 animal-time = "0.1"
+directories = "4"
+futures = "0.3"
 gflags = "0.3"
+librqbit = {git = "https://github.com/trevyn/rqbit", branch = "turbo"}
 log = "0.4"
 mailin-embedded = {version = "0.7", features = ["rtls"]}
 opener = "0.5"
@@ -64,6 +67,7 @@ rcgen = "0.9"
 regex = "1"
 reqwest = {version = "0.11.11", features = ["json", "cookies", "stream"]}
 rust-embed = "6"
+size_format = "1"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
 turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 urlencoding = "2"

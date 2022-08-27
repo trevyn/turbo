@@ -53,6 +53,7 @@ pub fn App(cx: Scope) -> Element {
   cx,
   vec![
    ("Jackett", JackettList),
+   ("Rqbit", Rqbit),
    ("Auth", Auth),
    ("Mail", MailList),
    ("Bip39", Bip39),
