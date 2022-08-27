@@ -73,15 +73,17 @@ time = {version = "0.3", features = ["formatting"]}
 
 [patch.crates-io]
 acme-lib = {git = "https://github.com/trevyn/acme-lib", branch = "ureq_v2"}
-# dioxus = {git = "https://github.com/DioxusLabs/dioxus", branch = "master"}
-# rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
-# turbocharger = {path = "../turbocharger/turbocharger"}
-# turbosql = {path = "../turbosql/turbosql"}
-# tracked = {path = "../tracked/tracked"}
-# tracked = {git = "https://github.com/trevyn/tracked", branch = "main"}
 async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "master"}
+rust-embed = {git = "https://github.com/pyrossh/rust-embed", branch = "master"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
+
+# dioxus = {git = "https://github.com/DioxusLabs/dioxus", branch = "master"}
+# rusqlite = {git = "https://github.com/rusqlite/rusqlite", branch = "master"}
+# tracked = {path = "../tracked/tracked"}
+# tracked = {git = "https://github.com/trevyn/tracked", branch = "main"}
+# turbosql = {path = "../turbosql/turbosql"}
+# turbocharger = {path = "../turbocharger/turbocharger"}
 
 [profile.dev]
 incremental = false # see https://github.com/dtolnay/inventory/issues/24
