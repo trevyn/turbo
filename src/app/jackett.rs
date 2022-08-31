@@ -45,7 +45,6 @@ pub struct JackettResult {
 
 #[backend]
 pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringError>> {
- // #[cfg(target_os = "linux")]
  try_stream!({
   connection_local!(authed: &mut bool);
   if !*authed {
@@ -54,7 +53,15 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
 
   yield "downloading jackett...".into();
 
-  let res = reqwest::get("https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz").await?;
+  let download_url = if cfg!(target_os = "linux") && cfg!(target_arch = "x86_64") {
+   "https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.LinuxAMDx64.tar.gz"
+  } else if cfg!(target_os = "macos") && cfg!(target_arch = "aarch64") {
+   "https://github.com/Jackett/Jackett/releases/latest/download/Jackett.Binaries.macOSARM64.tar.gz"
+  } else {
+   Err("Unknown platform")?
+  };
+
+  let res = reqwest::get(download_url).await?;
   let total_size: usize = res.content_length()?.try_into()?;
   let mut bytes = Vec::with_capacity(total_size);
   let mut stream = res.bytes_stream();
@@ -69,30 +76,35 @@ pub fn download_jackett() -> impl Stream<Item = Result<String, tracked::StringEr
    );
   }
 
-  yield format!("downloading jackett complete, {} bytes...", bytes.len());
+  yield format!("download complete, saving {} bytes to disk...", bytes.len());
+
+  let home_path = directories::BaseDirs::new()?.home_dir().to_owned();
+  let filename = "Jackett.Binaries.tar.gz";
+  let mut download_path = home_path.clone();
+  download_path.push(filename);
+  let download_path = download_path;
 
   // save to disk
 
-  std::fs::write("/home/turbo/Jackett.Binaries.LinuxAMDx64.tar.gz", bytes)?;
+  tokio::task::spawn_blocking(move || std::fs::write(download_path, bytes)).await??;
 
   yield format!("saved to disk, extracting...");
 
   // extract
 
-  let output = std::process::Command::new("tar")
-   .args(["-xvf", "Jackett.Binaries.LinuxAMDx64.tar.gz"])
-   .current_dir("/home/turbo")
-   .output()?;
+  let output = tokio::task::spawn_blocking(move || {
+   std::process::Command::new("tar").args(["-xf", filename]).current_dir(home_path).output()
+  })
+  .await??;
 
   if !output.status.success() {
    Err(format!("Extract failed, exit code {:?}: {:?}", output.status.code(), &output.stderr))?;
   }
 
   yield format!(
-   "extracted: {:?} {:?} {:?}",
+   "extracted successfully! {} {}",
    String::from_utf8_lossy(&output.stdout),
-   &output.stdout,
-   &output.stderr
+   String::from_utf8_lossy(&output.stderr)
   );
  })
 }
@@ -107,9 +119,14 @@ pub fn launch_jackett() -> impl Stream<Item = Result<String, tracked::StringErro
 
   yield "launching jackett...".into();
 
-  std::process::Command::new("/home/turbo/Jackett/jackett")
-   .current_dir("/home/turbo/Jackett")
-   .spawn()?;
+  let mut jackett_dir_path = directories::BaseDirs::new()?.home_dir().to_owned();
+  jackett_dir_path.push("Jackett");
+  let jackett_dir_path = jackett_dir_path;
+  let mut jackett_exe_path = jackett_dir_path.clone();
+  jackett_exe_path.push("jackett");
+  let jackett_exe_path = jackett_exe_path;
+
+  std::process::Command::new(jackett_exe_path).current_dir(jackett_dir_path).spawn()?;
 
   yield "launched.".into();
  })
