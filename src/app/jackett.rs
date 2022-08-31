@@ -220,22 +220,3 @@ pub fn do_test_action() -> impl Stream<Item = Result<String, tracked::StringErro
   yield format!("test action done!");
  })
 }
-
-#[frontend]
-pub fn JackettList(cx: Scope) -> Element {
- let query = use_state(&cx, String::new);
- let query_value = query.get().clone();
-
- let results = use_state(&cx, || None);
-
- rsx!(cx, p {
-  ActionButton{action: do_test_action, "Do Test Action"}
-  ActionButton{action: download_jackett, "Download Jackett"}
-  ActionButton{action: launch_jackett, "Launch Jackett"}
-  ActionButton{action: configure_jackett, "Configure Jackett"}
-  TextField{value: query}
-  ResultsButton{action: move || search_jackett(query_value.clone()), results: results, "Search Jackett"}
-  Table{results: results}
-  "{results:?}"
- })
-}

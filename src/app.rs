@@ -49,11 +49,10 @@ pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
 
 #[frontend]
 pub fn App(cx: Scope) -> Element {
- navbar::NavBar(
+ NavBar(
   cx,
   vec![
-   ("Jackett", JackettList),
-   ("Rqbit", Rqbit),
+   ("Torrents", Torrents),
    ("Auth", Auth),
    ("Mail", MailList),
    ("Bip39", Bip39),

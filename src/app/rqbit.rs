@@ -1,21 +1,16 @@
 use super::*;
 
-#[frontend]
-pub fn Rqbit(cx: Scope) -> Element {
- rsx!(cx, p {
-  ActionButton{action: do_torrent, "download"}
- })
-}
-
 #[backend]
-fn do_torrent() -> impl Stream<Item = Result<String, tracked::StringError>> {
+pub fn rqbit_do_torrent(
+ torrent_url: String,
+ sub_folder: String,
+) -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
   connection_local!(authed: &mut bool);
   if !*authed {
    Err("not authed")?;
   }
 
-  use futures::SinkExt;
   use size_format::SizeFormatterBinary as SF;
   use std::time::Duration;
 
@@ -32,8 +27,9 @@ fn do_torrent() -> impl Stream<Item = Result<String, tracked::StringError>> {
    }),
   };
 
-  let mut download_path = directories::BaseDirs::new().unwrap().home_dir().to_owned();
+  let mut download_path = directories::BaseDirs::new()?.home_dir().to_owned();
   download_path.push("turbo-downloads");
+  let download_path = download_path;
 
   let session = std::sync::Arc::new(
    librqbit::session::Session::new_with_opts(
@@ -49,12 +45,11 @@ fn do_torrent() -> impl Stream<Item = Result<String, tracked::StringError>> {
    overwrite: true,
    list_only: false,
    force_tracker_interval: None,
+   sub_folder: Some(sub_folder),
    ..Default::default()
   };
 
-  let torrent_path = "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fbig-buck-bunny.torrent";
-
-  let handle = match session.add_torrent(torrent_path, Some(torrent_opts)).await? {
+  let handle = match session.add_torrent(&torrent_url, Some(torrent_opts)).await? {
    librqbit::session::AddTorrentResponse::Added(handle) => handle,
    _ => Err("Unexpected response from session.add_torrent")?,
   };
@@ -111,7 +106,7 @@ fn do_torrent() -> impl Stream<Item = Result<String, tracked::StringError>> {
   });
 
   while let Some(msg) = rx.next().await {
-   yield (msg);
+   yield msg;
   }
 
   handle.wait_until_completed().await?;

@@ -1,4 +1,4 @@
-use super::*;
+use turbocharger::prelude::*;
 
 #[frontend]
 #[derive(Props)]

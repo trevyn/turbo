@@ -6,6 +6,17 @@ pub struct auth {
  pub password: Option<String>,
 }
 
+#[frontend]
+pub fn Auth(cx: Scope) -> Element {
+ let password = use_state(&cx, || "bob".to_string());
+ let password_value = password.get().clone();
+
+ rsx! {cx,
+  TextField{value: password}
+  ActionButton{action: move || auth_password(password_value.clone()), "Submit Password"}
+ }
+}
+
 #[backend]
 pub fn auth_password(password: String) -> impl Stream<Item = Result<String, tracked::StringError>> {
  try_stream!({
@@ -29,15 +40,4 @@ pub fn auth_password(password: String) -> impl Stream<Item = Result<String, trac
    }
   }
  })
-}
-
-#[frontend]
-pub fn Auth(cx: Scope) -> Element {
- let password = use_state(&cx, || "bob".to_string());
- let password_value = password.get().clone();
-
- rsx! {cx,
-  TextField{value: password}
-  ActionButton{action: move || auth_password(password_value.clone()), "Submit Password"}
- }
 }
