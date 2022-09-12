@@ -44,7 +44,7 @@ pub async fn notify_client_pk(client_pk: Vec<u8>) -> Result<(), tracked::StringE
 #[tracked]
 pub fn encrypt<T: AsRef<[u8]>>(m: T) -> Result<Vec<u8>, tracked::StringError> {
  let pk = crypto_box::PublicKey::from(select!(client "WHERE rowid = 1")?.client_pk?);
- Ok(sealed_box::seal(m.as_ref(), &pk))
+ Ok(crypto_box::seal(&mut rand::thread_rng(), &pk, m.as_ref())?)
 }
 
 #[frontend]

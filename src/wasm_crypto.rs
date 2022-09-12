@@ -33,7 +33,7 @@ impl client_sk {
  //  sealed_box::seal(&data, &SecretKey::from(self.0).public_key())
  // }
  fn decrypt(&self, data: &[u8]) -> Option<Vec<u8>> {
-  sealed_box::open(data, &SecretKey::from(self.0))
+  crypto_box::seal_open(&SecretKey::from(self.0), data).ok()
  }
 }
 
