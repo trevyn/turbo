@@ -66,7 +66,7 @@ rand = "0.8"
 rcgen = "0.9"
 regex = "1"
 reqwest = {version = "0.11.11", features = ["json", "cookies", "stream"]}
-rust-embed = "6"
+rust-embed = "6.4.1"
 size_format = "1"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
 turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
@@ -78,7 +78,6 @@ time = {version = "0.3", features = ["formatting"]}
 [patch.crates-io]
 acme-lib = {git = "https://github.com/trevyn/acme-lib", branch = "ureq_v2"}
 async-stream = {git = "https://github.com/tokio-rs/async-stream", branch = "master"}
-rust-embed = {git = "https://github.com/pyrossh/rust-embed", branch = "master"}
 turbocharger = {git = "https://github.com/trevyn/turbocharger", branch = "main"}
 turbosql = {git = "https://github.com/trevyn/turbosql", branch = "main"}
 
