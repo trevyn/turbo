@@ -1,5 +1,4 @@
 [package]
-authors = ["The authors"]
 edition = "2021"
 exclude = [".github", ".vscode"]
 name = "turbo"
@@ -43,7 +42,7 @@ tracing-wasm = {version = "0.2", optional = true}
 web-sys = {version = "0.3", features = ["Storage", "Window"], optional = true}
 
 # dependencies for both server and wasm
-crypto_box = {git = "https://github.com/trevyn/nacl-compat", branch = "seal", features = ["seal"]}
+crypto_box = {git = "https://github.com/RustCrypto/nacl-compat", branch = "master", features = ["seal"]}
 hex = "0.4"
 once_cell = "1"
 serde = {version = "1", features = ["derive"]}
