@@ -59,17 +59,15 @@ async fn main() -> Result<(), tracked::StringError> {
   "root" => {
    use std::io::{stdin, stdout, Write};
    let mut s = String::new();
-   print!("Install turbo as systemd service? [Y/n] ");
+   print!("Install turbo as systemd service running under user 'turbo'? [Y/n] ");
    let _ = stdout().flush();
    stdin().read_line(&mut s).unwrap();
-   if let Some('\n') = s.chars().next_back() {
-    s.pop();
+   match s.to_ascii_lowercase().chars().next() {
+    Some('y') => {}
+    None => {}
+    _ => std::process::exit(1),
    }
-   if let Some('\r') = s.chars().next_back() {
-    s.pop();
-   }
-   println!("You typed: {}", s);
-   println!("Installing systemd service...");
+   println!("Installing turbo as systemd service...");
    Command::new("/usr/sbin/useradd")
     .args(["-r", "-d", "/home/turbo", "-s", "/sbin/nologin", "turbo"])
     .output()
@@ -88,6 +86,8 @@ async fn main() -> Result<(), tracked::StringError> {
    Command::new("/usr/bin/systemctl").args(["start", "turbo"]).output().unwrap();
    Command::new("/usr/bin/systemctl").args(["enable", "turbo"]).output().unwrap();
    println!("Now running as systemd service.");
+   println!("Go to https://<hostname> ; TLS certificate will be provisioned automatically.");
+   println!("(First connection will take about 10 seconds while certificate is provisioned.)");
    std::process::exit(0);
   }
   "turbo" => {}
