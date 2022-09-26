@@ -15,8 +15,7 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
 
   // TODO: this fn seems to block the executor if the dl is slow, debug that?
 
-  static UPDATE_MUTEX: once_cell::sync::Lazy<tokio::sync::Mutex<()>> =
-   once_cell::sync::Lazy::new(Default::default);
+  static UPDATE_MUTEX: Lazy<tokio::sync::Mutex<()>> = Lazy::new(Default::default);
 
   let update_mutex = UPDATE_MUTEX.lock().await;
 
@@ -85,7 +84,7 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
    );
   }
 
-  yield format!("downloading update {} complete, {} bytes...", new_version, bytes.len());
+  let bytes = bytes;
 
   if bytes.len() != total_size {
    Err(format!(
@@ -95,24 +94,40 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
    ))?;
   }
 
+  yield format!(
+   "downloading update {} complete, {} bytes, saving to disk...",
+   new_version,
+   bytes.len()
+  );
+
   let current_exe = std::env::current_exe()?;
-  std::fs::remove_file(&current_exe)?;
-  let mut f =
-   std::fs::OpenOptions::new().create(true).write(true).mode(0o700).open(&current_exe)?;
-  std::io::Write::write_all(&mut f, &bytes)?;
-  f.sync_all()?;
+  let current_exe_cloned = current_exe.clone();
+  let mut current_exe_update = current_exe.clone();
+  current_exe_update.push(".update");
+  let current_exe_update = current_exe_update;
+  let bytes_len = bytes.len();
+
+  tokio::task::spawn_blocking(move || -> Result<(), tracked::StringError> {
+   let mut f =
+    std::fs::OpenOptions::new().create(true).write(true).mode(0o700).open(&current_exe_update)?;
+   std::io::Write::write_all(&mut f, &bytes)?;
+   f.sync_all()?;
+   std::fs::rename(current_exe_update, current_exe_cloned)?;
+   Ok(())
+  })
+  .await??;
+
+  yield format!(
+   "Updated from {} to {}, {} bytes, relaunching!",
+   option_env!("BUILD_ID").unwrap_or_default(),
+   new_version,
+   bytes_len
+  );
 
   tokio::spawn(async move {
    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
    std::process::Command::new(current_exe).exec();
    drop(update_mutex);
   });
-
-  yield format!(
-   "Updated from {} to {}, {} bytes, relaunching!",
-   option_env!("BUILD_ID").unwrap_or_default(),
-   new_version,
-   bytes.len()
-  )
  })
 }
