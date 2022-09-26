@@ -3,7 +3,10 @@ name: ci
 on:
   push:
   pull_request:
-  schedule: [cron: '40 1 * * *']
+  schedule: [cron: "40 1 * * *"]
+
+permissions:
+  contents: read
 
 env:
   CARGO_TERM_COLOR: always
@@ -100,7 +103,7 @@ jobs:
       - run: npx vite build
       - run: rm -rf src-frontend/dist/assets
       - run: brotli index.html
-        working-directory: 'src-frontend/dist'
+        working-directory: "src-frontend/dist"
       - run: ls -la src-frontend/dist
       - run: RUSTFLAGS="-Ctarget-cpu=nehalem"  CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build --bin turbo --release --target x86_64-unknown-linux-gnu
       - run: cargo tree --target=x86_64-unknown-linux-gnu
