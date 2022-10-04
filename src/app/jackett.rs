@@ -192,7 +192,7 @@ pub fn search_jackett(
 
   let resp = client
    .get(format!(
-    "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query={}&Tracker[]=rarbg",
+    "http://localhost:9117/api/v2.0/indexers/all/results?apikey={}&Query={}",
     api_key,
     urlencoding::encode(&query)
    ))
