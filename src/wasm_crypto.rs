@@ -1,5 +1,4 @@
 use crypto_box::{rand_core::OsRng, SecretKey};
-use once_cell::sync::Lazy;
 use std::sync::Mutex;
 use turbocharger::prelude::*;
 
