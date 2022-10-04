@@ -3,7 +3,7 @@
 /bin/bash <<EOF
 set -ex
 apt update && apt dist-upgrade -y
-curl --proto '=https' --tlsv1.2 -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+curl --proto '=https' --tlsv1.2 -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 apt install -y nodejs build-essential pkg-config libssl-dev
 curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
