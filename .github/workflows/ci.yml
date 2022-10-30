@@ -86,7 +86,7 @@ jobs:
           rust-version: ${{ matrix.rust }}
           targets: wasm32-unknown-unknown
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
         with:
           key: ${{ env.BUILD_ADJECTIVE }}-3
 
