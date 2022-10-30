@@ -103,7 +103,7 @@ fn check_for_updates() -> impl Stream<Item = Result<String, tracked::StringError
   let current_exe = std::env::current_exe()?;
   let current_exe_cloned = current_exe.clone();
   let mut current_exe_update = current_exe.clone();
-  current_exe_update.push(".update");
+  current_exe_update.set_extension("update")?;
   let current_exe_update = current_exe_update;
   let bytes_len = bytes.len();
 
