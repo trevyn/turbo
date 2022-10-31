@@ -81,10 +81,8 @@ jobs:
       - run: echo "BUILD_ID=$(cat build_id)" >> $GITHUB_ENV
       - run: echo "BUILD_ADJECTIVE=$(cat build_id | cut -d- -f1)" >> $GITHUB_ENV
 
-      - uses: hecrj/setup-rust-action@v1
-        with:
-          rust-version: ${{ matrix.rust }}
-          targets: wasm32-unknown-unknown
+      - run: rustup default ${{ matrix.rust }}
+      - run: rustup target add wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v2
         with:
