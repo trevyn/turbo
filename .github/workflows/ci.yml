@@ -139,6 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
 
       - run: cat build_id/build_id
@@ -152,18 +153,6 @@ jobs:
           mv ubuntu-latest-nightly/package-lock.json package-lock.json
           mv ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/$(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*) $(basename ubuntu-latest-nightly/target/x86_64-unknown-linux-gnu/release/*)-linux
 
-      - id: create_release
-        uses: trevyn/action-gh-release@v1
+      - run: gh release create ${{ env.BUILD_ID }} --target ${{ github.sha }} --generate-notes turbo-linux Cargo.lock package-lock.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.BUILD_ID }}
-          target_commitish: ${{ github.sha }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          fail_on_unmatched_files: true
-          files: |
-            turbo-linux
-            Cargo.lock
-            package-lock.json
