@@ -81,7 +81,7 @@ jobs:
       - run: echo "BUILD_ID=$(cat build_id)" >> $GITHUB_ENV
       - run: echo "BUILD_ADJECTIVE=$(cat build_id | cut -d- -f1)" >> $GITHUB_ENV
 
-      - run: rustup default ${{ matrix.rust }}
+      - run: rustup default ${{ matrix.rust }} && rustup update ${{ matrix.rust }}
       - run: rustup target add wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v2
