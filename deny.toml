@@ -2,7 +2,7 @@
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
-  "RUSTSEC-2020-0071", # `time` 0.1
+  "RUSTSEC-2020-0071", # `time` 0.1 in acme-lib
 ]
 notice = "deny"
 unmaintained = "deny"

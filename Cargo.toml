@@ -61,13 +61,13 @@ librqbit = {git = "https://github.com/trevyn/rqbit", branch = "turbo"}
 log = "0.4"
 mailin-embedded = {version = "0.7", features = ["rtls"]}
 opener = "0.5"
-pretty_env_logger = "0.4"
 rand = "0.8"
 rcgen = "0.10"
 reqwest = {version = "0.11.11", features = ["json", "cookies", "stream"]}
 rust-embed = "6.4.1"
 size_format = "1"
 tokio = {version = "1", features = ["macros", "rt-multi-thread"]}
+tracing-subscriber = "0.3"
 turbonet = {git = "https://github.com/trevyn/turbonet", branch = "main"}
 urlencoding = "2"
 

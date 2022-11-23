@@ -40,7 +40,8 @@ async fn main() -> Result<(), tracked::StringError> {
 
  tracked::set_build_id(build_id);
 
- pretty_env_logger::init_timed();
+ tracing_subscriber::fmt::init();
+
  gflags::parse();
 
  if HELP.flag {
