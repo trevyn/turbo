@@ -55,10 +55,10 @@ impl TryFrom<Vec<u8>> for ParsedMail {
   }
   let m = mail_parser::Message::parse(&m)?;
   Ok(ParsedMail {
-   from: address_to_string(m.get_from()),
-   to: address_to_string(m.get_to()),
-   subject: m.get_subject().map(ToString::to_string).unwrap_or_default(),
-   body: m.get_body_preview(1000).map(std::borrow::Cow::into_owned).unwrap_or_default(),
+   from: address_to_string(m.from()),
+   to: address_to_string(m.to()),
+   subject: m.subject().map(ToString::to_string).unwrap_or_default(),
+   body: m.body_preview(1000).map(std::borrow::Cow::into_owned).unwrap_or_default(),
   })
  }
 }
